@@ -1,0 +1,42 @@
+body {
+  overflow: hidden;
+  background: black;
+}
+
+
+#divBackground {
+  z-index: 2;
+}
+.Hexagon {
+  background: #808080;
+  opacity: 1;
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+.Hexagon.Valid {
+  background: #282828;
+}
+.Hexagon.Valid:hover {
+  background: #303030;
+}
+
+
+.Animation {
+  position: absolute;
+  /*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
+  clip-path: circle();
+  z-index: 1;
+}
+#divAnimation0 { background: red;      opacity: 0;}
+#divAnimation1 { background: white;    opacity: 0;}
+#divAnimation2 { background: blue;     opacity: 0;}
+#divAnimation3 { background: gray;     opacity: 0;}
+#divAnimation4 { background: yellow;   opacity: 0;}
+#divAnimation5 { background: orange;   opacity: 0;}
+
+.Control1,
+.Control2,
+.Control3,
+.Control4 {
+  background: #282828 !important;
+  cursor: pointer;
+}
