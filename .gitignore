@@ -67,3 +67,9 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+
+# These do not need to be included in the repository on GitHub
+Win32/
+Win64/
+TMSWeb/
+
