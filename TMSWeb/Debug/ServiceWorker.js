@@ -1,7 +1,8 @@
 var CACHE_NAME = "Project1";
 var CACHED_URLS = [
   "Project1.html",
-  "audiopads.css",
+  "hexagongs.css",
+  "images/dark-texture-watercolor.jpg",
   "Project1.js",
   "Unit1.html"
   ];

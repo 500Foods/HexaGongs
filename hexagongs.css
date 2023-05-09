@@ -1,0 +1,63 @@
+body {
+  overflow: hidden;
+  background: black;
+}
+
+
+#divBackground {
+  z-index: 2;
+}
+
+.Hexagon {
+  background: radial-gradient(#000000, #101010);
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  z-index: 3;
+}
+.Hexagon.Valid {
+}
+.Hexagon.Valid:hover {
+}
+
+
+.Animation {
+  /*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
+  clip-path: circle();
+  z-index: 1;
+}
+#divAnimation0 { opacity: 0; background: red;    }
+#divAnimation1 { opacity: 0; background: white;  }
+#divAnimation2 { opacity: 0; background: blue;   }
+#divAnimation3 { opacity: 0; background: gray;   }
+#divAnimation4 { opacity: 0; background: yellow; }
+#divAnimation5 { opacity: 0; background: orange; }
+
+.Valid {
+  cursor: pointer;
+}
+.Valid::before {
+  z-index: 2;
+  position: absolute;
+  content: '';
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(#000000, #303030);
+  transition: opacity 1400ms;
+  opacity: 0;
+}
+.Valid:hover::before {
+  opacity: 1.0;
+}
+
+.Control {
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  background: none;
+  border: none;
+  opacity: 0.1;
+  transition: opacity 1400ms;
+  z-index: 3;
+}
+.Control:hover {
+  opacity: 1;
+}

@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Classes, System.Types, JS, Web, WEBLib.Graphics, WEBLib.Controls,
   WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, WEBLib.WebCtrls,
-  WEBLib.ExtCtrls, JSDelphiSystem;
+  WEBLib.ExtCtrls, JSDelphiSystem, Vcl.StdCtrls, WEBLib.StdCtrls;
 
 const
   AnimatedElements = 5;
@@ -14,6 +14,12 @@ type
   TForm1 = class(TWebForm)
     divBackground: TWebHTMLDiv;
     divAnimParent: TWebHTMLDiv;
+    btnMain: TWebButton;
+    divButtons: TWebHTMLDiv;
+    btnScale: TWebButton;
+    btnChange: TWebButton;
+    btnVolume: TWebButton;
+    tmrStartup: TWebTimer;
     procedure GeneratePositions;
     procedure DrawBackground;
     procedure StartAnimation;
@@ -21,6 +27,8 @@ type
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure Animate(Anim: Integer);
+    function ConfigButton(btn: TWebButton; HexPosition: Integer; ClassNames: String):String;
+    procedure tmrStartupTimer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -61,10 +69,7 @@ begin
   // Initialize AnimationTimers array
   asm this.AnimationTimers = []; end;
 
-  // Perform initial display configuraiton
-  GeneratePositions;
-  DrawBackground;
-  StartAnimation;
+
 
 end;
 
@@ -80,6 +85,30 @@ begin
     StartAnimation;
   end;
 
+end;
+
+procedure TForm1.tmrStartupTimer(Sender: TObject);
+begin
+
+  tmrStartup.Enabled := False;
+
+  // Perform initial display configuraiton
+  GeneratePositions;
+  DrawBackground;
+  StartAnimation;
+end;
+
+function TForm1.ConfigButton(btn: TWebButton; HexPosition: Integer; ClassNames: String):String;
+begin
+  btn.Parent := divButtons;
+  btn.ElementHandle.classList.Add('Control','Parent','position-absolute','d-flex','justify-content-center','align-items-center');
+  btn.ElementHandle.style.setProperty('top','2px');
+  btn.ElementHandle.style.setProperty('left','2px');
+  btn.ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2 -4,ffGeneral,5,3)+'px');
+  btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2 -4,ffGeneral,5,3)+'px');
+  btn.ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+  btn.Tag := HexPosition;
+  Result := ClassNames;
 end;
 
 procedure TForm1.DrawBackground;
@@ -110,10 +139,14 @@ begin
       PositionsV[I] := False;
     end;
 
-    if      (PositionsR[I] = 3) and (PositionsC[I] = 0)  then Classes := Classes + ' Control1'
-    else if (PositionsR[I] = 3) and (PositionsC[I] = ColCount - 1) then Classes := Classes + ' Control2'
-    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = 0) then Classes := Classes + ' Control3'
-    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = ColCount - 1) then Classes := Classes + ' Control4';
+    if (PositionsR[I] = 3) and (PositionsC[I] = 0)
+    then Classes := Classes + ConfigButton(btnMain, I, ' Button')
+    else if (PositionsR[I] = 3) and (PositionsC[I] = ColCount - 1)
+    then Classes := Classes + ConfigButton(btnScale, I, ' Button')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = 0)
+    then Classes := Classes + ConfigButton(btnVolume, I, ' Button')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = ColCount - 1)
+    then Classes := Classes + ConfigButton(btnChange, I, ' Button');
 
     S := S + '<div id="BG-'+IntToStr(I)+'" '+
                    'class="Hexagon '+Classes+'" '+
@@ -127,8 +160,12 @@ begin
     I := I + 1;
   end;
 
-  // NOTE: This works best when there are no addEventListeners attached
   divBackground.HTML.Text := S;
+
+  document.getElementById('BG-'+IntToStr(BtnMain.Tag)).appendChild(btnMain.ElementHandle);
+  document.getElementById('BG-'+IntToStr(BtnScale.Tag)).appendChild(btnScale.ElementHandle);
+  document.getElementById('BG-'+IntToStr(BtnChange.Tag)).appendChild(btnChange.ElementHandle);
+  document.getElementById('BG-'+IntToStr(BtnVolume.Tag)).appendChild(btnVolume.ElementHandle);
 
 end;
 
@@ -252,20 +289,20 @@ begin
     // Create element if it is our first time through
     if not(Assigned(AnimationDiv[i])) then
     begin
-      AnimationDiv[i] := TWebHTMLDiv.Create('divAnimation'+IntToSTr(i));
-      AnimationDiv[i].Parent := divAnimParent;
-      AnimationDiv[i].ElementPosition := epAbsolute;
-      AnimationDiv[i].ElementClassName := 'Animation';
-      AnimationDiv[I].ElementHandle.style.setProperty('opacity','0.9');
-      AnimationDiv[I].ElementHandle.style.setProperty('transition','top '+IntToStr(1000+I*200)+'ms linear, left '+IntToStr(1000+I*200)+'ms linear, opacity 1s linear 1.6s');
+      AnimationDiv[i] := TWebHTMLDiv.Create('divAnimation'+IntToStr(i));
     end;
 
-    // Se the size - might have changed since last time
+    // Set the size - might have changed since last time
     AnimationDiv[I].Top := Trunc(MidY + MarginTop - 5);
     AnimationDiv[I].Left := Trunc(MidX -3);
     AnimationDiv[I].Width := Trunc(6+HexRadius*2);
     AnimationDiv[I].Height := Trunc(10+HexRadius*2);
 
+    AnimationDiv[i].Parent := divAnimParent;
+    AnimationDiv[i].ElementPosition := epAbsolute;
+    AnimationDiv[i].ElementClassName := 'Animation';
+    AnimationDiv[I].ElementHandle.style.setProperty('opacity','0.9');
+    AnimationDiv[I].ElementHandle.style.setProperty('transition','top '+IntToStr(1000+I*200)+'ms linear, left '+IntToStr(1000+I*200)+'ms linear, opacity 5s');
 
     // Start at the center - 6 elements start moving in 6 directions
     Animation[I] := StartPosition;
@@ -316,7 +353,7 @@ begin
   Direction := -1;
   Loop := 0;
 
-  while (Direction = -1) and (Loop < 10) do
+  while (Direction = -1) and (Loop < 20) do
   begin
     if (Loop = 0) and (Random > 0.1)
     then Direction := AnimationDir[Anim]    // Mostly go in same direction until it isn't possible.  But only mostly.

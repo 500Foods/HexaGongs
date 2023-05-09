@@ -51053,7 +51053,7 @@ rtl.module("jsdelphisystem",["System"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Graphics","WEBLib.Controls","WEBLib.Forms","WEBLib.Dialogs","WEBLib.Controls","WEBLib.WebCtrls","WEBLib.ExtCtrls","jsdelphisystem"],function () {
+rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Graphics","WEBLib.Controls","WEBLib.Forms","WEBLib.Dialogs","WEBLib.Controls","WEBLib.WebCtrls","WEBLib.ExtCtrls","jsdelphisystem","WEBLib.StdCtrls","WEBLib.StdCtrls"],function () {
   "use strict";
   var $mod = this;
   this.AnimatedElements = 5;
@@ -51062,6 +51062,12 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
       pas["WEBLib.Forms"].TForm.$init.call(this);
       this.divBackground = null;
       this.divAnimParent = null;
+      this.btnMain = null;
+      this.divButtons = null;
+      this.btnScale = null;
+      this.btnChange = null;
+      this.btnVolume = null;
+      this.tmrStartup = null;
       this.PositionsX = [];
       this.PositionsY = [];
       this.PositionsR = [];
@@ -51081,6 +51087,12 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
     this.$final = function () {
       this.divBackground = undefined;
       this.divAnimParent = undefined;
+      this.btnMain = undefined;
+      this.divButtons = undefined;
+      this.btnScale = undefined;
+      this.btnChange = undefined;
+      this.btnVolume = undefined;
+      this.tmrStartup = undefined;
       this.PositionsX = undefined;
       this.PositionsY = undefined;
       this.PositionsR = undefined;
@@ -51156,16 +51168,20 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
           this.PositionsV[I] = false;
         };
         if ((this.PositionsR[I] === 3) && (this.PositionsC[I] === 0)) {
-          Classes = Classes + " Control1"}
+          Classes = Classes + this.ConfigButton(this.btnMain,I," Button")}
          else if ((this.PositionsR[I] === 3) && (this.PositionsC[I] === (this.ColCount - 1))) {
-          Classes = Classes + " Control2"}
+          Classes = Classes + this.ConfigButton(this.btnScale,I," Button")}
          else if ((this.PositionsR[I] === ((this.RowCount + (this.RowCount % 2)) - 5)) && (this.PositionsC[I] === 0)) {
-          Classes = Classes + " Control3"}
-         else if ((this.PositionsR[I] === ((this.RowCount + (this.RowCount % 2)) - 5)) && (this.PositionsC[I] === (this.ColCount - 1))) Classes = Classes + " Control4";
+          Classes = Classes + this.ConfigButton(this.btnVolume,I," Button")}
+         else if ((this.PositionsR[I] === ((this.RowCount + (this.RowCount % 2)) - 5)) && (this.PositionsC[I] === (this.ColCount - 1))) Classes = Classes + this.ConfigButton(this.btnChange,I," Button");
         S = S + '<div id="BG-' + pas.SysUtils.IntToStr(I) + '" ' + 'class="Hexagon ' + Classes + '" ' + 'RowNum="' + pas.SysUtils.IntToStr(this.PositionsR[I]) + '" ' + 'ColNum="' + pas.SysUtils.IntToStr(this.PositionsC[I]) + '" ' + 'style="position:absolute;' + "top:" + pas.SysUtils.FloatToStrF(this.PositionsY[I],pas.SysUtils.TFloatFormat.ffGeneral,5,3) + "px;" + "left:" + pas.SysUtils.FloatToStrF(this.PositionsX[I],pas.SysUtils.TFloatFormat.ffGeneral,5,3) + "px;" + "width:" + pas.SysUtils.FloatToStrF(this.HexRadius * 2,pas.SysUtils.TFloatFormat.ffGeneral,5,3) + "px;" + "height:" + pas.SysUtils.FloatToStrF(this.HexRadius * 2,pas.SysUtils.TFloatFormat.ffGeneral,5,3) + 'px;"></div>';
         I = I + 1;
       };
       this.divBackground.FHTML.SetTextStr(S);
+      document.getElementById("BG-" + pas.SysUtils.IntToStr(this.btnMain.FTag$1)).appendChild(this.btnMain.GetElementHandle());
+      document.getElementById("BG-" + pas.SysUtils.IntToStr(this.btnScale.FTag$1)).appendChild(this.btnScale.GetElementHandle());
+      document.getElementById("BG-" + pas.SysUtils.IntToStr(this.btnChange.FTag$1)).appendChild(this.btnChange.GetElementHandle());
+      document.getElementById("BG-" + pas.SysUtils.IntToStr(this.btnVolume.FTag$1)).appendChild(this.btnVolume.GetElementHandle());
     };
     this.StartAnimation = function () {
       var I = 0;
@@ -51193,16 +51209,16 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
       for (I = 0; I <= 5; I++) {
         if (!(this.AnimationDiv[I] != null)) {
           this.AnimationDiv[I] = pas["WEBLib.WebCtrls"].THTMLDiv.$create("Create$2",["divAnimation" + pas.SysUtils.IntToStr(I)]);
-          this.AnimationDiv[I].SetParent(this.divAnimParent);
-          this.AnimationDiv[I].SetElementPosition(pas["WEBLib.Controls"].TElementPosition.epAbsolute);
-          this.AnimationDiv[I].SetElementClassName("Animation");
-          this.AnimationDiv[I].GetElementHandle().style.setProperty("opacity","0.9");
-          this.AnimationDiv[I].GetElementHandle().style.setProperty("transition","top " + pas.SysUtils.IntToStr(1000 + (I * 200)) + "ms linear, left " + pas.SysUtils.IntToStr(1000 + (I * 200)) + "ms linear, opacity 1s linear 1.6s");
         };
         this.AnimationDiv[I].SetTop(pas.System.Trunc((MidY + this.MarginTop) - 5));
         this.AnimationDiv[I].SetLeft(pas.System.Trunc(MidX - 3));
         this.AnimationDiv[I].SetWidth(pas.System.Trunc(6 + (this.HexRadius * 2)));
         this.AnimationDiv[I].SetHeight(pas.System.Trunc(10 + (this.HexRadius * 2)));
+        this.AnimationDiv[I].SetParent(this.divAnimParent);
+        this.AnimationDiv[I].SetElementPosition(pas["WEBLib.Controls"].TElementPosition.epAbsolute);
+        this.AnimationDiv[I].SetElementClassName("Animation");
+        this.AnimationDiv[I].GetElementHandle().style.setProperty("opacity","0.9");
+        this.AnimationDiv[I].GetElementHandle().style.setProperty("transition","top " + pas.SysUtils.IntToStr(1000 + (I * 200)) + "ms linear, left " + pas.SysUtils.IntToStr(1000 + (I * 200)) + "ms linear, opacity 5s");
         this.Animation[I] = StartPosition;
         this.AnimationLast[I] = -1;
         this.AnimationDir[I] = I;
@@ -51222,9 +51238,6 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
     this.WebFormCreate = function (Sender) {
       this.ZoomLevel = 7;
       this.AnimationTimers = [];
-      this.GeneratePositions();
-      this.DrawBackground();
-      this.StartAnimation();
     };
     this.WebFormResize = function (Sender) {
       if (rtl.length(this.PositionsX) > 0) {
@@ -51248,7 +51261,7 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
       NextPos = CurrPos;
       Direction = -1;
       Loop = 0;
-      while ((Direction === -1) && (Loop < 10)) {
+      while ((Direction === -1) && (Loop < 20)) {
         if ((Loop === 0) && (Math.random() > 0.1)) {
           Direction = this.AnimationDir[Anim]}
          else Direction = pas.System.Trunc(Math.random() * 5.999);
@@ -51278,12 +51291,43 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
       this.AnimationLast[Anim] = this.Animation[Anim];
       this.Animation[Anim] = NextPos;
     };
+    this.ConfigButton = function (btn, HexPosition, ClassNames) {
+      var Result = "";
+      btn.SetParent(this.divButtons);
+      btn.GetElementHandle().classList.add("Control","Parent","position-absolute","d-flex","justify-content-center","align-items-center");
+      btn.GetElementHandle().style.setProperty("top","2px");
+      btn.GetElementHandle().style.setProperty("left","2px");
+      btn.GetElementHandle().style.setProperty("width",pas.SysUtils.FloatToStrF((this.HexRadius * 2) - 4,pas.SysUtils.TFloatFormat.ffGeneral,5,3) + "px");
+      btn.GetElementHandle().style.setProperty("height",pas.SysUtils.FloatToStrF((this.HexRadius * 2) - 4,pas.SysUtils.TFloatFormat.ffGeneral,5,3) + "px");
+      btn.GetElementHandle().style.setProperty("font-size",pas.SysUtils.IntToStr(pas.System.Trunc(this.HexRadius)) + "px");
+      btn.FTag$1 = HexPosition;
+      Result = ClassNames;
+      return Result;
+    };
+    this.tmrStartupTimer = function (Sender) {
+      this.tmrStartup.SetEnabled(false);
+      this.GeneratePositions();
+      this.DrawBackground();
+      this.StartAnimation();
+    };
     this.LoadDFMValues = function () {
       pas["WEBLib.Forms"].TCustomForm.LoadDFMValues.call(this);
       this.divBackground = pas["WEBLib.WebCtrls"].THTMLDiv.$create("Create$2",["divBackground"]);
+      this.btnVolume = pas["WEBLib.StdCtrls"].TButton.$create("Create$2",["btnVolume"]);
       this.divAnimParent = pas["WEBLib.WebCtrls"].THTMLDiv.$create("Create$2",["divAnimParent"]);
+      this.btnMain = pas["WEBLib.StdCtrls"].TButton.$create("Create$2",["btnMain"]);
+      this.divButtons = pas["WEBLib.WebCtrls"].THTMLDiv.$create("Create$2",["divButtons"]);
+      this.btnScale = pas["WEBLib.StdCtrls"].TButton.$create("Create$2",["btmScale"]);
+      this.btnChange = pas["WEBLib.StdCtrls"].TButton.$create("Create$2",["btnChange"]);
+      this.tmrStartup = pas["WEBLib.ExtCtrls"].TTimer.$create("Create$1",[this]);
       this.divBackground.BeforeLoadDFMValues();
+      this.btnVolume.BeforeLoadDFMValues();
       this.divAnimParent.BeforeLoadDFMValues();
+      this.btnMain.BeforeLoadDFMValues();
+      this.divButtons.BeforeLoadDFMValues();
+      this.btnScale.BeforeLoadDFMValues();
+      this.btnChange.BeforeLoadDFMValues();
+      this.tmrStartup.BeforeLoadDFMValues();
       try {
         this.SetName("Form1");
         this.SetWidth(861);
@@ -51297,9 +51341,19 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
         this.divBackground.SetTop(0);
         this.divBackground.SetWidth(861);
         this.divBackground.SetHeight(641);
-        this.divBackground.SetElementClassName("bg-black");
         this.divBackground.SetAlign(pas["WEBLib.Controls"].TAlign.alClient);
         this.divBackground.SetRole("");
+        this.btnVolume.SetParentComponent(this.divBackground);
+        this.btnVolume.SetName("btnVolume");
+        this.btnVolume.SetLeft(40);
+        this.btnVolume.SetTop(189);
+        this.btnVolume.SetWidth(96);
+        this.btnVolume.SetHeight(33);
+        this.btnVolume.SetCaption('<i class="fa-solid fa-volume-off text-white"></i>');
+        this.btnVolume.SetChildOrderEx(2);
+        this.btnVolume.SetElementPosition(pas["WEBLib.Controls"].TElementPosition.epIgnore);
+        this.btnVolume.SetHeightPercent(100.000000000000000000);
+        this.btnVolume.SetWidthPercent(100.000000000000000000);
         this.divAnimParent.SetParentComponent(this);
         this.divAnimParent.SetName("divAnimParent");
         this.divAnimParent.SetLeft(0);
@@ -51308,15 +51362,74 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
         this.divAnimParent.SetHeight(40);
         this.divAnimParent.SetChildOrderEx(1);
         this.divAnimParent.SetRole("");
+        this.btnMain.SetParentComponent(this);
+        this.btnMain.SetName("btnMain");
+        this.btnMain.SetLeft(40);
+        this.btnMain.SetTop(72);
+        this.btnMain.SetWidth(96);
+        this.btnMain.SetHeight(33);
+        this.btnMain.SetCaption('<i class="fa-solid fa-cloud text-white"></i>');
+        this.btnMain.SetChildOrderEx(2);
+        this.btnMain.SetElementPosition(pas["WEBLib.Controls"].TElementPosition.epIgnore);
+        this.btnMain.SetHeightPercent(100.000000000000000000);
+        this.btnMain.SetWidthPercent(100.000000000000000000);
+        this.divButtons.SetParentComponent(this);
+        this.divButtons.SetName("divButtons");
+        this.divButtons.SetLeft(128);
+        this.divButtons.SetTop(8);
+        this.divButtons.SetWidth(113);
+        this.divButtons.SetHeight(49);
+        this.divButtons.SetElementClassName("d-none");
+        this.divButtons.SetChildOrderEx(3);
+        this.divButtons.SetRole("");
+        this.btnScale.SetParentComponent(this);
+        this.btnScale.SetName("btnScale");
+        this.btnScale.SetLeft(40);
+        this.btnScale.SetTop(111);
+        this.btnScale.SetWidth(96);
+        this.btnScale.SetHeight(33);
+        this.btnScale.SetCaption('<i class="fa-solid fa-up-down-left-right text-white"></i>');
+        this.btnScale.SetChildOrderEx(2);
+        this.btnScale.SetElementPosition(pas["WEBLib.Controls"].TElementPosition.epIgnore);
+        this.btnScale.SetHeightPercent(100.000000000000000000);
+        this.btnScale.SetWidthPercent(100.000000000000000000);
+        this.btnChange.SetParentComponent(this);
+        this.btnChange.SetName("btnChange");
+        this.btnChange.SetLeft(40);
+        this.btnChange.SetTop(150);
+        this.btnChange.SetWidth(96);
+        this.btnChange.SetHeight(33);
+        this.btnChange.SetCaption('<i class="fa-solid fa-shuffle text-white"></i>');
+        this.btnChange.SetChildOrderEx(2);
+        this.btnChange.SetElementPosition(pas["WEBLib.Controls"].TElementPosition.epIgnore);
+        this.btnChange.SetHeightPercent(100.000000000000000000);
+        this.btnChange.SetWidthPercent(100.000000000000000000);
+        this.tmrStartup.SetParentComponent(this);
+        this.tmrStartup.SetName("tmrStartup");
+        this.SetEvent$1(this.tmrStartup,this,"OnTimer","tmrStartupTimer");
+        this.tmrStartup.SetLeft(280);
+        this.tmrStartup.SetTop(312);
       } finally {
         this.divBackground.AfterLoadDFMValues();
+        this.btnVolume.AfterLoadDFMValues();
         this.divAnimParent.AfterLoadDFMValues();
+        this.btnMain.AfterLoadDFMValues();
+        this.divButtons.AfterLoadDFMValues();
+        this.btnScale.AfterLoadDFMValues();
+        this.btnChange.AfterLoadDFMValues();
+        this.tmrStartup.AfterLoadDFMValues();
       };
     };
     rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addField("divBackground",pas["WEBLib.WebCtrls"].$rtti["THTMLDiv"]);
     $r.addField("divAnimParent",pas["WEBLib.WebCtrls"].$rtti["THTMLDiv"]);
+    $r.addField("btnMain",pas["WEBLib.StdCtrls"].$rtti["TButton"]);
+    $r.addField("divButtons",pas["WEBLib.WebCtrls"].$rtti["THTMLDiv"]);
+    $r.addField("btnScale",pas["WEBLib.StdCtrls"].$rtti["TButton"]);
+    $r.addField("btnChange",pas["WEBLib.StdCtrls"].$rtti["TButton"]);
+    $r.addField("btnVolume",pas["WEBLib.StdCtrls"].$rtti["TButton"]);
+    $r.addField("tmrStartup",pas["WEBLib.ExtCtrls"].$rtti["TTimer"]);
     $r.addMethod("GeneratePositions",0,[]);
     $r.addMethod("DrawBackground",0,[]);
     $r.addMethod("StartAnimation",0,[]);
@@ -51324,6 +51437,8 @@ rtl.module("Unit1",["System","SysUtils","Classes","Types","JS","Web","WEBLib.Gra
     $r.addMethod("WebFormCreate",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $r.addMethod("WebFormResize",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $r.addMethod("Animate",0,[["Anim",rtl.longint]]);
+    $r.addMethod("ConfigButton",1,[["btn",pas["WEBLib.StdCtrls"].$rtti["TButton"]],["HexPosition",rtl.longint],["ClassNames",rtl.string]],rtl.string);
+    $r.addMethod("tmrStartupTimer",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $mod.$rtti.$DynArray("TForm1.PositionsX$a",{eltype: rtl.double});
     $mod.$rtti.$DynArray("TForm1.PositionsY$a",{eltype: rtl.double});
     $mod.$rtti.$DynArray("TForm1.PositionsR$a",{eltype: rtl.longint});
