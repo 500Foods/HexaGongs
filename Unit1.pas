@@ -14,12 +14,24 @@ type
   TForm1 = class(TWebForm)
     divBackground: TWebHTMLDiv;
     divAnimParent: TWebHTMLDiv;
-    btnMain: TWebButton;
     divButtons: TWebHTMLDiv;
+    tmrStartup: TWebTimer;
+    btnMain: TWebButton;
     btnScale: TWebButton;
     btnChange: TWebButton;
     btnVolume: TWebButton;
-    tmrStartup: TWebTimer;
+    btnShare: TWebButton;
+    btnDownload: TWebButton;
+    btnUpload: TWebButton;
+    btnScalePlus: TWebButton;
+    btnFullScreen: TWebButton;
+    btnScaleMinus: TWebButton;
+    btnTrash: TWebButton;
+    btnEdit: TWebButton;
+    btnClone: TWebButton;
+    btnVolumeUp: TWebButton;
+    btnVolumeMute: TWebButton;
+    btnVolumeDown: TWebButton;
     procedure GeneratePositions;
     procedure DrawBackground;
     procedure StartAnimation;
@@ -27,8 +39,14 @@ type
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure Animate(Anim: Integer);
-    function ConfigButton(btn: TWebButton; HexPosition: Integer; ClassNames: String):String;
+    procedure ConfigButton(btn: TWebButton; HexPosition: Integer; ClassName: String);
     procedure tmrStartupTimer(Sender: TObject);
+    procedure btnMainClick(Sender: TObject);
+    procedure btnScaleClick(Sender: TObject);
+    procedure btnVolumeClick(Sender: TObject);
+    procedure btnScalePlusClick(Sender: TObject);
+    procedure btnScaleMinusClick(Sender: TObject);
+    procedure btnChangeClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -69,8 +87,22 @@ begin
   // Initialize AnimationTimers array
   asm this.AnimationTimers = []; end;
 
-
-
+  asm
+    divBackground.addEventListener('click', (event) => {
+      if (! (
+         event.target.classList.contains('Button') ||
+         event.target.classList.contains('MainButton') ||
+         event.target.parentElement.classList.contains('Button') ||
+         event.target.parentElement.classList.contains('MainButton')
+        )) {
+        var This = pas.Unit1.Form1;
+        This.btnMainClick(null);
+        This.btnScaleClick(null);
+        This.btnChangeClick(null);
+        This.btnVolumeClick(null);
+      }
+    });
+  end;
 end;
 
 procedure TForm1.WebFormResize(Sender: TObject);
@@ -95,20 +127,198 @@ begin
   // Perform initial display configuraiton
   GeneratePositions;
   DrawBackground;
+
+  // Hide all secondary buttons
+  btnMainClick(nil);
+  btnScaleClick(nil);
+  btnChangeClick(nil);
+  btnVolumeClick(nil);
+
+  // Get the animation rolling
   StartAnimation;
+
 end;
 
-function TForm1.ConfigButton(btn: TWebButton; HexPosition: Integer; ClassNames: String):String;
+procedure TForm1.btnChangeClick(Sender: TObject);
 begin
+
+  if (Sender = btnChange) then
+  begin
+    btnTrash.ElementHandle.style.setProperty('visibility','visible');
+    btnEdit.ElementHandle.style.setProperty('visibility','visible');
+    btnClone.ElementHandle.style.setProperty('visibility','visible');
+
+    asm
+      setTimeout(function() { btnTrash.style.setProperty('opacity','0.2'); }, 400 );
+      setTimeout(function() { btnEdit.style.setProperty('opacity','0.2'); }, 200 );
+      setTimeout(function() { btnClone.style.setProperty('opacity','0.2'); }, 0 );
+    end;
+
+    btnSCaleClick(btnChange);
+    btnVolumeClick(btnChange);
+    btnMainClick(btnChange);
+  end
+  else
+  begin
+    asm
+      setTimeout(function() { btnTrash.style.setProperty('opacity','0'); }, 400 );
+      setTimeout(function() { btnEdit.style.setProperty('opacity','0'); }, 200 );
+      setTimeout(function() { btnClone.style.setProperty('opacity','0'); }, 0 );
+      setTimeout(function() {
+        btnTrash.style.setProperty('visibility','hidden');
+        btnEdit.style.setProperty('visibility','hidden');
+        btnClone.style.setProperty('visibility','hidden');
+      },1000);
+    end;
+  end;
+
+end;
+
+procedure TForm1.btnMainClick(Sender: TObject);
+begin
+
+  if (Sender = btnMain) then
+  begin
+    btnShare.ElementHandle.style.setProperty('visibility','visible');
+    btnDownload.ElementHandle.style.setProperty('visibility','visible');
+    btnUpload.ElementHandle.style.setProperty('visibility','visible');
+
+    asm
+      setTimeout(function() { btnShare.style.setProperty('opacity','0.2'); }, 0 );
+      setTimeout(function() { btnDownload.style.setProperty('opacity','0.2'); }, 200 );
+      setTimeout(function() { btnUpload.style.setProperty('opacity','0.2'); }, 400 );
+    end;
+
+    btnScaleClick(btnMain);
+    btnChangeClick(btnMain);
+    btnVolumeClick(btnMain);
+  end
+  else
+  begin
+    asm
+      setTimeout(function() { btnShare.style.setProperty('opacity','0'); }, 0 );
+      setTimeout(function() { btnDownload.style.setProperty('opacity','0'); }, 200 );
+      setTimeout(function() { btnUpload.style.setProperty('opacity','0'); }, 400 ) ;
+      setTimeout(function() {
+        btnShare.style.setProperty('visibility','hidden');
+        btnDownload.style.setProperty('visibility','hidden');
+        btnUpload.style.setProperty('visibility','hidden');
+      },1000);
+    end;
+  end;
+
+end;
+
+procedure TForm1.btnScaleClick(Sender: TObject);
+begin
+
+  if (Sender = btnScale) then
+  begin
+    btnScalePlus.ElementHandle.style.setProperty('visibility','visible');
+    btnFullScreen.ElementHandle.style.setProperty('visibility','visible');
+    btnScaleMinus.ElementHandle.style.setProperty('visibility','visible');
+
+    asm
+      setTimeout(function() { btnScalePlus.style.setProperty('opacity','0.2'); }, 0 );
+      setTimeout(function() { btnFullScreen.style.setProperty('opacity','0.2'); }, 200 );
+      setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0.2'); }, 400 );
+    end;
+
+    btnChangeClick(btnScale);
+    btnVolumeClick(btnScale);
+    btnMainClick(btnScale);
+  end
+  else
+  begin
+    asm
+      setTimeout(function() { btnScalePlus.style.setProperty('opacity','0'); }, 0 );
+      setTimeout(function() { btnFullScreen.style.setProperty('opacity','0'); }, 200 );
+      setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0'); }, 400 );
+      setTimeout(function() {
+        btnScalePlus.style.setProperty('visibility','hidden');
+        btnFullScreen.style.setProperty('visibility','hidden');
+        btnScaleMinus.style.setProperty('visibility','hidden');
+      },1000);
+    end;
+  end;
+
+end;
+
+procedure TForm1.btnScaleMinusClick(Sender: TObject);
+begin
+
+  if Zoomlevel > 5 then
+  begin
+    ZoomLevel := ZoomLevel - 1;
+    StopAnimation;
+    GeneratePositions;
+    DrawBackground;
+    StartAnimation;
+  end;
+
+end;
+
+procedure TForm1.btnScalePlusClick(Sender: TObject);
+begin
+
+  if Zoomlevel < 20 then
+  begin
+    ZoomLevel := ZoomLevel + 1;
+    StopAnimation;
+    GeneratePositions;
+    DrawBackground;
+    StartAnimation;
+  end;
+
+end;
+
+procedure TForm1.btnVolumeClick(Sender: TObject);
+begin
+
+  if (Sender = btnVolume) then
+  begin
+    btnVolumeUp.ElementHandle.style.setProperty('visibility','visible');
+    btnVolumeMute.ElementHandle.style.setProperty('visibility','visible');
+    btnVolumeDown.ElementHandle.style.setProperty('visibility','visible');
+
+    asm
+      setTimeout(function() { btnVolumeUp.style.setProperty('opacity','0.2'); }, 400 );
+      setTimeout(function() { btnVolumeMute.style.setProperty('opacity','0.2'); }, 200 );
+      setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0.2'); }, 0 );
+    end;
+
+    btnMainClick(btnVolume);
+    btnSCaleClick(btnVolume);
+    btnChangeClick(btnVolume);
+  end
+  else
+  begin
+    asm
+      setTimeout(function() { btnVolumeUp.style.setProperty('opacity','0'); }, 400 );
+      setTimeout(function() { btnVolumeMute.style.setProperty('opacity','0'); }, 200 );
+      setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0'); }, 0 );
+      setTimeout(function() {
+        btnVolumeUp.style.setProperty('visibility','hidden');
+        btnVolumeMute.style.setProperty('visibility','hidden');
+        btnVolumeDown.style.setProperty('visibility','hidden');
+      },1000);
+    end;
+  end;
+
+end;
+
+procedure TForm1.ConfigButton(btn: TWebButton; HexPosition: Integer; ClassName: String);
+begin
+
   btn.Parent := divButtons;
-  btn.ElementHandle.classList.Add('Control','Parent','position-absolute','d-flex','justify-content-center','align-items-center');
-  btn.ElementHandle.style.setProperty('top','2px');
-  btn.ElementHandle.style.setProperty('left','2px');
-  btn.ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2 -4,ffGeneral,5,3)+'px');
-  btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2 -4,ffGeneral,5,3)+'px');
+  btn.ElementHandle.classList.Add(ClassName,'d-flex','justify-content-center','align-items-center');
+  btn.ElementHandle.style.setProperty('top','0px');
+  btn.ElementHandle.style.setProperty('left','0px');
+  btn.ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+  btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
   btn.ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
   btn.Tag := HexPosition;
-  Result := ClassNames;
+
 end;
 
 procedure TForm1.DrawBackground;
@@ -139,14 +349,25 @@ begin
       PositionsV[I] := False;
     end;
 
-    if (PositionsR[I] = 3) and (PositionsC[I] = 0)
-    then Classes := Classes + ConfigButton(btnMain, I, ' Button')
-    else if (PositionsR[I] = 3) and (PositionsC[I] = ColCount - 1)
-    then Classes := Classes + ConfigButton(btnScale, I, ' Button')
-    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = 0)
-    then Classes := Classes + ConfigButton(btnVolume, I, ' Button')
-    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = ColCount - 1)
-    then Classes := Classes + ConfigButton(btnChange, I, ' Button');
+    if      (PositionsR[I] = 3) and (PositionsC[I] = 0)  then ConfigButton(btnMain,     I, 'MainButton')
+    else if (PositionsR[I] = 3) and (PositionsC[I] = 1)  then ConfigButton(btnUpload,   I, 'Button')
+    else if (PositionsR[I] = 4) and (PositionsC[I] = 1)  then ConfigButton(btnDownload, I, 'Button')
+    else if (PositionsR[I] = 5) and (PositionsC[I] = 0)  then ConfigButton(btnShare,    I, 'Button')
+
+    else if (PositionsR[I] = 3) and (PositionsC[I] = ColCount - 1) then ConfigButton(btnScale, I, 'MainButton')
+    else if (PositionsR[I] = 3) and (PositionsC[I] = ColCount - 2) then ConfigButton(btnScalePlus, I, 'Button')
+    else if (PositionsR[I] = 4) and (PositionsC[I] = ColCount - 1) then ConfigButton(btnFullScreen, I, 'Button')
+    else if (PositionsR[I] = 5) and (PositionsC[I] = ColCount - 1) then ConfigButton(btnScaleMinus, I, 'Button')
+
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = ColCount -1) then ConfigButton(btnChange, I, 'MainButton')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = ColCount -2) then ConfigButton(btnTrash, I, 'Button')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 6)) and (PositionsC[I] = ColCount -1) then ConfigButton(btnEdit, I, 'Button')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 7)) and (PositionsC[I] = ColCount -1) then ConfigButton(btnClone, I, 'Button')
+
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = 0) then ConfigButton(btnVolume, I, 'MainButton')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 7)) and (PositionsC[I] = 0) then ConfigButton(btnVolumeUp, I, 'Button')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 6)) and (PositionsC[I] = 1) then ConfigButton(btnVolumeMute, I, 'Button')
+    else if (PositionsR[I] = (RowCount + (RowCount mod 2) - 5)) and (PositionsC[I] = 1) then ConfigButton(btnVolumeDown, I, 'Button');
 
     S := S + '<div id="BG-'+IntToStr(I)+'" '+
                    'class="Hexagon '+Classes+'" '+
@@ -162,10 +383,25 @@ begin
 
   divBackground.HTML.Text := S;
 
-  document.getElementById('BG-'+IntToStr(BtnMain.Tag)).appendChild(btnMain.ElementHandle);
-  document.getElementById('BG-'+IntToStr(BtnScale.Tag)).appendChild(btnScale.ElementHandle);
-  document.getElementById('BG-'+IntToStr(BtnChange.Tag)).appendChild(btnChange.ElementHandle);
-  document.getElementById('BG-'+IntToStr(BtnVolume.Tag)).appendChild(btnVolume.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnMain.Tag)).appendChild(btnMain.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnShare.Tag)).appendChild(btnShare.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnDownload.Tag)).appendChild(btnDownload.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnUpload.Tag)).appendChild(btnUpload.ElementHandle);
+
+  document.getElementById('BG-'+IntToStr(btnScale.Tag)).appendChild(btnScale.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnScalePlus.Tag)).appendChild(btnScalePlus.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnFullScreen.Tag)).appendChild(btnFullScreen.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnScaleMinus.Tag)).appendChild(btnScaleMinus.ElementHandle);
+
+  document.getElementById('BG-'+IntToStr(btnChange.Tag)).appendChild(btnChange.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnTrash.Tag)).appendChild(btnTrash.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnEdit.Tag)).appendChild(btnEdit.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnClone.Tag)).appendChild(btnClone.ElementHandle);
+
+  document.getElementById('BG-'+IntToStr(btnVolume.Tag)).appendChild(btnVolume.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnVolumeUp.Tag)).appendChild(btnVolumeUp.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnVolumeMute.Tag)).appendChild(btnVolumeMute.ElementHandle);
+  document.getElementById('BG-'+IntToStr(btnVolumeDown.Tag)).appendChild(btnVolumeDown.ElementHandle);
 
 end;
 
@@ -178,7 +414,6 @@ var
   WindowWidth: Double;
   WindowHeight: Double;
 
-  TopMargin: Double;
   LeftMargin: Double;
 
   VertOffset: Double;
@@ -196,7 +431,6 @@ begin
 
   // Offset 10px from left/right
   LeftMargin := 10 - HexRadius*1.5;
-  TopMargin := 10-(HexRadius + HexRadius*Sqrt(3)/2+HexRadius*0.0245 + 2);
 
   // How much we have to move X/Y after each position
   HorizOffset := HexRadius * 1.52;
@@ -208,9 +442,9 @@ begin
   I := 0;
 
   X := LeftMargin + (RowCount mod 2)*HexRadius*1.52;
-  Y := TopMargin;
+  Y := 0;
 
-  while Y < WindowHeight + VertOffset do
+  while Y < WindowHeight + VertOffset*3 do
   begin
 
     // Adjust collection of arrays
@@ -241,12 +475,13 @@ begin
     I := I + 1;
   end;
 
+  I := Length(PositionsY) -1;
   ColCount := ZoomLevel;
 
   // Adjust the top margin to account for an odd (blank) row at the bottom
-  if (RowCount mod 2) = 0
-  then MarginTop := -10 + (WindowHeight - (PositionsY[(Length(PositionsY)-1) - (ColCount * 1)] ))
-  else MarginTop := -10 + (WindowHeight - (PositionsY[(Length(PositionsY)-1) - (ColCount * 2)] )) / 2;
+  if (RowCount mod 2) = 1
+  then MarginTop := -1.05*HexRadius/2 + (WindowHeight - PositionsY[I]) / 2
+  else MarginTop := -1.05*HexRadius/2 + (WindowHeight - PositionsY[I-ColCount]) / 2;
 
   divBackground.ElementHandle.style.setProperty('margin-top',FloatToStrF(MarginTop,ffGeneral,5,3)+'px');
 
