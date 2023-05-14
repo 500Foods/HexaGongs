@@ -3,9 +3,25 @@ unit Unit1;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Types, JS, Web, WEBLib.Graphics, WEBLib.Controls,
-  WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, WEBLib.WebCtrls,
-  WEBLib.ExtCtrls, JSDelphiSystem, Vcl.StdCtrls, WEBLib.StdCtrls;
+  System.SysUtils,
+  System.Classes,
+  System.Types,
+  System.DateUtils,
+
+  JS,
+  Web,
+  JSDelphiSystem,
+
+  Vcl.Controls,
+  Vcl.StdCtrls,
+
+  WEBLib.Graphics,
+  WEBLib.Controls,
+  WEBLib.Forms,
+  WEBLib.Dialogs,
+  WEBLib.WebCtrls,
+  WEBLib.ExtCtrls,
+  WEBLib.StdCtrls;
 
 const
   AnimatedElements = 5;
@@ -32,42 +48,57 @@ type
     btnVolumeUp: TWebButton;
     btnVolumeMute: TWebButton;
     btnVolumeDown: TWebButton;
+    btnCursor: TWebButton;
+    procedure WebFormCreate(Sender: TObject);
+    procedure WebFormResize(Sender: TObject);
     procedure GeneratePositions;
     procedure DrawBackground;
     procedure StartAnimation;
     procedure StopAnimation;
-    procedure WebFormCreate(Sender: TObject);
-    procedure WebFormResize(Sender: TObject);
     procedure Animate(Anim: Integer);
     procedure ConfigButton(btn: TWebButton; HexPosition: Integer; ClassName: String);
     procedure tmrStartupTimer(Sender: TObject);
     procedure btnMainClick(Sender: TObject);
     procedure btnScaleClick(Sender: TObject);
+    procedure btnChangeClick(Sender: TObject);
     procedure btnVolumeClick(Sender: TObject);
     procedure btnScalePlusClick(Sender: TObject);
     procedure btnScaleMinusClick(Sender: TObject);
-    procedure btnChangeClick(Sender: TObject);
+    procedure btnEditClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
-    PositionsX: Array of Double;
-    PositionsY: Array of Double;
-    PositionsR: Array of Integer;
-    PositionsC: Array of Integer;
-    PositionsV: Array of Boolean;
 
-    ZoomLevel: Integer;
-    HexRadius: Double;
-    RowCount: Integer;
-    ColCount: Integer;
-    MarginTop: Double;
+    Gongs: Array of TWebHTMLDiv;    // Gong defintion
+    GongsP: Array of Integer;       // Position of Gong
 
-    Animation: Array[0..AnimatedElements] of Integer;
-    AnimationDiv : Array[0..AnimatedElements] of TWebHTMLDiv;
-    AnimationDir: Array[0..AnimatedElements] of Integer;
-    AnimationLast: Array[0..AnimatedElements] of Integer;
-    AnimationTimers: JSValue;
+    PositionsX: Array of Double;    // X Position
+    PositionsY: Array of Double;    // Y Position
+    PositionsR: Array of Integer;   // Row number
+    PositionsC: Array of Integer;   // Column number
+    PositionsV: Array of Boolean;   // Valid for Layout/Mouseover
+    PositionsT: Array of Boolean;   // Valid Target for Drag/Swap
+    PositionsG: Array of Integer;   // Gong # at a Position
+
+    Animation:       Array[0..AnimatedElements] of Integer;      // Current Position of this animation
+    AnimationDiv:    Array[0..AnimatedElements] of TWebHTMLDiv;  // <div> for this animation
+    AnimationDir:    Array[0..AnimatedElements] of Integer;      // Direction animation is moving (clockwise, 0 is top left of hexagon)
+    AnimationLast:   Array[0..AnimatedElements] of Integer;      // Last Position of this animation
+    AnimationTimers: JSValue;                                    // Array of setInterval() timers currently active
+
+    MainMode:   Boolean;   // State of Main button (top-left)
+    ScaleMode:  Boolean;   // State of Scale button (top-right)
+    ChangeMode: Boolean;   // State of Change button (bottom-right)
+    VolumeMode: Boolean;   // State of Volume button (bottom-left)
+    LastClick:  TDateTime; // Used to block clicks from happening before animations are complete.
+
+    ZoomLevel: Integer;   // Number of hexagons in top row (always an odd number)
+    HexRadius: Double;    // Radius of one hexagon (width = 2x)
+    RowCount: Integer;    // Number of rows (includes odd and even)
+    ColCount: Integer;    // Number of columns (just the number of hexagons in first row, always odd)
+    MarginTop: Double;    // How much of an offset to center the hexagons vertically
+
   end;
 
 var
@@ -81,27 +112,235 @@ implementation
 procedure TForm1.WebFormCreate(Sender: TObject);
 begin
 
-  // Initial ZoomLevel
+  // Initial States
+  MainMode := False;
+  ScaleMode := False;
+  ChangeMode := False;
+  VolumeMode := False;
   ZoomLevel := 7;
+  LastClick := Now;
+
 
   // Initialize AnimationTimers array
   asm this.AnimationTimers = []; end;
 
+
+  // JavaScript Sleep Function
+  asm window.sleep = async function(msecs) {return new Promise((resolve) => setTimeout(resolve, msecs)); } end;
+
+
+  // Deal with button clicks that aren't on buttons directly
   asm
     divBackground.addEventListener('click', (event) => {
-      if (! (
+      if ((event.target.classList.contains('Valid')) &&
+          (!(
+           event.target.classList.contains('Button') ||
+           event.target.classList.contains('MainButton') ||
+           event.target.parentElement.classList.contains('Button') ||
+           event.target.parentElement.classList.contains('MainButton')
+          )) && This.ChangeMode == true) {
+        if (event.target.classList.contains('Valid')) {
+          if (This.PositionsG[btnCursor.parentElement.getAttribute('position')] == -1) {
+            btnCursor.parentElement.style.removeProperty('animation-name');
+          }
+          event.target.appendChild(btnCursor);
+          btnCursor.setAttribute('position',event.target.getAttribute('position'));
+          btnCursor.parentElement.style.setProperty('animation-name','jiggle');
+          btnCursor.style.setProperty('z-index','5');
+        }
+      }
+      else if (! (
          event.target.classList.contains('Button') ||
-         event.target.classList.contains('MainButton') ||
-         event.target.parentElement.classList.contains('Button') ||
-         event.target.parentElement.classList.contains('MainButton')
+         event.target.classList.contains('MainButton')
         )) {
-        var This = pas.Unit1.Form1;
         This.btnMainClick(null);
         This.btnScaleClick(null);
         This.btnChangeClick(null);
         This.btnVolumeClick(null);
       }
     });
+  end;
+
+
+  // Configure InteractJS for Drag & Swap functionality
+  asm
+    var This = pas.Unit1.Form1;
+    interact('.dragswap')
+      .on('click', event => {
+          event.stopImmediatePropagation();
+          if (This.PositionsG[btnCursor.parentElement.getAttribute('position')] == -1) {
+            btnCursor.parentElement.style.removeProperty('animation-name');
+          }
+          event.target.parentElement.appendChild(btnCursor);
+          btnCursor.setAttribute('position',event.target.parentElement.getAttribute('position'));
+          btnCursor.parentElement.style.setProperty('animation-name','jiggle');
+        }, { capture: true })
+
+      .draggable({
+        inertia: true,
+        modifiers: [],
+
+        onstart: function(event) {
+          // When dragging begins, remove element from its hexagon and add it to the background at the same spot
+          if (event.target.classList.contains('CursorButton')) {
+            btnCursor.parentElement.style.removeProperty('animation-name');
+          } else {
+            event.target.parentElement.style.removeProperty('animation-name');
+          }
+          divBackground.appendChild(event.target);
+          event.target.setAttribute('data-x',This.PositionsX[event.target.getAttribute('position')]);
+          event.target.setAttribute('data-y',This.PositionsY[event.target.getAttribute('position')]);
+          event.target.style.setProperty('top','0px');
+          event.target.style.setProperty('left','0px');
+
+          // Ensure that it is above everything else, and stop whatever jiggling might be going on
+          event.target.style.setProperty('z-index',10);
+          event.target.parentElement.style.removeProperty('animation-name');
+        },
+
+        onend: async function(event) {
+          // When dragging ends, apply the InteractJS movement data to the element
+          var PosX = parseFloat((parseFloat(event.target.style.left.replace('px','')) + parseFloat(event.target.getAttribute('data-x'))));
+          var PosY = parseFloat((parseFloat(event.target.style.top.replace('px','')) + parseFloat(event.target.getAttribute('data-y'))));
+          event.target.style.setProperty('top', PosY + 'px');
+          event.target.style.setProperty('left', PosX + 'px');
+          event.target.style.removeProperty('transform');
+          event.target.removeAttribute('data-x');
+          event.target.removeAttribute('data-y');
+
+          btnCursor.style.setProperty('top', '-1000px');
+          btnCursor.style.setProperty('left', '-1000px');
+
+
+          // Find nearest Position
+          var minDistance = 999999;
+          var NewX = 0
+          var NewY = 0;
+          var dist = 0;
+          var position = -1;
+          for (var i = 0; i < This.PositionsX.length; i++) {
+            dist = Math.sqrt(Math.pow(This.PositionsX[i] - PosX,2) + Math.pow(This.PositionsY[i] - PosY,2));
+            if ((dist < minDistance) && (This.PositionsT[i] == true)) {
+              minDistance = dist;
+              NewX = This.PositionsX[i];
+              NewY = This.PositionsY[i];
+              position = i;
+            }
+          }
+
+          // If we're just draging the cursor around....
+          if (event.target.classList.contains('CursorButton')) {
+            document.getElementById('BG-'+position).appendChild(btnCursor);
+            btnCursor.setAttribute('position',position);
+            btnCursor.style.setProperty('top','0px');
+            btnCursor.style.setProperty('left','0px');
+            btnCursor.style.setProperty('z-index','5');
+            btnCursor.parentElement.style.setProperty('animation-name','jiggle');
+          }
+
+          else {
+
+            // Figure out where it started from
+            var gongid = event.target.getAttribute('gongid');
+            var oldposition = This.GongsP[gongid];
+
+            // When dropping on populated Position, prepare to swap
+            if ((This.PositionsG[position] !== gongid) && (This.PositionsG[position] !== -1)) {
+
+              // Get the element that we're swapping
+              var swapid = This.PositionsG[position];
+              var swapel = document.getElementById('Gong-'+swapid);
+
+              // And this is where it is ultimately headed
+              var OldX = This.PositionsX[oldposition];
+              var OldY = This.PositionsY[oldposition];
+
+              // Move it from its hexagon container into the same background as the element we're working wtih
+              divBackground.appendChild(swapel);
+              swapel.style.setProperty('top', NewY + 'px');
+              swapel.style.setProperty('left', NewX + 'px');
+              swapel.style.setProperty('transition','top 0.2s linear, left 0.2s linear');
+              swapel.style.setProperty('z-index',9);
+              swapel.parentElement.style.removeProperty('animation-name');
+
+              // Update data about this element we're swapping
+              swapel.setAttribute('position',oldposition);
+              swapel.setAttribute('row',This.PositionsR[oldposition]);
+              swapel.setAttribute('column',This.PositionsC[oldposition]);
+              This.GongsP[swapid] = oldposition;
+              This.PositionsG[oldposition] = swapid;
+            }
+
+            // When dropping on empty positionm, just update the old position information
+            else if (This.PositionsG[position] == -1) {
+              This.PositionsG[oldposition] = -1
+            }
+
+            if (This.PositionsG[btnCursor.getAttribute('position')] == -1) {
+              document.getElementById('BG-'+btnCursor.getAttribute('position')).style.removeProperty('animation-name');
+            }
+
+            // Update Position Information
+            This.PositionsG[position] = gongid;
+            This.GongsP[gongid] = position;
+            event.target.setAttribute('position',position);
+            event.target.setAttribute('row',This.PositionsR[position]);
+            event.target.setAttribute('column',This.PositionsC[position]);
+
+            // This gives the page a chance to update everything we just changed
+            await sleep(0);
+
+            // Move our element to its new position
+            event.target.style.setProperty('transition','top 0.2s linear, left 0.2s linear');
+            event.target.style.setProperty('top', NewY + 'px');
+            event.target.style.setProperty('left', NewX + 'px');
+
+            // After it has been moved, drop it back into its hexagon holder
+            // Also, move the cursor to this position as well
+            setTimeout(function(){
+              event.target.style.removeProperty('transition');
+              event.target.style.setProperty('top','0px');
+              event.target.style.setProperty('left','0px');
+              document.getElementById('BG-'+position).appendChild(event.target);
+              event.target.parentElement.style.setProperty('animation-name','jiggle');
+
+              btnCursor.setAttribute('position',position);
+              btnCursor.style.setProperty('top', '0px');
+              btnCursor.style.setProperty('left','0px');
+              document.getElementById('BG-'+position).appendChild(btnCursor);
+
+            },200);
+
+            // If we were swapping elements, move the swapped element to the prior location
+            // and then drop it into its hexagon holder too
+            if (swapel !== undefined) {
+              swapel.style.top = OldY + 'px';
+              swapel.style.left = OldX + 'px';
+              setTimeout(function(){
+                swapel.style.removeProperty('transition');
+                swapel.style.setProperty('top','0px');
+                swapel.style.setProperty('left','0px');
+                document.getElementById('BG-'+oldposition).appendChild(swapel);
+                swapel.parentElement.style.setProperty('animation-name','jiggle');
+              },400);
+            }
+          }
+        },
+        listeners: {
+          move: dragMoveListener
+        }
+      });
+
+    function dragMoveListener (event) {
+      var target = event.target
+      var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+      var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+      target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+      target.setAttribute('data-x', x)
+      target.setAttribute('data-y', y)
+    };
+    window.dragMoveListener = dragMoveListener
+
   end;
 end;
 
@@ -139,71 +378,99 @@ begin
 
 end;
 
-procedure TForm1.btnChangeClick(Sender: TObject);
+
+
+procedure TForm1.btnEditClick(Sender: TObject);
+var
+  CursorPosition: Integer;
+  GongID: Integer;
 begin
+  CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
 
-  if (Sender = btnChange) then
+  // Position of the cursor
+  if CursorPosition <> -1 then
   begin
-    btnTrash.ElementHandle.style.setProperty('visibility','visible');
-    btnEdit.ElementHandle.style.setProperty('visibility','visible');
-    btnClone.ElementHandle.style.setProperty('visibility','visible');
 
-    asm
-      setTimeout(function() { btnTrash.style.setProperty('opacity','0.2'); }, 400 );
-      setTimeout(function() { btnEdit.style.setProperty('opacity','0.2'); }, 200 );
-      setTimeout(function() { btnClone.style.setProperty('opacity','0.2'); }, 0 );
-    end;
+    // New Gong
+    if PositionsG[CursorPosition] = -1 then
+    begin
+      GongID := Length(Gongs);
+      SetLength(Gongs, GongID + 1);
+      SetLength(GongsP, GongID + 1);
+      PositionsG[CursorPosition] := GongID;
+      GongsP[GongID] := CursorPosition;
 
-    btnSCaleClick(btnChange);
-    btnVolumeClick(btnChange);
-    btnMainClick(btnChange);
-  end
-  else
-  begin
-    asm
-      setTimeout(function() { btnTrash.style.setProperty('opacity','0'); }, 400 );
-      setTimeout(function() { btnEdit.style.setProperty('opacity','0'); }, 200 );
-      setTimeout(function() { btnClone.style.setProperty('opacity','0'); }, 0 );
-      setTimeout(function() {
-        btnTrash.style.setProperty('visibility','hidden');
-        btnEdit.style.setProperty('visibility','hidden');
-        btnClone.style.setProperty('visibility','hidden');
-      },1000);
+      Gongs[GongID] := TWebHTMLDiv.Create('Gong-'+IntToStr(GongID));
+      Gongs[GongID].Parent := divButtons;
+
+      Gongs[GongID].ElementHandle.setAttribute('gongid',IntToStr(GongID));
+      Gongs[GongID].ElementHandle.setAttribute('position',IntToStr(CursorPosition));
+      Gongs[GongID].ElementHandle.setAttribute('row',IntToStr(PositionsR[CursorPosition]));
+      Gongs[GongID].ElementHandle.setAttribute('column',IntToStr(PositionsC[CursorPosition]));
+
+      Gongs[GongID].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','dragswap');
+
+      Gongs[GongID].ElementHandle.style.setProperty('top','0px');
+      Gongs[GongID].ElementHandle.style.setProperty('left','0px');
+      Gongs[GongID].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+      Gongs[GongID].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+      Gongs[GongID].ElementHandle.style.setProperty('z-index','10');
+      Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient(#00000080,#FFFFFF80)');
+      Gongs[GongID].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+
+      Gongs[GongID].HTML.Text := '<div class="GongContent" style="color:white;">'+IntToStr(GongID+1)+'</div>';
+
+      document.getElementById('BG-'+IntToStr(CursorPosition)).appendChild(Gongs[GongID].ElementHandle);
+      (document.getElementById('BG-'+IntToStr(CursorPosition)) as TJSHTMLElement).style.setProperty('animation-name','jiggle');
+    end
+
+    // Edit Gong
+    else
+    begin
+
     end;
   end;
-
 end;
 
 procedure TForm1.btnMainClick(Sender: TObject);
 begin
 
-  if (Sender = btnMain) then
+  if (MillisecondsBetween(Now, LastClick) > 500) then
   begin
-    btnShare.ElementHandle.style.setProperty('visibility','visible');
-    btnDownload.ElementHandle.style.setProperty('visibility','visible');
-    btnUpload.ElementHandle.style.setProperty('visibility','visible');
+    LastClick := Now;
 
-    asm
-      setTimeout(function() { btnShare.style.setProperty('opacity','0.2'); }, 0 );
-      setTimeout(function() { btnDownload.style.setProperty('opacity','0.2'); }, 200 );
-      setTimeout(function() { btnUpload.style.setProperty('opacity','0.2'); }, 400 );
-    end;
+    if (Sender = btnMain) and (MainMode = False) then
+    begin
+      MainMode := True;
+      btnMain.ElementHandle.classList.add('Selected');
+      btnShare.ElementHandle.style.setProperty('visibility','visible');
+      btnDownload.ElementHandle.style.setProperty('visibility','visible');
+      btnUpload.ElementHandle.style.setProperty('visibility','visible');
 
-    btnScaleClick(btnMain);
-    btnChangeClick(btnMain);
-    btnVolumeClick(btnMain);
-  end
-  else
-  begin
-    asm
-      setTimeout(function() { btnShare.style.setProperty('opacity','0'); }, 0 );
-      setTimeout(function() { btnDownload.style.setProperty('opacity','0'); }, 200 );
-      setTimeout(function() { btnUpload.style.setProperty('opacity','0'); }, 400 ) ;
-      setTimeout(function() {
-        btnShare.style.setProperty('visibility','hidden');
-        btnDownload.style.setProperty('visibility','hidden');
-        btnUpload.style.setProperty('visibility','hidden');
-      },1000);
+      asm
+        setTimeout(function() { btnShare.style.setProperty('opacity','0.2'); }, 0 );
+        setTimeout(function() { btnDownload.style.setProperty('opacity','0.2'); }, 200 );
+        setTimeout(function() { btnUpload.style.setProperty('opacity','0.2'); }, 400 );
+      end;
+
+      btnScaleClick(btnMain);
+      btnChangeClick(btnMain);
+      btnVolumeClick(btnMain);
+    end
+    else
+    begin
+      MainMode := False;
+      btnMain.ElementHandle.classList.remove('Selected');
+      asm
+        setTimeout(function() { btnShare.style.setProperty('opacity','0'); }, 0 );
+        setTimeout(function() { btnDownload.style.setProperty('opacity','0'); }, 200 );
+        setTimeout(function() { btnUpload.style.setProperty('opacity','0'); }, 400 ) ;
+        setTimeout(function() {
+          btnShare.style.setProperty('visibility','hidden');
+          btnDownload.style.setProperty('visibility','hidden');
+          btnUpload.style.setProperty('visibility','hidden');
+        },1000);
+      end;
     end;
   end;
 
@@ -212,62 +479,109 @@ end;
 procedure TForm1.btnScaleClick(Sender: TObject);
 begin
 
-  if (Sender = btnScale) then
+  if (MillisecondsBetween(Now, LastClick) > 500) then
   begin
-    btnScalePlus.ElementHandle.style.setProperty('visibility','visible');
-    btnFullScreen.ElementHandle.style.setProperty('visibility','visible');
-    btnScaleMinus.ElementHandle.style.setProperty('visibility','visible');
+    LastClick := Now;
 
-    asm
-      setTimeout(function() { btnScalePlus.style.setProperty('opacity','0.2'); }, 0 );
-      setTimeout(function() { btnFullScreen.style.setProperty('opacity','0.2'); }, 200 );
-      setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0.2'); }, 400 );
-    end;
+    if (Sender = btnScale) and (ScaleMode = False) then
+    begin
+      ScaleMode := True;
+      btnScale.ElementHandle.classList.add('Selected');
+      btnScalePlus.ElementHandle.style.setProperty('visibility','visible');
+      btnFullScreen.ElementHandle.style.setProperty('visibility','visible');
+      btnScaleMinus.ElementHandle.style.setProperty('visibility','visible');
 
-    btnChangeClick(btnScale);
-    btnVolumeClick(btnScale);
-    btnMainClick(btnScale);
-  end
-  else
-  begin
-    asm
-      setTimeout(function() { btnScalePlus.style.setProperty('opacity','0'); }, 0 );
-      setTimeout(function() { btnFullScreen.style.setProperty('opacity','0'); }, 200 );
-      setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0'); }, 400 );
-      setTimeout(function() {
-        btnScalePlus.style.setProperty('visibility','hidden');
-        btnFullScreen.style.setProperty('visibility','hidden');
-        btnScaleMinus.style.setProperty('visibility','hidden');
-      },1000);
+      asm
+        setTimeout(function() { btnScalePlus.style.setProperty('opacity','0.2'); }, 0 );
+        setTimeout(function() { btnFullScreen.style.setProperty('opacity','0.2'); }, 200 );
+        setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0.2'); }, 400 );
+      end;
+
+      btnChangeClick(btnScale);
+      btnVolumeClick(btnScale);
+      btnMainClick(btnScale);
+    end
+    else
+    begin
+      ScaleMode := False;
+      btnScale.ElementHandle.classList.remove('Selected');
+      asm
+        setTimeout(function() { btnScalePlus.style.setProperty('opacity','0'); }, 0 );
+        setTimeout(function() { btnFullScreen.style.setProperty('opacity','0'); }, 200 );
+        setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0'); }, 400 );
+        setTimeout(function() {
+          btnScalePlus.style.setProperty('visibility','hidden');
+          btnFullScreen.style.setProperty('visibility','hidden');
+          btnScaleMinus.style.setProperty('visibility','hidden');
+        },1000);
+      end;
     end;
   end;
 
 end;
 
-procedure TForm1.btnScaleMinusClick(Sender: TObject);
+procedure TForm1.btnChangeClick(Sender: TObject);
+var
+  i: Integer;
 begin
 
-  if Zoomlevel > 5 then
+  if (MillisecondsBetween(Now, LastClick) > 500) then
   begin
-    ZoomLevel := ZoomLevel - 1;
-    StopAnimation;
-    GeneratePositions;
-    DrawBackground;
-    StartAnimation;
-  end;
+    LastClick := Now;
 
-end;
+    if (Sender = btnChange) and (ChangeMode = False) then
+    begin
+      ChangeMode := True;
 
-procedure TForm1.btnScalePlusClick(Sender: TObject);
-begin
+      i := 0;
+      while i < Length(Gongs) do
+      begin
+        Gongs[i].ElementHandle.classList.add('dragswap');
+        (Gongs[i].ElementHandle.parentElement as TJSHTMLElement).style.setProperty('animation-name','jiggle');
+        i := i + 1;
+      end;
 
-  if Zoomlevel < 20 then
-  begin
-    ZoomLevel := ZoomLevel + 1;
-    StopAnimation;
-    GeneratePositions;
-    DrawBackground;
-    StartAnimation;
+      btnChange.ElementHandle.classList.add('Selected');
+      btnTrash.ElementHandle.style.setProperty('visibility','visible');
+      btnEdit.ElementHandle.style.setProperty('visibility','visible');
+      btnClone.ElementHandle.style.setProperty('visibility','visible');
+
+      asm
+        setTimeout(function() { btnTrash.style.setProperty('opacity','0.2'); }, 400 );
+        setTimeout(function() { btnEdit.style.setProperty('opacity','0.2'); }, 200 );
+        setTimeout(function() { btnClone.style.setProperty('opacity','0.2'); }, 0 );
+      end;
+
+      btnSCaleClick(btnChange);
+      btnVolumeClick(btnChange);
+      btnMainClick(btnChange);
+    end
+    else
+    begin
+      ChangeMode := False;
+
+      i := 0;
+      while i < Length(Gongs) do
+      begin
+        Gongs[i].ElementHandle.classList.remove('dragswap');
+        (Gongs[i].ElementHandle.parentElement as TJSHTMLElement).style.removeProperty('animation-name');
+        i := i + 1;
+      end;
+
+      divButtons.ElementHandle.appendChild(btnCursor.ElementHandle);
+      btnCursor.ElementHandle.setAttribute('position','-1');
+      btnChange.ElementHandle.classList.remove('Selected');
+      asm
+        setTimeout(function() { btnTrash.style.setProperty('opacity','0'); }, 400 );
+        setTimeout(function() { btnEdit.style.setProperty('opacity','0'); }, 200 );
+        setTimeout(function() { btnClone.style.setProperty('opacity','0'); }, 0 );
+        setTimeout(function() {
+          btnTrash.style.setProperty('visibility','hidden');
+          btnEdit.style.setProperty('visibility','hidden');
+          btnClone.style.setProperty('visibility','hidden');
+        },1000);
+      end;
+    end;
   end;
 
 end;
@@ -275,34 +589,131 @@ end;
 procedure TForm1.btnVolumeClick(Sender: TObject);
 begin
 
-  if (Sender = btnVolume) then
+  if (MillisecondsBetween(Now, LastClick) > 500) then
   begin
-    btnVolumeUp.ElementHandle.style.setProperty('visibility','visible');
-    btnVolumeMute.ElementHandle.style.setProperty('visibility','visible');
-    btnVolumeDown.ElementHandle.style.setProperty('visibility','visible');
+    LastClick := Now;
 
-    asm
-      setTimeout(function() { btnVolumeUp.style.setProperty('opacity','0.2'); }, 400 );
-      setTimeout(function() { btnVolumeMute.style.setProperty('opacity','0.2'); }, 200 );
-      setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0.2'); }, 0 );
+    if (Sender = btnVolume) and (VolumeMode = False) then
+    begin
+      VolumeMode := True;
+      btnVolume.ElementHandle.classList.add('Selected');
+      btnVolumeUp.ElementHandle.style.setProperty('visibility','visible');
+      btnVolumeMute.ElementHandle.style.setProperty('visibility','visible');
+      btnVolumeDown.ElementHandle.style.setProperty('visibility','visible');
+
+      asm
+        setTimeout(function() { btnVolumeUp.style.setProperty('opacity','0.2'); }, 400 );
+        setTimeout(function() { btnVolumeMute.style.setProperty('opacity','0.2'); }, 200 );
+        setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0.2'); }, 0 );
+      end;
+
+      btnMainClick(btnVolume);
+      btnSCaleClick(btnVolume);
+      btnChangeClick(btnVolume);
+    end
+    else
+    begin
+      VolumeMode := False;
+      btnVolume.ElementHandle.classList.remove('Selected');
+      asm
+        setTimeout(function() { btnVolumeUp.style.setProperty('opacity','0'); }, 400 );
+        setTimeout(function() { btnVolumeMute.style.setProperty('opacity','0'); }, 200 );
+        setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0'); }, 0 );
+        setTimeout(function() {
+          btnVolumeUp.style.setProperty('visibility','hidden');
+          btnVolumeMute.style.setProperty('visibility','hidden');
+          btnVolumeDown.style.setProperty('visibility','hidden');
+        },1000);
+      end;
+    end;
+  end;
+
+end;
+
+procedure TForm1.btnScaleMinusClick(Sender: TObject);
+var
+  i: Integer;
+  j: integer;
+  r: integer;
+  c: integer;
+begin
+
+  if Zoomlevel > 5 then
+  begin
+    ZoomLevel := ZoomLevel - 1;
+    StopAnimation;
+    GeneratePositions;
+
+    // Update Gong Positions
+    for i := 0 to Length(PositionsG) -1  do
+      PositionsG[i] := -1;
+
+    i := 0;
+    while i < Length(Gongs) do
+    begin
+      r := StrToInt(Gongs[i].ElementHandle.getAttribute('row'));
+      c := StrToInt(Gongs[i].ElementHandle.getAttribute('column'));
+      j := 0;
+      while ((PositionsR[j] <> r) or (PositionsC[j] <> c)) and (j < Length(PositionsR)) do
+        j := j + 1;
+      if j < Length(PositionsR) then
+      begin
+        GongsP[i] := j;
+        PositionsG[GongsP[i]] := i;
+        Gongs[i].ElementHandle.setAttribute('position', IntToStr(j));
+        Gongs[i].ElementHandle.setAttribute('row', IntToStr(PositionsR[j]));
+        Gongs[i].ElementHandle.setAttribute('column', IntToStr(PositionsC[j]));
+      end;
+      i := i + 1;
     end;
 
-    btnMainClick(btnVolume);
-    btnSCaleClick(btnVolume);
-    btnChangeClick(btnVolume);
-  end
-  else
+    DrawBackground;
+    StartAnimation;
+  end;
+
+end;
+
+procedure TForm1.btnScalePlusClick(Sender: TObject);
+var
+  i: Integer;
+  j: integer;
+  r: integer;
+  c: integer;
+
+begin
+
+  if Zoomlevel < 20 then
   begin
-    asm
-      setTimeout(function() { btnVolumeUp.style.setProperty('opacity','0'); }, 400 );
-      setTimeout(function() { btnVolumeMute.style.setProperty('opacity','0'); }, 200 );
-      setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0'); }, 0 );
-      setTimeout(function() {
-        btnVolumeUp.style.setProperty('visibility','hidden');
-        btnVolumeMute.style.setProperty('visibility','hidden');
-        btnVolumeDown.style.setProperty('visibility','hidden');
-      },1000);
+    ZoomLevel := ZoomLevel + 1;
+    StopAnimation;
+    GeneratePositions;
+
+    // Update Gong Positions within new hexagon arrangement
+
+    for i := 0 to Length(PositionsG) -1  do
+      PositionsG[i] := -1;
+
+    i := 0;
+    while i < Length(Gongs) do
+    begin
+      r := StrToInt(Gongs[i].ElementHandle.getAttribute('row'));
+      c := StrToInt(Gongs[i].ElementHandle.getAttribute('column'));
+      j := 0;
+      while ((PositionsR[j] <> r) or (PositionsC[j] <> c)) and (j < Length(PositionsR)) do
+        j := j + 1;
+      if j < Length(PositionsR) then
+      begin
+        GongsP[i] := j;
+        PositionsG[GongsP[i]] := i;
+        Gongs[i].ElementHandle.setAttribute('position', IntToStr(j));
+        Gongs[i].ElementHandle.setAttribute('row', IntToStr(PositionsR[j]));
+        Gongs[i].ElementHandle.setAttribute('column', IntToStr(PositionsC[j]));
+      end;
+      i := i + 1;
     end;
+
+    DrawBackground;
+    StartAnimation;
   end;
 
 end;
@@ -310,7 +721,8 @@ end;
 procedure TForm1.ConfigButton(btn: TWebButton; HexPosition: Integer; ClassName: String);
 begin
 
-  btn.Parent := divButtons;
+  divButtons.ElementHAndle.appendChild(btn.ElementHandle);
+  btn.ElementHandle.setAttribute('position',IntToStr(HexPosition));
   btn.ElementHandle.classList.Add(ClassName,'d-flex','justify-content-center','align-items-center');
   btn.ElementHandle.style.setProperty('top','0px');
   btn.ElementHandle.style.setProperty('left','0px');
@@ -318,6 +730,8 @@ begin
   btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
   btn.ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
   btn.Tag := HexPosition;
+
+  if HexPosition >= 0 then PositionsT[HexPosition] := False;
 
 end;
 
@@ -332,6 +746,16 @@ begin
   I := 0;
   S := '';
 
+  ConfigButton(btnCursor, StrToIntDef(' '+btnCursor.ElementHandle.getAttribute('position'),-1), 'CursorButton');
+
+  I := 0;
+  while I < Length(Gongs) do
+  begin
+    divButtons.ElementHAndle.appendChild(Gongs[I].ElementHandle);
+    I := I + 1;
+  end;
+
+  I := 0;
   while I < Length(PositionsX) do
   begin
     Classes := 'Invalid';
@@ -342,11 +766,13 @@ begin
     begin
       Classes := 'Valid';
       PositionsV[I] := True;
+      PositionsT[I] := True;
     end
     else
     begin
       Classes := 'Invalid';
       PositionsV[I] := False;
+      PositionsT[I] := False;
     end;
 
     if      (PositionsR[I] = 3) and (PositionsC[I] = 0)  then ConfigButton(btnMain,     I, 'MainButton')
@@ -371,13 +797,20 @@ begin
 
     S := S + '<div id="BG-'+IntToStr(I)+'" '+
                    'class="Hexagon '+Classes+'" '+
-                   'RowNum="'+IntToStr(PositionsR[I])+'" '+
-                   'ColNum="'+IntToStr(PositionsC[I])+'" '+
+                   'row="'+IntToStr(PositionsR[I])+'" '+
+                   'columm="'+IntToStr(PositionsC[I])+'" '+
+                   'position="'+IntToStr(I)+'" '+
                    'style="position:absolute;'+
+                          'font-size:'+IntToStr(Trunc(HexRadius))+'px;'+
                           'top:'+FloatToStrF(PositionsY[I],ffGeneral,5,3)+'px;'+
                           'left:'+FloatToSTrF(PositionsX[I],ffGeneral,5,3)+'px;'+
                           'width:'+FloatToStrF(HexRadius*2,ffGeneral,5,3)+'px;'+
-                          'height:'+FloatToSTrf(HexRadius*2,ffGeneral,5,3)+'px;"></div>';
+                          'height:'+FloatToSTrf(HexRadius*2,ffGeneral,5,3)+'px;'+
+                          'transform-origin:'+IntToStr(Trunc(10+Random(80)))+'% '+IntToStr(10+Random(80))+'%;'+
+                          'animation-duration:'+FloatToSTr(0.40+Random*0.40)+'s;'+
+                          'animation-iteration-count:'+'infinite;'+
+                          'animation-timing-function:'+'ease-in-out;'+
+                     '"></div>';
     I := I + 1;
   end;
 
@@ -403,6 +836,19 @@ begin
   document.getElementById('BG-'+IntToStr(btnVolumeMute.Tag)).appendChild(btnVolumeMute.ElementHandle);
   document.getElementById('BG-'+IntToStr(btnVolumeDown.Tag)).appendChild(btnVolumeDown.ElementHandle);
 
+  if StrToInt(btnCursor.ElementHandle.getAttribute('position')) <> -1
+  then document.getElementById('BG-'+btnCursor.ElementHandle.getAttribute('position')).appendChild(btnCursor.ElementHandle);
+
+  I := 0;
+  while I < Length(Gongs) do
+  begin
+    Gongs[I].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+    Gongs[I].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+    Gongs[I].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+    document.GetElementById('BG-'+IntToStr(GongsP[I])).appendChild(Gongs[I].ElementHandle);
+    I := I + 1;
+  end;
+
 end;
 
 procedure TForm1.GeneratePositions;
@@ -423,7 +869,7 @@ begin
 
   // The space we have available
   WindowWidth := window.innerWidth;
-  WindowHeight := window.innerHeight;
+  WindowHeight := window.innerHeight - 10;
 
   // Note: This is a radius (half hexagon), and we want to end on an odd
   // number. The .04 bit is that we have a slight gap (4%) between them.
@@ -457,6 +903,9 @@ begin
     PositionsY[I] := Y;
     PositionsR[I] := RowCount;
     PositionsC[I] := ColCount;
+    PositionsV[I] := False;
+    PositionsT[I] := False;
+    PositionsG[I] := -1;
 
     // Fill Row, then wrap to odd or even row
     if (X+HexRadius*3 < WindowWidth) then
@@ -480,8 +929,8 @@ begin
 
   // Adjust the top margin to account for an odd (blank) row at the bottom
   if (RowCount mod 2) = 1
-  then MarginTop := -1.05*HexRadius/2 + (WindowHeight - PositionsY[I]) / 2
-  else MarginTop := -1.05*HexRadius/2 + (WindowHeight - PositionsY[I-ColCount]) / 2;
+  then MarginTop := 5+ -1.05*HexRadius/2 + (WindowHeight - PositionsY[I]) / 2
+  else MarginTop := 5+ -1.05*HexRadius/2 + (WindowHeight - PositionsY[I-ColCount]) / 2;
 
   divBackground.ElementHandle.style.setProperty('margin-top',FloatToStrF(MarginTop,ffGeneral,5,3)+'px');
 
@@ -572,8 +1021,6 @@ procedure TForm1.Animate(Anim: Integer);
 var
   I: Integer;
   CurrPos: Integer;
-  CurrRow: Integer;
-  CurrCol: Integer;
   Direction: Integer;
   NextPos: Integer;
   Loop: Integer;
@@ -581,8 +1028,6 @@ var
 begin
 
   CurrPos := Animation[Anim];
-  CurrRow := PositionsR[Animation[Anim]];
-  CurrCol := PositionsC[Animation[Anim]];
   NextPos := CurrPos;
 
   Direction := -1;
@@ -618,10 +1063,6 @@ begin
 
     Loop := Loop + 1;
   end;
-
-//  asm
-//    console.log('['+this.ColCount+','+this.RowCount+']['+CurrCol+','+CurrRow+'] from: '+this.Animation[Anim]+' to '+NextPos+' via '+Direction');
-//  end;
 
   // Trigger the Movement
   AnimationDiv[Anim].ElementHandle.style.setProperty('top',FloatToSTrF(PositionsY[NextPos] + MarginTop - 5,ffGeneral,5,3)+'px');

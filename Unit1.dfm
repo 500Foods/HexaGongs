@@ -36,7 +36,7 @@ object Form1: TForm1
       Top = 72
       Width = 96
       Height = 33
-      Caption = '<i class="fa-solid fa-cloud text-white"></i>'
+      Caption = '<i class="fa-solid fa-cloud"></i>'
       ChildOrder = 2
       ElementID = 'btnMain'
       HeightPercent = 100.000000000000000000
@@ -48,7 +48,7 @@ object Form1: TForm1
       Top = 111
       Width = 96
       Height = 33
-      Caption = '<i class="fa-solid fa-up-down-left-right text-white"></i>'
+      Caption = '<i class="fa-solid fa-up-down-left-right"></i>'
       ChildOrder = 2
       ElementID = 'btmScale'
       HeightPercent = 100.000000000000000000
@@ -60,7 +60,7 @@ object Form1: TForm1
       Top = 150
       Width = 96
       Height = 33
-      Caption = '<i class="fa-solid fa-shuffle text-white"></i>'
+      Caption = '<i class="fa-solid fa-shuffle"></i>'
       ChildOrder = 2
       ElementID = 'btnChange'
       HeightPercent = 100.000000000000000000
@@ -72,7 +72,7 @@ object Form1: TForm1
       Top = 189
       Width = 96
       Height = 33
-      Caption = '<i class="fa-solid fa-volume-off text-white"></i>'
+      Caption = '<i class="fa-solid fa-volume-off"></i>'
       ChildOrder = 2
       ElementID = 'btnVolume'
       HeightPercent = 100.000000000000000000
@@ -168,6 +168,7 @@ object Form1: TForm1
       ElementID = 'btnEdit'
       HeightPercent = 100.000000000000000000
       WidthPercent = 100.000000000000000000
+      OnClick = btnEditClick
     end
     object btnClone: TWebButton
       Left = 416
@@ -212,6 +213,18 @@ object Form1: TForm1
       ElementID = 'btnVolumeDown'
       HeightPercent = 100.000000000000000000
       WidthPercent = 100.000000000000000000
+    end
+    object btnCursor: TWebButton
+      Left = 534
+      Top = 72
+      Width = 96
+      Height = 33
+      ChildOrder = 2
+      ElementClassName = 'dragswap'
+      ElementID = 'btnCursor'
+      HeightPercent = 100.000000000000000000
+      WidthPercent = 100.000000000000000000
+      OnClick = btnMainClick
     end
   end
   object tmrStartup: TWebTimer
