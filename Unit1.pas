@@ -21,7 +21,7 @@ uses
   WEBLib.Dialogs,
   WEBLib.WebCtrls,
   WEBLib.ExtCtrls,
-  WEBLib.StdCtrls;
+  WEBLib.StdCtrls, WEBLib.ComCtrls;
 
 const
   AnimatedElements = 5;
@@ -49,6 +49,28 @@ type
     btnVolumeMute: TWebButton;
     btnVolumeDown: TWebButton;
     btnCursor: TWebButton;
+    divOptions: TWebHTMLDiv;
+    divOptionsList: TWebHTMLDiv;
+    pageControl: TWebPageControl;
+    pageName: TWebTabSheet;
+    pageBackground: TWebTabSheet;
+    pageImage: TWebTabSheet;
+    divOptionsBG: TWebHTMLDiv;
+    btnOptionsName: TWebButton;
+    btnOptionsBackground: TWebButton;
+    btnOptionsImage: TWebButton;
+    btnOptionsAudio: TWebButton;
+    btnOptionsOK: TWebButton;
+    btnOptionsCancel: TWebButton;
+    btnOptionsSettings: TWebButton;
+    divOptionsBGBorder: TWebHTMLDiv;
+    divShade: TWebHTMLDiv;
+    pageAudio: TWebTabSheet;
+    pageSettings: TWebTabSheet;
+    divTitleHolder: TWebHTMLDiv;
+    editTitle: TWebEdit;
+    WebLabel1: TWebLabel;
+    divOptionsCursor: TWebHTMLDiv;
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure GeneratePositions;
@@ -65,6 +87,15 @@ type
     procedure btnScalePlusClick(Sender: TObject);
     procedure btnScaleMinusClick(Sender: TObject);
     procedure btnEditClick(Sender: TObject);
+    procedure btnOptionsOKClick(Sender: TObject);
+    procedure btnOptionsCancelClick(Sender: TObject);
+    procedure btnOptionsNameClick(Sender: TObject);
+    procedure btnOptionsBackgroundClick(Sender: TObject);
+    procedure btnOptionsImageClick(Sender: TObject);
+    procedure btnOptionsAudioClick(Sender: TObject);
+    procedure btnOptionsSettingsClick(Sender: TObject);
+    procedure ResizeOptions;
+    procedure UpdateOptionsCursor;
   private
     { Private declarations }
   public
@@ -119,6 +150,17 @@ begin
   VolumeMode := False;
   ZoomLevel := 7;
   LastClick := Now;
+  pageControl.TabIndex := 0;
+
+
+  // Set some initial colors
+  btnOptionsName.ElementHandle.style.setProperty('background',      'radial-gradient(#00000000,yellow)');
+  btnOptionsBackground.ElementHandle.style.setProperty('background','radial-gradient(#00000000,pink)');
+  btnOptionsImage.ElementHandle.style.setProperty('background',     'radial-gradient(#00000000,orange)');
+  btnOptionsAudio.ElementHandle.style.setProperty('background',     'radial-gradient(#00000000,royalblue)');
+  btnOptionsSettings.ElementHandle.style.setProperty('background',  'radial-gradient(#00000000,gray)');
+  btnOptionsOK.ElementHandle.style.setProperty('background',        'radial-gradient(#00000000,green)');
+  btnOptionsCancel.ElementHandle.style.setProperty('background',    'radial-gradient(#00000000,red)');
 
 
   // Initialize AnimationTimers array
@@ -132,23 +174,23 @@ begin
   // Deal with button clicks that aren't on buttons directly
   asm
     divBackground.addEventListener('click', (event) => {
-      if ((event.target.classList.contains('Valid')) &&
-          (!(
-           event.target.classList.contains('Button') ||
-           event.target.classList.contains('MainButton') ||
-           event.target.parentElement.classList.contains('Button') ||
-           event.target.parentElement.classList.contains('MainButton')
-          )) && This.ChangeMode == true) {
-        if (event.target.classList.contains('Valid')) {
-          if (This.PositionsG[btnCursor.parentElement.getAttribute('position')] == -1) {
-            btnCursor.parentElement.style.removeProperty('animation-name');
-          }
-          event.target.appendChild(btnCursor);
-          btnCursor.setAttribute('position',event.target.getAttribute('position'));
-          btnCursor.parentElement.style.setProperty('animation-name','jiggle');
-          btnCursor.style.setProperty('z-index','5');
+      // Cursor handling
+      if (  event.target.classList.contains('Valid')
+            && (This.ChangeMode == true)
+            && !event.target.classList.contains('Button')
+            && !event.target.classList.contains('MainButton') ) {
+        // Remove jiggle if hexagon is otherwise empty
+        if (This.PositionsG[btnCursor.parentElement.getAttribute('position')] == -1) {
+          btnCursor.parentElement.style.removeProperty('animation-name');
         }
+        // Move cursor to new position
+        event.target.appendChild(btnCursor);
+        btnCursor.setAttribute('position',event.target.getAttribute('position'));
+        btnCursor.style.setProperty('z-index','5');
+        // Set to jiggling (might be already)
+        btnCursor.parentElement.style.setProperty('animation-name','jiggle');
       }
+      // If not cursor and not primary button and not secondary button, then hide buttons
       else if (! (
          event.target.classList.contains('Button') ||
          event.target.classList.contains('MainButton')
@@ -331,6 +373,40 @@ begin
         }
       });
 
+
+    // This is used to adjust the size and placement of the options window
+    interact('.resize-drag')
+      .resizable({
+        edges: { left: true, right: true, bottom: true, top: true },
+        margin: 30, // size of resizing boundary interaction area
+        listeners: {
+          move (event) {
+            var target = event.target
+            var x = (parseFloat(target.getAttribute('data-x')) || 0)
+            var y = (parseFloat(target.getAttribute('data-y')) || 0)
+            target.style.width = event.rect.width + 'px'
+            target.style.height = event.rect.height + 'px'
+            x += event.deltaRect.left
+            y += event.deltaRect.top
+            target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+            target.setAttribute('data-x', x)
+            target.setAttribute('data-y', y)
+
+            This.ResizeOptions();
+
+          }
+        },
+        ignoreFrom: '.nointeract'
+      })
+      .draggable({
+        listeners: { move: dragMoveListener },
+        ignoreFrom: '.nointeract'
+      })
+      .pointerEvents({
+        ignoreFrom: '.nointeract'
+      });
+
+
     function dragMoveListener (event) {
       var target = event.target
       var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
@@ -354,6 +430,7 @@ begin
     GeneratePositions;
     DrawBackground;
     StartAnimation;
+    ResizeOptions;
   end;
 
 end;
@@ -379,6 +456,37 @@ begin
 end;
 
 
+
+procedure TForm1.UpdateOptionsCursor;
+var
+  CursorHeight: Double;
+  CursorWidth: Double;
+  CursorTop: Double;
+  CursorLeft: Double;
+  CursorColor: String;
+  CursorLink: TWebButton;
+
+begin
+
+  if      pageControl.tabIndex = 0 then CursorLink := btnOptionsName
+  else if pageControl.tabIndex = 1 then CursorLink := btnOptionsBackground
+  else if pageControl.tabIndex = 2 then CursorLink := btnOptionsImage
+  else if pageControl.tabIndex = 3 then CursorLink := btnOptionsAudio
+  else if pageControl.tabIndex = 4 then CursorLink := btnOptionsSettings;
+
+  CursorTop := CursorLink.ElementHandle.offsetTop + 30;
+  CursorLeft := CursorLink.ElementHandle.offsetLeft + 40;
+  CursorWidth := CursorLink.ElementHandle.offsetWidth;
+  CursorHeight := CursorLink.ElementHandle.offsetHeight;
+
+  divOptionsCursor.ElementHandle.style.setProperty('top',FloatToStrF(CursorTop,ffGeneral,5,3)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('left',FloatToStrF(CursorLeft,ffGeneral,5,3)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('width',FloatToStrF(CursorWidth,ffGeneral,5,3)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('height',FloatToStrF(CursorHeight,ffGeneral,5,3)+'px');
+
+  divOptionsCursor.ElementHandle.style.setProperty('background',CursorLink.ElementHandle.style.getPropertyValue('background'));
+
+end;
 
 procedure TForm1.btnEditClick(Sender: TObject);
 var
@@ -418,24 +526,29 @@ begin
       Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient(#00000080,#FFFFFF80)');
       Gongs[GongID].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
 
-      Gongs[GongID].HTML.Text := '<div class="GongContent" style="color:white;">'+IntToStr(GongID+1)+'</div>';
+//      Gongs[GongID].HTML.Text := '<div class="GongContent" style="color:white;">'+IntToStr(GongID+1)+'</div>';
 
       document.getElementById('BG-'+IntToStr(CursorPosition)).appendChild(Gongs[GongID].ElementHandle);
       (document.getElementById('BG-'+IntToStr(CursorPosition)) as TJSHTMLElement).style.setProperty('animation-name','jiggle');
-    end
+    end;
 
     // Edit Gong
-    else
-    begin
+    divShade.ElementHandle.style.setProperty('visibility','visible');
+    divShade.ElementHandle.style.SetProperty('opacity','0.5');
+    divOptions.ElementHandle.style.setProperty('visibility','visible');
+    divOptions.ElementHandle.style.SetProperty('opacity','1');
 
-    end;
+    pageControl.TabIndex := 0;
+
+    ResizeOptions;
+
   end;
 end;
 
 procedure TForm1.btnMainClick(Sender: TObject);
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 500) then
+  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -453,9 +566,9 @@ begin
         setTimeout(function() { btnUpload.style.setProperty('opacity','0.2'); }, 400 );
       end;
 
-      btnScaleClick(btnMain);
-      btnChangeClick(btnMain);
-      btnVolumeClick(btnMain);
+      btnScaleClick(nil);
+      btnChangeClick(nil);
+      btnVolumeClick(nil);
     end
     else
     begin
@@ -476,10 +589,59 @@ begin
 
 end;
 
+procedure TForm1.btnOptionsAudioClick(Sender: TObject);
+begin
+  pageControl.TabIndex := 3;
+  UpdateOptionsCursor;
+end;
+
+procedure TForm1.btnOptionsBackgroundClick(Sender: TObject);
+begin
+  pageControl.TabIndex := 1;
+  UpdateOptionsCursor;
+end;
+
+procedure TForm1.btnOptionsCancelClick(Sender: TObject);
+begin
+  divShade.ElementHandle.style.setProperty('opacity','0');
+  divOptions.ElementHandle.style.setProperty('opacity','0');
+  asm
+    setTimeout(function() {
+      divShade.style.setProperty('visibility','hidden');
+      divOptions.style.setProperty('visibility','hidden');
+    },500);
+  end;
+
+end;
+
+procedure TForm1.btnOptionsImageClick(Sender: TObject);
+begin
+  pageControl.TabIndex := 2;
+  UpdateOptionsCursor;
+end;
+
+procedure TForm1.btnOptionsNameClick(Sender: TObject);
+begin
+  pageControl.TabIndex := 0;
+  UpdateOptionsCursor;
+end;
+
+procedure TForm1.btnOptionsOKClick(Sender: TObject);
+begin
+
+  btnOptionsCancelClick(Sender);
+end;
+
+procedure TForm1.btnOptionsSettingsClick(Sender: TObject);
+begin
+  pageControl.TabIndex := 4;
+  UpdateOptionsCursor;
+end;
+
 procedure TForm1.btnScaleClick(Sender: TObject);
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 500) then
+  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -497,9 +659,9 @@ begin
         setTimeout(function() { btnScaleMinus.style.setProperty('opacity','0.2'); }, 400 );
       end;
 
-      btnChangeClick(btnScale);
-      btnVolumeClick(btnScale);
-      btnMainClick(btnScale);
+      btnChangeClick(nil);
+      btnVolumeClick(nil);
+      btnMainClick(nil);
     end
     else
     begin
@@ -525,7 +687,7 @@ var
   i: Integer;
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 500) then
+  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -552,9 +714,9 @@ begin
         setTimeout(function() { btnClone.style.setProperty('opacity','0.2'); }, 0 );
       end;
 
-      btnSCaleClick(btnChange);
-      btnVolumeClick(btnChange);
-      btnMainClick(btnChange);
+      btnSCaleClick(nil);
+      btnVolumeClick(nil);
+      btnMainClick(nil);
     end
     else
     begin
@@ -589,7 +751,7 @@ end;
 procedure TForm1.btnVolumeClick(Sender: TObject);
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 500) then
+  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -607,9 +769,9 @@ begin
         setTimeout(function() { btnVolumeDown.style.setProperty('opacity','0.2'); }, 0 );
       end;
 
-      btnMainClick(btnVolume);
-      btnSCaleClick(btnVolume);
-      btnChangeClick(btnVolume);
+      btnMainClick(nil);
+      btnSCaleClick(nil);
+      btnChangeClick(nil);
     end
     else
     begin
@@ -934,6 +1096,53 @@ begin
 
   divBackground.ElementHandle.style.setProperty('margin-top',FloatToStrF(MarginTop,ffGeneral,5,3)+'px');
 
+end;
+
+procedure TForm1.ResizeOptions;
+begin
+    asm
+      var t = divOptions.offsetTop;
+      var l = divOptions.offsetLeft;
+      var w = divOptions.offsetWidth;
+      var h = divOptions.offsetHeight;
+      var d = Math.max(this.HexRadius*Math.sqrt(3)/2,96);
+      var b = h*0.014;
+
+      if (divOptions.getAttribute('data-x') == null) {
+        divOptions.setAttribute('data-x',-w/2);
+        divOptions.setAttribute('data-y',-h/2);
+      }
+
+      // Adjust clip-path for Options window
+      var polygon = 'polygon('+
+        '0px '+d+'px,'+
+        (d/2)+'px '+b+'px,'+
+        (w-(d/2))+'px '+b+'px,'+
+        w+'px '+d+'px,'+
+        w+'px '+(h-d)+'px,'+
+        (w-(d/2))+'px '+(h-b)+'px,'+
+        (d/2)+'px '+(h-b)+'px,'+
+        '0px '+(h-d)+'px)';
+      divOptions.style.setProperty('clip-path',polygon);
+      divOptionsBGBorder.style.setProperty('clip-path',polygon);
+
+      // Adjust clip-path for Options window background
+      w = w - 4;
+      h = h - 4;
+      polygon = 'polygon('+
+        '0px '+d+'px,'+
+        (d/2)+'px '+b+'px,'+
+        (w-(d/2))+'px '+b+'px,'+
+        w+'px '+d+'px,'+
+        w+'px '+(h-d)+'px,'+
+        (w-(d/2))+'px '+(h-b)+'px,'+
+        (d/2)+'px '+(h-b)+'px,'+
+        '0px '+(h-d)+'px)';
+      divOptionsBG.style.setProperty('clip-path',polygon);
+
+    end;
+
+    UpdateOptionsCursor;
 end;
 
 procedure TForm1.StartAnimation;

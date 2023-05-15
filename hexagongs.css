@@ -81,6 +81,10 @@ body {
   opacity: 1 !important;
 }
 
+.OptionButton {
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+
 .CursorButton {
   display: flex;
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
@@ -119,3 +123,100 @@ pointer-events: none;
   75%  { transform: rotate(-2deg); }
   100% { transform: rotate( 0deg); }
 }
+
+#divOptions {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  min-width: 500px;
+  min-height: 500px;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 500ms;
+  visibility: hidden;
+}
+
+#divOptionsBG {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: black;
+  opacity: 0.8;
+  z-index: -1;
+}
+#divOptionsBGBorder {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: white;
+  opacity: 0.2;
+  z-index: -2;
+}
+
+#divOptionsList {
+  position: absolute;
+  top: 30px;
+  left: 20px;
+  width: 80px;
+  bottom: 30px;
+}
+
+#pageControl {
+  position: absolute;
+  top: 20px !important;
+  left: 100px !important;
+  right: 20px;
+  bottom: 20px;
+  background: transparent;
+}
+
+.Page {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: transparent;
+}
+
+#divShade {
+  z-index: 15;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  opacity: 0;
+  transition: opacity 500ms;
+  background: black;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#divOptionsCursor {
+  clip-path: polygon(50% 5%, 75% 5%, 100% 50%, 75% 95%, 50% 95%, 75% 50%);
+  position: absolute;
+}
+
+#divTitleHolder {
+  background: white;
+}
+#editTitle {
+  background: black;
+  color: white;
+}
+
+.OptionButton > i {
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
+}
+
+
+
+
