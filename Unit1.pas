@@ -23,9 +23,6 @@ uses
   WEBLib.ExtCtrls,
   WEBLib.StdCtrls, WEBLib.ComCtrls;
 
-const
-  AnimatedElements = 5;
-
 type
   TForm1 = class(TWebForm)
     divBackground: TWebHTMLDiv;
@@ -55,7 +52,6 @@ type
     pageName: TWebTabSheet;
     pageBackground: TWebTabSheet;
     pageImage: TWebTabSheet;
-    divOptionsBG: TWebHTMLDiv;
     btnOptionsName: TWebButton;
     btnOptionsBackground: TWebButton;
     btnOptionsImage: TWebButton;
@@ -69,8 +65,33 @@ type
     pageSettings: TWebTabSheet;
     divTitleHolder: TWebHTMLDiv;
     editTitle: TWebEdit;
+    WebHTMLDiv1: TWebHTMLDiv;
     WebLabel1: TWebLabel;
+    WebHTMLDiv2: TWebHTMLDiv;
+    WebLabel2: TWebLabel;
+    WebHTMLDiv3: TWebHTMLDiv;
+    WebEdit1: TWebEdit;
     divOptionsCursor: TWebHTMLDiv;
+    WebHTMLDiv4: TWebHTMLDiv;
+    WebLabel3: TWebLabel;
+    WebHTMLDiv5: TWebHTMLDiv;
+    WebHTMLDiv6: TWebHTMLDiv;
+    WebLabel4: TWebLabel;
+    memoHexDescHolder: TWebHTMLDiv;
+    memoHexDesc: TWebMemo;
+    memoProjDesc: TWebMemo;
+    divOptionsBG: TWebHTMLDiv;
+    WebHTMLDiv7: TWebHTMLDiv;
+    WebLabel5: TWebLabel;
+    WebHTMLDiv11: TWebHTMLDiv;
+    divOptionsBGRadial: TWebHTMLDiv;
+    divOptionsBGRadialLabel: TWebLabel;
+    divOptionsBGLinear: TWebHTMLDiv;
+    divOptionsBGLinearLabel: TWebLabel;
+    divOptionsBGSolid: TWebHTMLDiv;
+    divOptionsBGSolidLabel: TWebLabel;
+    WebHTMLDiv12: TWebHTMLDiv;
+    WebLabel9: TWebLabel;
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure GeneratePositions;
@@ -94,8 +115,10 @@ type
     procedure btnOptionsImageClick(Sender: TObject);
     procedure btnOptionsAudioClick(Sender: TObject);
     procedure btnOptionsSettingsClick(Sender: TObject);
-    procedure ResizeOptions;
     procedure UpdateOptionsCursor;
+    procedure divOptionsBGRadialClick(Sender: TObject);
+    procedure divOptionsBGLinearClick(Sender: TObject);
+    procedure divOptionsBGSolidClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -112,11 +135,12 @@ type
     PositionsT: Array of Boolean;   // Valid Target for Drag/Swap
     PositionsG: Array of Integer;   // Gong # at a Position
 
-    Animation:       Array[0..AnimatedElements] of Integer;      // Current Position of this animation
-    AnimationDiv:    Array[0..AnimatedElements] of TWebHTMLDiv;  // <div> for this animation
-    AnimationDir:    Array[0..AnimatedElements] of Integer;      // Direction animation is moving (clockwise, 0 is top left of hexagon)
-    AnimationLast:   Array[0..AnimatedElements] of Integer;      // Last Position of this animation
-    AnimationTimers: JSValue;                                    // Array of setInterval() timers currently active
+    AnimatedElements: Integer;               // How many did you say?
+    Animation:        Array of Integer;      // Current Position of this animation
+    AnimationDiv:     Array of TWebHTMLDiv;  // <div> for this animation
+    AnimationDir:     Array of Integer;      // Direction animation is moving (clockwise, 0 is top left of hexagon)
+    AnimationLast:    Array of Integer;      // Last Position of this animation
+    AnimationTimers:  JSValue;               // Array of setInterval() timers currently active
 
     MainMode:   Boolean;   // State of Main button (top-left)
     ScaleMode:  Boolean;   // State of Scale button (top-right)
@@ -129,6 +153,10 @@ type
     RowCount: Integer;    // Number of rows (includes odd and even)
     ColCount: Integer;    // Number of columns (just the number of hexagons in first row, always odd)
     MarginTop: Double;    // How much of an offset to center the hexagons vertically
+
+    OptionsNamesScroll: JSValue;  // SimpleBar reference
+    OptionsBGStyle: Integer;      // Radial, Linear, or Solid
+
 
   end;
 
@@ -151,21 +179,18 @@ begin
   ZoomLevel := 7;
   LastClick := Now;
   pageControl.TabIndex := 0;
-
-
-  // Set some initial colors
-  btnOptionsName.ElementHandle.style.setProperty('background',      'radial-gradient(#00000000,yellow)');
-  btnOptionsBackground.ElementHandle.style.setProperty('background','radial-gradient(#00000000,pink)');
-  btnOptionsImage.ElementHandle.style.setProperty('background',     'radial-gradient(#00000000,orange)');
-  btnOptionsAudio.ElementHandle.style.setProperty('background',     'radial-gradient(#00000000,royalblue)');
-  btnOptionsSettings.ElementHandle.style.setProperty('background',  'radial-gradient(#00000000,gray)');
-  btnOptionsOK.ElementHandle.style.setProperty('background',        'radial-gradient(#00000000,green)');
-  btnOptionsCancel.ElementHandle.style.setProperty('background',    'radial-gradient(#00000000,red)');
-
+  AnimatedElements := 6;
 
   // Initialize AnimationTimers array
   asm this.AnimationTimers = []; end;
 
+  // Enable Simplebar on Options pages
+  asm
+    this.OptionsNamesScroll = new SimpleBar(document.getElementById('pageName'), {
+      forceVisible: 'y',
+      autoHide: false
+    });
+  end;
 
   // JavaScript Sleep Function
   asm window.sleep = async function(msecs) {return new Promise((resolve) => setTimeout(resolve, msecs)); } end;
@@ -187,7 +212,7 @@ begin
         event.target.appendChild(btnCursor);
         btnCursor.setAttribute('position',event.target.getAttribute('position'));
         btnCursor.style.setProperty('z-index','5');
-        // Set to jiggling (might be already)
+        // Set to jiggling (might be jiggling already)
         btnCursor.parentElement.style.setProperty('animation-name','jiggle');
       }
       // If not cursor and not primary button and not secondary button, then hide buttons
@@ -208,6 +233,7 @@ begin
   asm
     var This = pas.Unit1.Form1;
     interact('.dragswap')
+
       .on('click', event => {
           event.stopImmediatePropagation();
           if (This.PositionsG[btnCursor.parentElement.getAttribute('position')] == -1) {
@@ -382,8 +408,8 @@ begin
         listeners: {
           move (event) {
             var target = event.target
-            var x = (parseFloat(target.getAttribute('data-x')) || 0)
-            var y = (parseFloat(target.getAttribute('data-y')) || 0)
+            var x = (parseFloat(target.getAttribute('data-x')) || -divOptions.getBoundingClientRect().width/2)
+            var y = (parseFloat(target.getAttribute('data-y')) || -divOptions.getBoundingClientRect().height/2)
             target.style.width = event.rect.width + 'px'
             target.style.height = event.rect.height + 'px'
             x += event.deltaRect.left
@@ -391,19 +417,17 @@ begin
             target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
             target.setAttribute('data-x', x)
             target.setAttribute('data-y', y)
-
-            This.ResizeOptions();
-
+            pas.Unit1.Form1.UpdateOptionsCursor();
           }
         },
-        ignoreFrom: '.nointeract'
+        ignoreFrom: '.nointeract, .simplebar-track'
       })
       .draggable({
-        listeners: { move: dragMoveListener },
-        ignoreFrom: '.nointeract'
+        listeners: { move: dragMoveListenerOptions },
+        ignoreFrom: '.nointeract, .simplebar-track'
       })
       .pointerEvents({
-        ignoreFrom: '.nointeract'
+        ignoreFrom: '.nointeract, .simplebar-track'
       });
 
 
@@ -416,6 +440,16 @@ begin
       target.setAttribute('data-y', y)
     };
     window.dragMoveListener = dragMoveListener
+
+    function dragMoveListenerOptions (event) {
+      var target = event.target
+      var x = (parseFloat(target.getAttribute('data-x')) || -divOptions.getBoundingClientRect().width/2) + event.dx
+      var y = (parseFloat(target.getAttribute('data-y')) || -divOptions.getBoundingClientRect().height/2) + event.dy
+      target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+      target.setAttribute('data-x', x)
+      target.setAttribute('data-y', y)
+    };
+    window.dragMoveListenerOptions = dragMoveListenerOptions
 
   end;
 end;
@@ -430,7 +464,14 @@ begin
     GeneratePositions;
     DrawBackground;
     StartAnimation;
-    ResizeOptions;
+
+    if ChangeMode = True then
+    begin
+      LastClick := Now - 1;
+      ChangeMode := False;
+      btnChangeClick(btnChange);
+      UpdateOptionsCursor
+    end;
   end;
 
 end;
@@ -453,7 +494,30 @@ begin
   // Get the animation rolling
   StartAnimation;
 
+
+  asm
+    // https://stephanwagner.me/auto-resizing-textarea-with-vanilla-javascript
+    function addAutoResize() {
+      document.querySelectorAll('[data-autoresize]').forEach(function (element) {
+        element.style.boxSizing = 'border-box';
+        var offset = element.offsetHeight - element.clientHeight;
+        element.addEventListener('input', function (event) {
+          event.target.style.height = 'auto';
+          event.target.style.height = event.target.scrollHeight + offset + 'px';
+          event.target.parentElement.style.height = event.target.scrollHeight + offset + 4 + 'px';
+          pas.Unit1.Form1.OptionsNamesScroll.recalculate();
+        });
+        element.removeAttribute('data-autoresize');
+      });
+    }
+    memoHexDesc.setAttribute('data-autoresize','');
+    memoHexDesc.setAttribute('rows','1');
+    memoProjDesc.setAttribute('data-autoresize','');
+    memoProjDesc.setAttribute('rows','1');
+    addAutoResize();
+  end;
 end;
+
 
 
 
@@ -474,17 +538,17 @@ begin
   else if pageControl.tabIndex = 3 then CursorLink := btnOptionsAudio
   else if pageControl.tabIndex = 4 then CursorLink := btnOptionsSettings;
 
-  CursorTop := CursorLink.ElementHandle.offsetTop + 30;
-  CursorLeft := CursorLink.ElementHandle.offsetLeft + 40;
-  CursorWidth := CursorLink.ElementHandle.offsetWidth;
-  CursorHeight := CursorLink.ElementHandle.offsetHeight;
+  CursorTop := CursorLink.ElementHandle.getBoundingClientRect.top - divOptionsList.ElementHandle.getBoundingClientRect.top;
+  CursorLeft := CursorLink.ElementHandle.getBoundingClientRect.left + 20 - divOptionsList.ElementHandle.getBoundingClientRect.left;
+  CursorWidth := CursorLink.ElementHandle.getBoundingClientRect.width;
+  CursorHeight := CursorLink.ElementHandle.getBoundingClientRect.height;
 
-  divOptionsCursor.ElementHandle.style.setProperty('top',FloatToStrF(CursorTop,ffGeneral,5,3)+'px');
-  divOptionsCursor.ElementHandle.style.setProperty('left',FloatToStrF(CursorLeft,ffGeneral,5,3)+'px');
-  divOptionsCursor.ElementHandle.style.setProperty('width',FloatToStrF(CursorWidth,ffGeneral,5,3)+'px');
-  divOptionsCursor.ElementHandle.style.setProperty('height',FloatToStrF(CursorHeight,ffGeneral,5,3)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('top',FloatToStrF(CursorTop,ffGeneral,8,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('left',FloatToStrF(CursorLeft,ffGeneral,8,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('width',FloatToStrF(CursorWidth,ffGeneral,8,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('height',FloatToStrF(CursorHeight,ffGeneral,8,5)+'px');
 
-  divOptionsCursor.ElementHandle.style.setProperty('background',CursorLink.ElementHandle.style.getPropertyValue('background'));
+  divOptionsCursor.ElementHandle.style.setProperty('background',window.getComputedStyle(CursorLink.ElementHandle).getPropertyValue('background'));
 
 end;
 
@@ -540,7 +604,7 @@ begin
 
     pageControl.TabIndex := 0;
 
-    ResizeOptions;
+    UpdateOptionsCursor;
 
   end;
 end;
@@ -726,7 +790,6 @@ begin
       while i < Length(Gongs) do
       begin
         Gongs[i].ElementHandle.classList.remove('dragswap');
-        (Gongs[i].ElementHandle.parentElement as TJSHTMLElement).style.removeProperty('animation-name');
         i := i + 1;
       end;
 
@@ -734,6 +797,10 @@ begin
       btnCursor.ElementHandle.setAttribute('position','-1');
       btnChange.ElementHandle.classList.remove('Selected');
       asm
+        // Just in case some stragglers are left behind?!
+        var hex = document.querySelectorAll('.Hexagon');
+        hex.forEach((h)=> h.style.removeProperty('animation-name'));
+
         setTimeout(function() { btnTrash.style.setProperty('opacity','0'); }, 400 );
         setTimeout(function() { btnEdit.style.setProperty('opacity','0'); }, 200 );
         setTimeout(function() { btnClone.style.setProperty('opacity','0'); }, 0 );
@@ -895,6 +962,30 @@ begin
 
   if HexPosition >= 0 then PositionsT[HexPosition] := False;
 
+end;
+
+procedure TForm1.divOptionsBGLinearClick(Sender: TObject);
+begin
+  OptionsBGStyle := 1;
+  divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','black');
+end;
+
+procedure TForm1.divOptionsBGRadialClick(Sender: TObject);
+begin
+  OptionsBGStyle := 0;
+  divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','black');
+end;
+
+procedure TForm1.divOptionsBGSolidClick(Sender: TObject);
+begin
+  OptionsBGStyle := 2;
+  divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','black');
 end;
 
 procedure TForm1.DrawBackground;
@@ -1098,52 +1189,6 @@ begin
 
 end;
 
-procedure TForm1.ResizeOptions;
-begin
-    asm
-      var t = divOptions.offsetTop;
-      var l = divOptions.offsetLeft;
-      var w = divOptions.offsetWidth;
-      var h = divOptions.offsetHeight;
-      var d = Math.max(this.HexRadius*Math.sqrt(3)/2,96);
-      var b = h*0.014;
-
-      if (divOptions.getAttribute('data-x') == null) {
-        divOptions.setAttribute('data-x',-w/2);
-        divOptions.setAttribute('data-y',-h/2);
-      }
-
-      // Adjust clip-path for Options window
-      var polygon = 'polygon('+
-        '0px '+d+'px,'+
-        (d/2)+'px '+b+'px,'+
-        (w-(d/2))+'px '+b+'px,'+
-        w+'px '+d+'px,'+
-        w+'px '+(h-d)+'px,'+
-        (w-(d/2))+'px '+(h-b)+'px,'+
-        (d/2)+'px '+(h-b)+'px,'+
-        '0px '+(h-d)+'px)';
-      divOptions.style.setProperty('clip-path',polygon);
-      divOptionsBGBorder.style.setProperty('clip-path',polygon);
-
-      // Adjust clip-path for Options window background
-      w = w - 4;
-      h = h - 4;
-      polygon = 'polygon('+
-        '0px '+d+'px,'+
-        (d/2)+'px '+b+'px,'+
-        (w-(d/2))+'px '+b+'px,'+
-        w+'px '+d+'px,'+
-        w+'px '+(h-d)+'px,'+
-        (w-(d/2))+'px '+(h-b)+'px,'+
-        (d/2)+'px '+(h-b)+'px,'+
-        '0px '+(h-d)+'px)';
-      divOptionsBG.style.setProperty('clip-path',polygon);
-
-    end;
-
-    UpdateOptionsCursor;
-end;
 
 procedure TForm1.StartAnimation;
 var
@@ -1177,7 +1222,12 @@ begin
     MidY = NewY;
   end;
 
-  for I := 0 to AnimatedElements do
+  SetLength(Animation,     AnimatedElements);
+  SetLength(AnimationDiv,  Animatedelements);
+  SetLength(AnimationDir,  AnimatedElements);
+  SetLength(AnimationLast, AnimatedElements);
+
+  for I := 0 to AnimatedElements - 1 do
   begin
     // Create element if it is our first time through
     if not(Assigned(AnimationDiv[i])) then
@@ -1200,7 +1250,7 @@ begin
     // Start at the center - 6 elements start moving in 6 directions
     Animation[I] := StartPosition;
     AnimationLast[I] := -1;
-    AnimationDir[I] := I;
+    AnimationDir[I] := I mod 6;
 
     // Launch Animation Timers
     asm
@@ -1263,7 +1313,7 @@ begin
 
     // Try to avoid collisions, but don't try too hard
     if (Direction <> -1) and (Loop <= 3) then
-      for I := 0 to AnimatedElements do
+      for I := 0 to AnimatedElements - 1 do
         if NextPos = Animation[I] then Direction := -1;
 
     // If we haven't come up with a better move, than stay put for now

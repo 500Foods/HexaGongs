@@ -1,8 +1,51 @@
 body {
   overflow: hidden;
   background: black;
+  font-family: Cairo;
 }
 
+
+
+/* Make sure error messages appear on top of everything else
+** so that they can both be seen and be dismissed
+*/
+#tmserrormessage {
+  z-index: 9999999 !important;
+}
+
+
+
+/* Dunno why Bootstrap only declares 1-5? */
+.order-6  {order:  6; }
+.order-7  {order:  7; }
+.order-8  {order:  8; }
+.order-9  {order:  9; }
+.order-10 {order: 10; }
+
+
+
+/* Customize Simplebar scrollbars */
+.simplebar-wrapper {
+  height: 100%;
+}
+.simplebar-track {
+  cursor:s-resize !important;
+  background: radial-gradient(darkorange,yellow);
+  opacity: 0.6;
+  width: 32px !important;
+  clip-path: polygon(0px 30px, 16px 1.8px, calc(100% - 16px) 1.8px, 100% 30px, 100% calc(100% - 30px), calc(100% - 16px) calc(100% - 1.8px), 16px calc(100% - 1.8px), 0% calc(100% - 30px));
+
+}
+.simplebar-scrollbar::before {
+  background: radial-gradient(black,maroon);
+  width: 22px !important;
+  left: 5px !important;
+  margin: 9px 0px !important;
+  clip-path: polygon(0px 20px, 10px 2px, calc(100% - 10px) 2px, 100% 20px, 100% calc(100% - 20px), calc(100% - 10px) calc(100% - 2px), 10px calc(100% - 2px), 0% calc(100% - 20px));
+}
+
+
+/* BACKGROUND */
 
 #divBackground {
   z-index: 2;
@@ -37,18 +80,43 @@ body {
 }
 
 
+
+/* ANIMATION */
+
 .Animation {
   /*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
   clip-path: circle();
   z-index: 1;
 }
-#divAnimation0 { opacity: 0; background: #FF000080; }
-#divAnimation1 { opacity: 0; background: #00FF0080; }
-#divAnimation2 { opacity: 0; background: #0000FF80; }
-#divAnimation3 { opacity: 0; background: #FFFF0080; }
-#divAnimation4 { opacity: 0; background: #FF00FF80; }
-#divAnimation5 { opacity: 0; background: #00FFFF80; }
+/* Just different colors - pastels preferably! */
+#divAnimation0  { opacity: 0; background: #FF000080; }
+#divAnimation1  { opacity: 0; background: #00FF0080; }
+#divAnimation2  { opacity: 0; background: #0000FF80; }
+#divAnimation3  { opacity: 0; background: #FFFF0080; }
+#divAnimation4  { opacity: 0; background: #FF00FF80; }
+#divAnimation5  { opacity: 0; background: #00FFFF80; }
+#divAnimation6  { opacity: 0; background: #FFFFFF80; }
+#divAnimation7  { opacity: 0; background: #C0C0C080; }
+#divAnimation8  { opacity: 0; background: #A0C0F080; }
+#divAnimation9  { opacity: 0; background: #A0F0C080; }
+#divAnimation8  { opacity: 0; background: #C0A0F080; }
+#divAnimation10 { opacity: 0; background: #C0F0A080; }
+#divAnimation11 { opacity: 0; background: #C0F0A080; }
+#divAnimation12 { opacity: 0; background: #F0A0C080; }
+#divAnimation13 { opacity: 0; background: #F0C0A080; }
 
+
+@keyframes jiggle {
+  0%   { transform: rotate( 0deg); }
+  25%  { transform: rotate( 2deg); }
+  50%  { transform: rotate( 0deg); }
+  75%  { transform: rotate(-2deg); }
+  100% { transform: rotate( 0deg); }
+}
+
+
+
+/* BUTTONS */
 
 .MainButton {
   display: flex;
@@ -81,10 +149,6 @@ body {
   opacity: 1 !important;
 }
 
-.OptionButton {
-  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
-}
-
 .CursorButton {
   display: flex;
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
@@ -97,13 +161,7 @@ body {
   opacity: 0.8;
 }
 
-.Gong {
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
-  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
-}
-
+label,
 .MainButton > i,
 .Button > i,
 .GongContent {
@@ -116,12 +174,33 @@ pointer-events: none;
             user-select: none;
 }
 
-@keyframes jiggle {
-  0%   { transform: rotate( 0deg); }
-  25%  { transform: rotate( 2deg); }
-  50%  { transform: rotate( 0deg); }
-  75%  { transform: rotate(-2deg); }
-  100% { transform: rotate( 0deg); }
+
+
+/* GONGS */
+
+.Gong {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+
+
+
+/* OPTIONS  BACKGROUND */
+
+#divShade {
+  z-index: 15;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  opacity: 0;
+  transition: opacity 500ms;
+  background: black;
+  opacity: 0;
+  visibility: hidden;
 }
 
 #divOptions {
@@ -131,14 +210,13 @@ pointer-events: none;
   left: 50%;
   top: 50%;
   transform: translate(-50%,-50%);
-  min-width: 500px;
-  min-height: 500px;
+  min-width: 400px;
+  min-height: 400px;
   z-index: 20;
   opacity: 0;
   transition: opacity 500ms;
   visibility: hidden;
 }
-
 #divOptionsBG {
   position: absolute;
   top: 2px;
@@ -158,25 +236,53 @@ pointer-events: none;
   background: white;
   opacity: 0.2;
   z-index: -2;
+  width:100% !important;
 }
+
+
+
+/* OPTIONS LIST */
 
 #divOptionsList {
   position: absolute;
-  top: 30px;
-  left: 20px;
+  top: 20px;
+  left: 15px;
   width: 80px;
-  bottom: 30px;
+  bottom: 20px;
 }
+
+.OptionsButton {
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  border: 1px;
+  width: 64px !important;
+  height: 64px !important;
+  color: silver;
+  transition: color 300ms;
+}
+.OptionsButton > i {
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
+}
+.OptionsButton:hover {
+  color: white;
+}
+#divOptionsCursor {
+  clip-path: polygon(50% 5%, 75% 5%, 100% 50%, 75% 95%, 50% 95%, 75% 50%);
+  position: absolute;
+  border: 1px;
+}
+
+
+
+/* OPTIONS PAGES */
 
 #pageControl {
   position: absolute;
-  top: 20px !important;
-  left: 100px !important;
-  right: 20px;
-  bottom: 20px;
+  top: 4px !important;
+  left: 120px !important;
+  right: 7px;
+  bottom: 4px;
   background: transparent;
 }
-
 .Page {
   position: absolute;
   top: 0px;
@@ -184,39 +290,90 @@ pointer-events: none;
   right: 0px;
   bottom: 0px;
   background: transparent;
+  overflow: auto !important;
 }
 
-#divShade {
-  z-index: 15;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  opacity: 0;
-  transition: opacity 500ms;
-  background: black;
-  opacity: 0;
-  visibility: hidden;
-}
 
-#divOptionsCursor {
-  clip-path: polygon(50% 5%, 75% 5%, 100% 50%, 75% 95%, 50% 95%, 75% 50%);
-  position: absolute;
-}
+/* OPTOINS CONTROLS */
 
-#divTitleHolder {
-  background: white;
+
+.HexOuter {
+  width: calc(100% - 42px) !important;
+  clip-path: polygon(0px 20px, 10px 2px, calc(100% - 10px) 2px, 100% 20px, 100% calc(100% - 20px), calc(100% - 10px) calc(100% - 2px), 10px calc(100% - 2px), 0% calc(100% - 20px));
 }
-#editTitle {
-  background: black;
+.HexInner {
+  top: 2px !important;
+  left: 10px !important;
+  width: calc(100% - 20px) !important;
+  clip-path: polygon(0px 18px, 8px 1.8px, calc(100% - 8px) 1.8px, 100% 18px, 100% calc(100% - 18px), calc(100% - 8px) calc(100% - 1.8px), 8px calc(100% - 1.8px), 0% calc(100% - 18px));
+}
+.HexTallInner {
+  top: 2px !important;
+  left: 2px !important;
+  width: calc(100% - 4px) !important;
+  clip-path: polygon(0px 30px, 16px 1.8px, calc(100% - 16px) 1.8px, 100% 30px, 100% calc(100% - 30px), calc(100% - 16px) calc(100% - 1.8px), 16px calc(100% - 1.8px), 0% calc(100% - 30px));
+}
+.Title {
+}
+.Title > label {
   color: white;
-}
-
-.OptionButton > i {
+  font-weight: bold;
   filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
 }
+.EditText {
+  color: white;
+  border: none;
+}
+.EditMemoHolder {
+  position: relative;
+  min-height: 62px;
+  height: 62px;
+}
+.EditMemo {
+  color: white;
+  position: relative !important;
+  border: none;
+  min-height: 58px;
+  height: 58px;
+  top: 2px;
+  bottom: 2px;
+}
+.HexBtnOuter {
+  clip-path: polygon(0px 20px, 10px 2px, calc(100% - 10px) 2px, 100% 20px, 100% calc(100% - 20px), calc(100% - 10px) calc(100% - 2px), 10px calc(100% - 2px), 0% calc(100% - 20px));
+}
 
 
+/* COLORS */
+
+.Black   { background: black;  }
+.White   { background: white;  }
+.Gray    { background: gray;  }
+.Red     { background: Red;    }
+.Orange  { background: Orange; }
+.Yellow  { background: Yellow; }
+.Green   { background: Green;  }
+.Blue    { background: Blue;   }
+.Indigo  { background: Indigo; }
+.Violet  { background: Violet; }
+
+.WhiteR  { background: radial-gradient(#00000000,white)  !important;}
+.GrayR   { background: radial-gradient(#00000000,gray)   !important;}
+.RedR    { background: radial-gradient(#00000000,red)    !important;}
+.OrangeR { background: radial-gradient(#00000000,orange) !important;}
+.YellowR { background: radial-gradient(#00000000,yellow) !important;}
+.GreenR  { background: radial-gradient(#00000000,green)  !important;}
+.BlueR   { background: radial-gradient(#00000000,blue)   !important;}
+.IndigoR { background: radial-gradient(#00000000,indigo) !important;}
+.VioletR { background: radial-gradient(#00000000,violet) !important;}
+
+.WhiteL  { background: linear-gradient(90deg,#000000,white);  }
+.GrayL   { background: linear-gradient(90deg,#000000,gray);   }
+.RedL    { background: linear-gradient(90deg,#000000,red);    }
+.OrangeL { background: linear-gradient(90deg,#000000,orange); }
+.YellowL { background: linear-gradient(90deg,#000000,yellow); }
+.GreenL  { background: linear-gradient(90deg,#000000,green);  }
+.BlueL   { background: linear-gradient(90deg,#000000,blue);   }
+.IndigoL { background: linear-gradient(90deg,#000000,indigo); }
+.VioletL { background: linear-gradient(90deg,#000000,violet); }
 
 
