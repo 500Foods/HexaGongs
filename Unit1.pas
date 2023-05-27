@@ -7,6 +7,7 @@ uses
   System.Classes,
   System.Types,
   System.DateUtils,
+  System.Math,
 
   JS,
   Web,
@@ -15,13 +16,15 @@ uses
   Vcl.Controls,
   Vcl.StdCtrls,
 
+  WEBLib.JSON,
   WEBLib.Graphics,
   WEBLib.Controls,
   WEBLib.Forms,
   WEBLib.Dialogs,
   WEBLib.WebCtrls,
   WEBLib.ExtCtrls,
-  WEBLib.StdCtrls, WEBLib.ComCtrls;
+  WEBLib.StdCtrls,
+  WEBLib.ComCtrls;
 
 type
   TForm1 = class(TWebForm)
@@ -70,7 +73,7 @@ type
     WebHTMLDiv2: TWebHTMLDiv;
     WebLabel2: TWebLabel;
     WebHTMLDiv3: TWebHTMLDiv;
-    WebEdit1: TWebEdit;
+    editHexName: TWebEdit;
     divOptionsCursor: TWebHTMLDiv;
     WebHTMLDiv4: TWebHTMLDiv;
     WebLabel3: TWebLabel;
@@ -90,8 +93,59 @@ type
     divOptionsBGLinearLabel: TWebLabel;
     divOptionsBGSolid: TWebHTMLDiv;
     divOptionsBGSolidLabel: TWebLabel;
-    WebHTMLDiv12: TWebHTMLDiv;
-    WebLabel9: TWebLabel;
+    divSelectColor: TWebHTMLDiv;
+    labelSelectColor: TWebLabel;
+    WebHTMLDiv8: TWebHTMLDiv;
+    WebLabel6: TWebLabel;
+    WebHTMLDiv9: TWebHTMLDiv;
+    WebHTMLDiv10: TWebHTMLDiv;
+    WebLabel7: TWebLabel;
+    WebHTMLDiv13: TWebHTMLDiv;
+    WebLabel8: TWebLabel;
+    WebHTMLDiv14: TWebHTMLDiv;
+    WebLabel10: TWebLabel;
+    WebHTMLDiv15: TWebHTMLDiv;
+    WebLabel11: TWebLabel;
+    WebHTMLDiv16: TWebHTMLDiv;
+    WebHTMLDiv17: TWebHTMLDiv;
+    WebLabel12: TWebLabel;
+    WebHTMLDiv18: TWebHTMLDiv;
+    WebLabel13: TWebLabel;
+    WebHTMLDiv19: TWebHTMLDiv;
+    WebLabel14: TWebLabel;
+    divSettingsBGETitle: TWebHTMLDiv;
+    labelSettingsBGETitle: TWebLabel;
+    WebHTMLDiv21: TWebHTMLDiv;
+    WebLabel16: TWebLabel;
+    divSettingsBGEChoices: TWebHTMLDiv;
+    divOptionsBGENone: TWebHTMLDiv;
+    labelOptionsBGENone: TWebLabel;
+    divOptionsBGESix: TWebHTMLDiv;
+    labelOptionsBGESix: TWebLabel;
+    divOptionsBGETwelve: TWebHTMLDiv;
+    labelOptionsBGETwelve: TWebLabel;
+    divOptionsBGEEighteen: TWebHTMLDiv;
+    labelOptionsBGEEighteen: TWebLabel;
+    divImageSource: TWebHTMLDiv;
+    editImageSource: TWebEdit;
+    WebHTMLDiv28: TWebHTMLDiv;
+    divProxyDefault: TWebHTMLDiv;
+    labelProxyDefault: TWebLabel;
+    divProxyCustom: TWebHTMLDiv;
+    labelProxyCustom: TWebLabel;
+    divAudioSource: TWebHTMLDiv;
+    editAudioSource: TWebEdit;
+    divOptionsBGCustom: TWebHTMLDiv;
+    divOptionsBGCustomLabel: TWebLabel;
+    divCustomCSSTitle: TWebHTMLDiv;
+    WebLabel22: TWebLabel;
+    divCustomCSSHolder: TWebHTMLDiv;
+    memoCustomCSS: TWebMemo;
+    divProxyNone: TWebHTMLDiv;
+    labelProxyNone: TWebLabel;
+    divProxy: TWebHTMLDiv;
+    editProxy: TWebEdit;
+    divColorPicker1: TWebHTMLDiv;
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure GeneratePositions;
@@ -110,22 +164,36 @@ type
     procedure btnEditClick(Sender: TObject);
     procedure btnOptionsOKClick(Sender: TObject);
     procedure btnOptionsCancelClick(Sender: TObject);
-    procedure btnOptionsNameClick(Sender: TObject);
-    procedure btnOptionsBackgroundClick(Sender: TObject);
-    procedure btnOptionsImageClick(Sender: TObject);
-    procedure btnOptionsAudioClick(Sender: TObject);
-    procedure btnOptionsSettingsClick(Sender: TObject);
+    [async] procedure btnOptionsNameClick(Sender: TObject);
+    [async] procedure btnOptionsBackgroundClick(Sender: TObject);
+    [async] procedure btnOptionsImageClick(Sender: TObject);
+    [async] procedure btnOptionsAudioClick(Sender: TObject);
+    [async] procedure btnOptionsSettingsClick(Sender: TObject);
     procedure UpdateOptionsCursor;
+    procedure UpdateColorPickerSize;
+    procedure ColorSelected(ColorName: String; ColorValue: String; ColorIndex: Integer);
     procedure divOptionsBGRadialClick(Sender: TObject);
     procedure divOptionsBGLinearClick(Sender: TObject);
     procedure divOptionsBGSolidClick(Sender: TObject);
+    procedure divOptionsBGCustomClick(Sender: TObject);
+    procedure divOptionsBGENoneClick(Sender: TObject);
+    procedure divOptionsBGESixClick(Sender: TObject);
+    procedure divOptionsBGETwelveClick(Sender: TObject);
+    procedure divOptionsBGEEighteenClick(Sender: TObject);
+    procedure divProxyDefaultClick(Sender: TObject);
+    procedure divProxyNoneClick(Sender: TObject);
+    procedure divProxyCustomClick(Sender: TObject);
+    procedure editProxyChange(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
 
-    Gongs: Array of TWebHTMLDiv;    // Gong defintion
-    GongsP: Array of Integer;       // Position of Gong
+    GongID: Integer;                // Currently Editing
+    Gongs: Array of TWebHTMLDiv;    // HexaGong UI elements
+    GongsP: Array of Integer;       // Position of HexaGong
+    GongData: JSValue;              // JSON describing HexaGong contents
+
 
     PositionsX: Array of Double;    // X Position
     PositionsY: Array of Double;    // Y Position
@@ -154,8 +222,22 @@ type
     ColCount: Integer;    // Number of columns (just the number of hexagons in first row, always odd)
     MarginTop: Double;    // How much of an offset to center the hexagons vertically
 
-    OptionsNamesScroll: JSValue;  // SimpleBar reference
-    OptionsBGStyle: Integer;      // Radial, Linear, or Solid
+    OptionsNamesScroll: JSValue;       // SimpleBar reference
+    OptionsBackgroundScroll: JSValue;  // SimpleBar reference
+    OptionsImagesScroll: JSValue;      // SimpleBar reference
+    OptionsAudioScroll: JSValue;       // SimpleBar reference
+    OptionsSettingsScroll: JSValue;    // SimpleBar reference
+
+
+    OptionsBGStyle: Integer;  // Radial, Linear, or Solid
+    OptionsBGColor1: String;  // CSS Color Value
+    OptionsBGColor2: String;  // CSS Color Value
+
+    OptionsImageStyle: Integer; // Icon, URL, Upload
+    OptionsImageRef: String;    // Icon name, URL, Data URI
+
+    OptionsProxyStatus: Integer;   // Default, None, Custom
+    OptionsProxy: String;          // Proxy server
 
 
   end;
@@ -169,27 +251,47 @@ implementation
 {$R *.dfm}
 
 procedure TForm1.WebFormCreate(Sender: TObject);
+var
+  GongDataString: String;
 begin
 
-  // Initial States
+  // Initial Button States
   MainMode := False;
   ScaleMode := False;
   ChangeMode := False;
   VolumeMode := False;
-  ZoomLevel := 7;
-  LastClick := Now;
-  pageControl.TabIndex := 0;
-  AnimatedElements := 6;
 
-  // Initialize AnimationTimers array
+  // Odds and Ends;
+  ZoomLevel := 7;
+  LastClick := Now - 1;
+  pageControl.TabIndex := 0;
+
+  // CORS Proxy
+  OptionsProxyStatus := 0;   // Default: Use HexaGongs proxy
+  OptionsProxy := '';        // Nothing defined
+
+
+  // Initialize GongData
+  asm
+    this.GongData = {};
+    this.GongData['HexaGongs Project Title'] = "New Project";
+    this.GongData['HexaGongs Project Description'] = 'No Description';
+    this.GongData['HexaGongs'] = [];
+  end;
+
+
+  // Initialize Animation items
+  AnimatedElements := 6;
   asm this.AnimationTimers = []; end;
+
 
   // Enable Simplebar on Options pages
   asm
-    this.OptionsNamesScroll = new SimpleBar(document.getElementById('pageName'), {
-      forceVisible: 'y',
-      autoHide: false
-    });
+    this.OptionsNamesScroll      = new SimpleBar(document.getElementById('pageName'      ), { forceVisible: 'y', autoHide: false });
+    this.OptionsBackgroundScroll = new SimpleBar(document.getElementById('pageBackground'), { forceVisible: 'y', autoHide: false });
+    this.OptionsImageScroll      = new SimpleBar(document.getElementById('pageImage'     ), { forceVisible: 'y', autoHide: false });
+    this.OptionsAudioScroll      = new SimpleBar(document.getElementById('pageAudio'     ), { forceVisible: 'y', autoHide: false });
+    this.OptionsSettingsScroll   = new SimpleBar(document.getElementById('pageSettings'  ), { forceVisible: 'y', autoHide: false });
   end;
 
   // JavaScript Sleep Function
@@ -418,6 +520,7 @@ begin
             target.setAttribute('data-x', x)
             target.setAttribute('data-y', y)
             pas.Unit1.Form1.UpdateOptionsCursor();
+            pas.Unit1.Form1.UpdateColorPickerSize();
           }
         },
         ignoreFrom: '.nointeract, .simplebar-track'
@@ -452,6 +555,256 @@ begin
     window.dragMoveListenerOptions = dragMoveListenerOptions
 
   end;
+
+  asm
+    // https://gist.github.com/bobspace/2712980
+    const CSS_COLOR_NAMES = {
+      AliceBlue: '#F0F8FF',
+      AntiqueWhite: '#FAEBD7',
+      Aqua: '#00FFFF',
+      Aquamarine: '#7FFFD4',
+      Azure: '#F0FFFF',
+      Beige: '#F5F5DC',
+      Bisque: '#FFE4C4',
+      Black: '#000000',
+      BlanchedAlmond: '#FFEBCD',
+      Blue: '#0000FF',
+      BlueViolet: '#8A2BE2',
+      Brown: '#A52A2A',
+      BurlyWood: '#DEB887',
+      CadetBlue: '#5F9EA0',
+      Chartreuse: '#7FFF00',
+      Chocolate: '#D2691E',
+      Coral: '#FF7F50',
+      CornflowerBlue: '#6495ED',
+      Cornsilk: '#FFF8DC',
+      Crimson: '#DC143C',
+      Cyan: '#00FFFF',
+      DarkBlue: '#00008B',
+      DarkCyan: '#008B8B',
+      DarkGoldenRod: '#B8860B',
+      DarkGray: '#A9A9A9',
+      DarkGrey: '#A9A9A9',
+      DarkGreen: '#006400',
+      DarkKhaki: '#BDB76B',
+      DarkMagenta: '#8B008B',
+      DarkOliveGreen: '#556B2F',
+      DarkOrange: '#FF8C00',
+      DarkOrchid: '#9932CC',
+      DarkRed: '#8B0000',
+      DarkSalmon: '#E9967A',
+      DarkSeaGreen: '#8FBC8F',
+      DarkSlateBlue: '#483D8B',
+      DarkSlateGray: '#2F4F4F',
+      DarkSlateGrey: '#2F4F4F',
+      DarkTurquoise: '#00CED1',
+      DarkViolet: '#9400D3',
+      DeepPink: '#FF1493',
+      DeepSkyBlue: '#00BFFF',
+      DimGray: '#696969',
+      DimGrey: '#696969',
+      DodgerBlue: '#1E90FF',
+      FireBrick: '#B22222',
+      FloralWhite: '#FFFAF0',
+      ForestGreen: '#228B22',
+      Fuchsia: '#FF00FF',
+      Gainsboro: '#DCDCDC',
+      GhostWhite: '#F8F8FF',
+      Gold: '#FFD700',
+      GoldenRod: '#DAA520',
+      Gray: '#808080',
+      Grey: '#808080',
+      Green: '#008000',
+      GreenYellow: '#ADFF2F',
+      HoneyDew: '#F0FFF0',
+      HotPink: '#FF69B4',
+      IndianRed: '#CD5C5C',
+      Indigo: '#4B0082',
+      Ivory: '#FFFFF0',
+      Khaki: '#F0E68C',
+      Lavender: '#E6E6FA',
+      LavenderBlush: '#FFF0F5',
+      LawnGreen: '#7CFC00',
+      LemonChiffon: '#FFFACD',
+      LightBlue: '#ADD8E6',
+      LightCoral: '#F08080',
+      LightCyan: '#E0FFFF',
+      LightGoldenRodYellow: '#FAFAD2',
+      LightGray: '#D3D3D3',
+      LightGrey: '#D3D3D3',
+      LightGreen: '#90EE90',
+      LightPink: '#FFB6C1',
+      LightSalmon: '#FFA07A',
+      LightSeaGreen: '#20B2AA',
+      LightSkyBlue: '#87CEFA',
+      LightSlateGray: '#778899',
+      LightSlateGrey: '#778899',
+      LightSteelBlue: '#B0C4DE',
+      LightYellow: '#FFFFE0',
+      Lime: '#00FF00',
+      LimeGreen: '#32CD32',
+      Linen: '#FAF0E6',
+      Magenta: '#FF00FF',
+      Maroon: '#800000',
+      MediumAquaMarine: '#66CDAA',
+      MediumBlue: '#0000CD',
+      MediumOrchid: '#BA55D3',
+      MediumPurple: '#9370DB',
+      MediumSeaGreen: '#3CB371',
+      MediumSlateBlue: '#7B68EE',
+      MediumSpringGreen: '#00FA9A',
+      MediumTurquoise: '#48D1CC',
+      MediumVioletRed: '#C71585',
+      MidnightBlue: '#191970',
+      MintCream: '#F5FFFA',
+      MistyRose: '#FFE4E1',
+      Moccasin: '#FFE4B5',
+      NavajoWhite: '#FFDEAD',
+      Navy: '#000080',
+      OldLace: '#FDF5E6',
+      Olive: '#808000',
+      OliveDrab: '#6B8E23',
+      Orange: '#FFA500',
+      OrangeRed: '#FF4500',
+      Orchid: '#DA70D6',
+      PaleGoldenRod: '#EEE8AA',
+      PaleGreen: '#98FB98',
+      PaleTurquoise: '#AFEEEE',
+      PaleVioletRed: '#DB7093',
+      PapayaWhip: '#FFEFD5',
+      PeachPuff: '#FFDAB9',
+      Peru: '#CD853F',
+      Pink: '#FFC0CB',
+      Plum: '#DDA0DD',
+      PowderBlue: '#B0E0E6',
+      Purple: '#800080',
+      RebeccaPurple: '#663399',
+      Red: '#FF0000',
+      RosyBrown: '#BC8F8F',
+      RoyalBlue: '#4169E1',
+      SaddleBrown: '#8B4513',
+      Salmon: '#FA8072',
+      SandyBrown: '#F4A460',
+      SeaGreen: '#2E8B57',
+      SeaShell: '#FFF5EE',
+      Sienna: '#A0522D',
+      Silver: '#C0C0C0',
+      SkyBlue: '#87CEEB',
+      SlateBlue: '#6A5ACD',
+      SlateGray: '#708090',
+      SlateGrey: '#708090',
+      Snow: '#FFFAFA',
+      SpringGreen: '#00FF7F',
+      SteelBlue: '#4682B4',
+      Tan: '#D2B48C',
+      Teal: '#008080',
+      Thistle: '#D8BFD8',
+      Tomato: '#FF6347',
+      Turquoise: '#40E0D0',
+      Violet: '#EE82EE',
+      Wheat: '#F5DEB3',
+      White: '#FFFFFF',
+      WhiteSmoke: '#F5F5F5',
+      Yellow: '#FFFF00',
+      YellowGreen: '#9ACD32',
+    };
+
+    // Standard color array from https://medium.com/weekly-webtips/build-a-hexagonal-color-picker-with-css-vanilla-javascript-36e62d10527
+    const COLOR_RGB =      [                              '#003366','#336699','#3366CC','#003399','#000099','#0000CC','#000066',                               // 7
+                                                     '#006666','#006699','#0099CC','#0066CC','#0033CC','#0000FF','#3333FF','#333399',                          // 8
+                                                '#669999','#009999','#33CCCC','#00CCFF','#0099FF','#0066FF','#3366FF','#3333CC','#666699',                     // 9
+                                           '#339966','#00CC99','#00FFCC','#00FFFF','#33CCFF','#3399FF','#6699FF','#6666FF','#6600FF','#6600CC',                // 10
+                                      '#339933','#00CC66','#00FF99','#66FFCC','#66FFFF','#66CCFF','#99CCFF','#9999FF','#9966FF','#9933FF','#9900FF',           // 11
+                                 '#006600','#00CC00','#00FF00','#66FF99','#99FFCC','#CCFFFF','#CCCCFF','#CC99FF','#CC66FF','#CC33FF','#CC00FF','#9900CC',      // 12
+                            '#003300','#009933','#33CC33','#66FF66','#99FF99','#CCFFCC','#FFFFFF','#FFCCFF','#FF99FF','#FF66FF','#FF00FF','#CC00CC','#660066', // 13
+                                 '#336600','#009900','#66FF33','#99FF66','#CCFF99','#FFFFCC','#FFCCCC','#FF99CC','#FF66CC','#FF33CC','#CC0099','#993399',      // 12
+                                      '#333300','#669900','#99FF33','#CCFF66','#FFFF99','#FFCC99','#FF9999','#FF6699','#FF3399','#CC3399','#990099',           // 11
+                                           '#666633','#99CC00','#CCFF33','#FFFF66','#FFCC66','#FF9966','#FF6666','#FF0066','#CC6699','#993366',                // 10
+                                                '#999966','#CCCC00','#FFFF00','#FFCC00','#FF9933','#FF6600','#FF5050','#CC0066','#660033',                     // 9
+                                                     '#996633','#CC9900','#FF9900','#CC6600','#FF3300','#FF0000','#CC0000','#990033',                          // 8
+                                                          '#663300','#996600','#CC3300','#993300','#990000','#800000','#993333',                               // 7
+
+                                                     '#101010','#303030','#505050','#707070','#909090','#B0B0B0','#D0D0D0','#F0F0F0',                          // 8
+                                                '#000000','#202020','#404040','#606060','#808080','#A0A0A0','#C0C0C0','#E0E0E0','#FFFFFF'                      // 9
+                           ];
+
+    // Increase X by 3, each layer offset by 1.5
+    const COLOR_X = [                          9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000,                          // 7
+                                           7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500,                      // 8
+                                       6.000,  9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000, 30.000,                  // 9
+                                   4.500,  7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500, 31.500,              // 10
+                               3.000,  6.000,  9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000, 30.000, 33.000,          // 11
+                           1.500,  4.500,  7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500, 31.500, 34.5000,     // 12
+                       0.000,  3.000,  6.000,  9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000, 30.000, 33.000, 36.000,  // 13
+                           1.500,  4.500,  7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500, 31.500, 34.5000,     // 12
+                               3.000,  6.000,  9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000, 30.000, 33.000,          // 11
+                                   4.500,  7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500, 31.500,              // 10
+                                       6.000,  9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000, 30.000,                  // 9
+                                           7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500,                      // 8
+                                               9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000,                          // 7
+
+                                           7.500, 10.500, 13.500, 16.500, 19.500, 22.500, 25.500, 28.500,                      // 8
+                                       6.000,  9.000, 12.000, 15.000, 18.000, 21.000, 24.000, 27.000, 30.000                   // 9
+                    ];
+    // Increase Y by sqrt(3)/2
+    const COLOR_Y = [                          0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,                          // 7
+                                           0.866,  0.866,  0.866,  0.866,  0.866,  0.866,  0.866,  0.866,                      // 8
+                                       1.732,  1.732,  1.732,  1.732,  1.732,  1.732,  1.732,  1.732,  1.732,                  // 9
+                                   2.598,  2.598,  2.598,  2.598,  2.598,  2.598,  2.598,  2.598,  2.598,  2.598,              // 10
+                               3.464,  3.464,  3.464,  3.464,  3.464,  3.464,  3.464,  3.464,  3.464,  3.464,  3.464,          // 11
+                           4.330,  4.330,  4.330,  4.330,  4.330,  4.330,  4.330,  4.330,  4.330,  4.330,  4.330,  4.330,      // 12
+                       5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  5.196,  // 13
+                           6.062,  6.062,  6.062,  6.062,  6.062,  6.062,  6.062,  6.062,  6.062,  6.062,  6.062,  6.062,      // 12
+                               6.928,  6.928,  6.928,  6.928,  6.928,  6.928,  6.928,  6.928,  6.928,  6.928,  6.928,          // 11
+                                   7.794,  7.794,  7.794,  7.794,  7.794,  7.794,  7.794,  7.794,  7.794,  7.794,              // 10
+                                       8.660,  8.660,  8.660,  8.660,  8.660,  8.660,  8.660,  8.660,  8.660,                  // 9
+                                           9.526,  9.526,  9.526,  9.526,  9.526,  9.526,  9.526,  9.526,                      // 8
+                                              10.392, 10.392, 10.392, 10.392, 10.392, 10.392, 10.392,                          // 7
+
+                                          12.124, 12.124, 12.124, 12.124, 12.124, 12.124, 12.124, 12.124,                      // 8
+                                      12.990, 12.990, 12.990, 12.990, 12.990, 12.990, 12.990, 12.990, 12.990                   // 9
+                    ];
+
+    var colorpicker = '';
+    for (var i = 0; i < COLOR_RGB.length; i++) {
+      var colorvalue = COLOR_RGB[i];
+      var colorname = COLOR_RGB[i];
+      Object.entries(CSS_COLOR_NAMES).forEach(([name, rgbvalue]) => {
+        if (rgbvalue == colorvalue) {
+          colorname = name;
+          console.log(colorname);
+        }
+      });
+      colorpicker += '<div class="ColorHexagon" '+
+                        'title="'+colorname+'" '+
+                        'data-bs-toggle="tooltip" '+
+                        'data-bs-custom-class="ColorTooltip" '+
+                        'colorindex="'+i+'" '+
+                        'style="top: '+25.981*COLOR_Y[i]+'px; '+
+                               'left: '+10*COLOR_X[i]+'px; '+
+                               'background-color: '+colorvalue+'"'+
+                     '></div>';
+    }
+    divColorPicker1.innerHTML = colorpicker;
+
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+    divColorPicker1.addEventListener('click', (event) => {
+      if (event.target.classList.contains('ColorHexagon')) {
+        var colors = divColorPicker1.querySelectorAll('.ColorHexagon');
+        colors.forEach(hex => {
+          if ((hex == event.target) || (event.target.getAttribute('data-bs-original-title') == hex.getAttribute('data-bas-original-title'))) {
+            hex.innerHTML = '<i class="pe-none d-flex justify-content-center align-items-center Picked fa-solid fa-xmark fa-lg"></i>';
+            pas.Unit1.Form1.ColorSelected(event.target.getAttribute('data-bs-original-title'),event.target.style.getPropertyValue('background-color'),parseInt(event.target.getAttribute('colorIndex')));
+          }
+          else {
+            hex.innerHTML = '';
+          }
+        });
+      }
+    });
+  end;
 end;
 
 procedure TForm1.WebFormResize(Sender: TObject);
@@ -470,7 +823,8 @@ begin
       LastClick := Now - 1;
       ChangeMode := False;
       btnChangeClick(btnChange);
-      UpdateOptionsCursor
+      UpdateOptionsCursor;
+      UpdateColorPickerSize;
     end;
   end;
 
@@ -514,12 +868,25 @@ begin
     memoHexDesc.setAttribute('rows','1');
     memoProjDesc.setAttribute('data-autoresize','');
     memoProjDesc.setAttribute('rows','1');
+    memoCustomCSS.setAttribute('data-autoresize','');
+    memoCustomCSS.setAttribute('rows','1');
+
     addAutoResize();
   end;
 end;
 
 
 
+
+procedure TForm1.UpdateColorPickerSize;
+var
+  avail: Double;
+  scale: Double;
+begin
+  avail := divSelectColor.ElementHandle.getBoundingClientRect.Width;
+  scale := Min(avail / 440.0,1.5);
+  divColorPicker1.ElementHandle.style.setProperty('transform','scale('+FloatToSTrF(scale,ffGeneral,8,5)+')');
+end;
 
 procedure TForm1.UpdateOptionsCursor;
 var
@@ -555,7 +922,6 @@ end;
 procedure TForm1.btnEditClick(Sender: TObject);
 var
   CursorPosition: Integer;
-  GongID: Integer;
 begin
   CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
 
@@ -566,6 +932,7 @@ begin
     // New Gong
     if PositionsG[CursorPosition] = -1 then
     begin
+      console.log('Creating new temporary HexaGong');
       GongID := Length(Gongs);
       SetLength(Gongs, GongID + 1);
       SetLength(GongsP, GongID + 1);
@@ -590,21 +957,86 @@ begin
       Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient(#00000080,#FFFFFF80)');
       Gongs[GongID].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
 
-//      Gongs[GongID].HTML.Text := '<div class="GongContent" style="color:white;">'+IntToStr(GongID+1)+'</div>';
-
       document.getElementById('BG-'+IntToStr(CursorPosition)).appendChild(Gongs[GongID].ElementHandle);
       (document.getElementById('BG-'+IntToStr(CursorPosition)) as TJSHTMLElement).style.setProperty('animation-name','jiggle');
+
+      // Set default values for new HexaGong
+      asm
+        this.GongData['HexaGongs'].push({});
+        this.GongData['HexaGongs'][this.GongID]['Name'] = 'New HexaGong '+(this.GongID + 1);
+        this.GongData['HexaGongs'][this.GongID]['Description'] = 'No description';
+        this.GongData['HexaGongs'][this.GongID]['BG Style'] = 1;
+        this.GongData['HexaGongs'][this.GongID]['BG Color 1'] = '#00000080';
+        this.GongData['HexaGongs'][this.GongID]['BG Color 2'] = '#FFFFFF80';
+        this.GongData['HexaGongs'][this.GongID]['BG Custom'] = '';
+      end;
+
+    end
+    else
+    begin
+      console.log('Editing Existing HexaGong');
+      GongID := PositionsG[CursorPosition];
     end;
 
     // Edit Gong
+
+    // Display Options dialog in a predetermined state
     divShade.ElementHandle.style.setProperty('visibility','visible');
     divShade.ElementHandle.style.SetProperty('opacity','0.5');
     divOptions.ElementHandle.style.setProperty('visibility','visible');
     divOptions.ElementHandle.style.SetProperty('opacity','1');
 
     pageControl.TabIndex := 0;
+    btnOptionsNameClick(Sender);
 
-    UpdateOptionsCursor;
+    // Set Options values to match GongData
+
+    // pageName
+    asm
+      this.editTitle.SetText(this.GongData['HexaGongs Project Title']);
+      this.memoProjDesc.SetText(this.GongData['HexaGongs Project Description']);
+      this.editHexName.SetText(this.GongData['HexaGongs'][this.GongID]['Name']);
+      this.memoHexDesc.SetText(this.GongData['HexaGongs'][this.GongID]['Description']);
+    end;
+
+    // pageBackground
+    asm
+      this.OptionsBGStyle = this.GongData['HexaGongs'][this.GongID]['BG Style'];
+      this.OptionsBGColor1 = this.GongData['HexaGongs'][this.GongID]['BG Color 1'];
+      this.OptionsBGColor2 = this.GongData['HexaGongs'][this.GongID]['BG Color 2'];
+      this.memoCustomCSS.SetText(this.GongData['HexaGongs'][this.GongID]['BG Custom']);
+    end;
+    if OptionsBGStyle = 0 then divOptionsBGRadialClick(Sender);
+    if OptionsBGStyle = 1 then divOptionsBGLinearClick(Sender);
+    if OptionsBGStyle = 2 then divOptionsBGSolidClick(Sender);
+    if OptionsBGStyle = 3 then divOptionsBGCustomClick(Sender);
+
+    // pageImage
+    asm
+      this.OptionsImageStyle = this.GongData['HexaGongs'][this.GongID]['Image Style'];
+      this.OptionsImageRef = this.GongData['HexaGongs'][this.GongID]['Image Ref'];
+    end;
+
+    // pageAudio
+
+    // pageSettings
+    if AnimatedElements = 0
+    then labelOptionsBGENone.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)')
+    else labelOptionsBGENone.ElementHandle.style.setProperty('background','radial-gradient(#00000000,black)');
+    if AnimatedElements = 6
+    then labelOptionsBGESix.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)')
+    else labelOptionsBGESix.ElementHandle.style.setProperty('background','radial-gradient(#00000000,black)');
+    if AnimatedElements = 12
+    then labelOptionsBGETwelve.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)')
+    else labelOptionsBGETwelve.ElementHandle.style.setProperty('background','radial-gradient(#00000000,black)');
+    if AnimatedElements = 18
+    then labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)')
+    else labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','radial-gradient(#00000000,black)');
+
+    editProxy.Text := OptionsProxy;
+    if OptionsProxyStatus = 0 then divProxyDefaultClick(Sender)
+    else if OptionsProxyStatus  = 1 then divProxyNoneClick(Sender)
+    else if OptionsProxyStatus  = 2 then divProxyDefaultClick(Sender)
 
   end;
 end;
@@ -655,17 +1087,34 @@ end;
 
 procedure TForm1.btnOptionsAudioClick(Sender: TObject);
 begin
+  if (PageControl.TabIndex <> 3) then
+  begin
+    PageControl.ActivePage.ElementHandle.style.setProperty('opacity','0');
+    asm await sleep(200); end;
+  end;
+
   pageControl.TabIndex := 3;
   UpdateOptionsCursor;
+  pageAudio.ElementHandle.style.setProperty('opacity','1');
 end;
 
 procedure TForm1.btnOptionsBackgroundClick(Sender: TObject);
 begin
+  if (PageControl.TabIndex <> 1) then
+  begin
+    PageControl.ActivePage.ElementHandle.style.setProperty('opacity','0');
+    asm await sleep(200); end;
+  end;
+
   pageControl.TabIndex := 1;
   UpdateOptionsCursor;
+  UpdateColorPickerSize;
+  pageBackground.ElementHandle.style.setProperty('opacity','1');
 end;
 
 procedure TForm1.btnOptionsCancelClick(Sender: TObject);
+var
+  HexaGongString: String;
 begin
   divShade.ElementHandle.style.setProperty('opacity','0');
   divOptions.ElementHandle.style.setProperty('opacity','0');
@@ -676,30 +1125,77 @@ begin
     },500);
   end;
 
+//  HexaGongString := GongData.ToString;
+//  asm console.log(JSON.parse(HexaGongString)); end;
 end;
 
 procedure TForm1.btnOptionsImageClick(Sender: TObject);
 begin
+  if (PageControl.TabIndex <> 2) then
+  begin
+    PageControl.ActivePage.ElementHandle.style.setProperty('opacity','0');
+    asm await sleep(200); end;
+  end;
+
   pageControl.TabIndex := 2;
   UpdateOptionsCursor;
+  pageImage.ElementHandle.style.setProperty('opacity','1');
 end;
 
 procedure TForm1.btnOptionsNameClick(Sender: TObject);
 begin
+  if (PageControl.TabIndex <> 0) then
+  begin
+    PageControl.ActivePage.ElementHandle.style.setProperty('opacity','0');
+    asm await sleep(200); end;
+  end;
+
   pageControl.TabIndex := 0;
   UpdateOptionsCursor;
+  pageName.ElementHandle.style.setProperty('opacity','1');
 end;
 
 procedure TForm1.btnOptionsOKClick(Sender: TObject);
 begin
+  // Save Options to GongData JSON
+  asm
+    this.GongData['HexaGongs'][this.GongID]['Name'] = this.editHexName.GetText();
+    this.GongData['HexaGongs'][this.GongID]['Description'] = this.memoHexDesc.GetText();
+    this.GongData['HexaGongs'][this.GongID]['BG Style'] = this.OptionsBGStyle;
+    this.GongData['HexaGongs'][this.GongID]['BG Color 1'] = this.OptionsBGColor1;
+    this.GongData['HexaGongs'][this.GongID]['BG Color 2'] = this.OptionsBGColor2;
+    this.GongData['HexaGongs'][this.GongID]['BG Custom'] = this.memoCustomCSS.GetText();
+  end;
+
+  // Update UI element - Background
+  if OptionsBGStyle = 0
+  then Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient('+OptionsBGColor1+','+OptionsBGColor2+')')
+  else if OptionsBGStyle = 1
+  then Gongs[GongID].ElementHandle.style.setProperty('background','linear-gradient(60deg,'+OptionsBGColor1+','+OptionsBGColor2+')')
+  else if OptionsBGStyle = 2
+  then Gongs[GongID].ElementHandle.style.setProperty('background',OptionsBGColor1)
+  else Gongs[GongID].ElementHandle.style.setProperty('background',memoCustomCSS.Lines.Text);
+
+  // Update UI element - Image
+
+
+  // Update UI element - Audio
+
 
   btnOptionsCancelClick(Sender);
 end;
 
 procedure TForm1.btnOptionsSettingsClick(Sender: TObject);
 begin
+  if (PageControl.TabIndex <> 4) then
+  begin
+    PageControl.ActivePage.ElementHandle.style.setProperty('opacity','0');
+    asm await sleep(200); end;
+  end;
+
   pageControl.TabIndex := 4;
   UpdateOptionsCursor;
+  pageSettings.ElementHandle.style.setProperty('opacity','1');
 end;
 
 procedure TForm1.btnScaleClick(Sender: TObject);
@@ -947,6 +1443,15 @@ begin
 
 end;
 
+procedure TForm1.ColorSelected(ColorName, ColorValue: String;
+  ColorIndex: Integer);
+begin
+  console.log('Color Name: '+ColorName);
+  console.log('Color Value: '+ColorValue);
+  console.log('Color Index: '+IntToStr(ColorIndex));
+  labelSelectColor.HTML := 'Select Color <span style="padding-left: 20px; color: silver; font-family: var(--bs-font-monospace)"> '+ColorName+'   '+ColorValue+'</span>';
+end;
+
 procedure TForm1.ConfigButton(btn: TWebButton; HexPosition: Integer; ClassName: String);
 begin
 
@@ -958,10 +1463,72 @@ begin
   btn.ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
   btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
   btn.ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+  btn.ElementHandle.style.setProperty('transition','opacity 500ms, color 500ms');
   btn.Tag := HexPosition;
 
   if HexPosition >= 0 then PositionsT[HexPosition] := False;
 
+end;
+
+procedure TForm1.divOptionsBGCustomClick(Sender: TObject);
+begin
+  OptionsBGStyle := 3;
+  divOptionsBGCustomLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','black');
+
+  divCUstomCSSHolder.Visible := True;
+  divCustomCSSTitle.Visible := True;
+
+  divSelectColor.Visible := False;
+  divColorPicker1.Visible := False;
+end;
+
+procedure TForm1.divOptionsBGEEighteenClick(Sender: TObject);
+begin
+  labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelOptionsBGENone.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGESix.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGETwelve.ElementHandle.style.setProperty('background','black');
+
+  StopAnimation;
+  AnimatedElements := 18;
+  StartAnimation;
+end;
+
+procedure TForm1.divOptionsBGENoneClick(Sender: TObject);
+begin
+  labelOptionsBGENone.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGESix.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGETwelve.ElementHandle.style.setProperty('background','black');
+
+  StopAnimation;
+end;
+
+procedure TForm1.divOptionsBGESixClick(Sender: TObject);
+begin
+  labelOptionsBGESix.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelOptionsBGENone.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGETwelve.ElementHandle.style.setProperty('background','black');
+
+  StopAnimation;
+  AnimatedElements := 6;
+  StartAnimation;
+end;
+
+procedure TForm1.divOptionsBGETwelveClick(Sender: TObject);
+begin
+  labelOptionsBGETwelve.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelOptionsBGENone.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGESix.ElementHandle.style.setProperty('background','black');
+  labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','black');
+
+  StopAnimation;
+  AnimatedElements := 12;
+  StartAnimation;
 end;
 
 procedure TForm1.divOptionsBGLinearClick(Sender: TObject);
@@ -970,6 +1537,14 @@ begin
   divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
   divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','black');
   divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGCustomLabel.ElementHandle.style.setProperty('background','black');
+
+  divCUstomCSSHolder.Visible := False;
+  divCustomCSSTitle.Visible := False;
+
+  divSelectColor.Visible := True;
+  divColorPicker1.Visible := True;
+
 end;
 
 procedure TForm1.divOptionsBGRadialClick(Sender: TObject);
@@ -978,6 +1553,13 @@ begin
   divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
   divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','black');
   divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGCustomLabel.ElementHandle.style.setProperty('background','black');
+
+  divCUstomCSSHolder.Visible := False;
+  divCustomCSSTitle.Visible := False;
+
+  divSelectColor.Visible := True;
+  divColorPicker1.Visible := True;
 end;
 
 procedure TForm1.divOptionsBGSolidClick(Sender: TObject);
@@ -986,6 +1568,41 @@ begin
   divOptionsBGSolidLabel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
   divOptionsBGLinearLabel.ElementHandle.style.setProperty('background','black');
   divOptionsBGRadialLabel.ElementHandle.style.setProperty('background','black');
+  divOptionsBGCustomLabel.ElementHandle.style.setProperty('background','black');
+
+  divCUstomCSSHolder.Visible := False;
+  divCustomCSSTitle.Visible := False;
+
+  divSelectColor.Visible := True;
+  divColorPicker1.Visible := True;
+
+end;
+
+procedure TForm1.divProxyCustomClick(Sender: TObject);
+begin
+  OptionsProxyStatus := 2;
+  divProxy.Visible := True;
+  labelProxyDefault.ElementHandle.style.setProperty('background','black');
+  labelProxyNone.ElementHandle.style.setProperty('background','black');
+  labelProxyCustom.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+end;
+
+procedure TForm1.divProxyDefaultClick(Sender: TObject);
+begin
+  OptionsProxyStatus := 0;
+  divProxy.Visible := False;
+  labelProxyDefault.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelProxyNone.ElementHandle.style.setProperty('background','black');
+  labelProxyCustom.ElementHandle.style.setProperty('background','black');
+end;
+
+procedure TForm1.divProxyNoneClick(Sender: TObject);
+begin
+  OptionsProxyStatus := 1;
+  divProxy.Visible := False;
+  labelProxyDefault.ElementHandle.style.setProperty('background','black');
+  labelProxyNone.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelProxyCustom.ElementHandle.style.setProperty('background','black');
 end;
 
 procedure TForm1.DrawBackground;
@@ -1102,6 +1719,11 @@ begin
     I := I + 1;
   end;
 
+end;
+
+procedure TForm1.editProxyChange(Sender: TObject);
+begin
+  OptionsProxy := editProxy.Text;
 end;
 
 procedure TForm1.GeneratePositions;
@@ -1258,7 +1880,7 @@ begin
       const This = this;
       var timer = setInterval(function() {
         This.Animate(index);
-      },1050 + index*200);
+      },1050 + index*100);
       this.AnimationTimers.push(timer);
     end;
 
@@ -1266,6 +1888,8 @@ begin
 end;
 
 procedure TForm1.StopAnimation;
+var
+  i: Integer;
 begin
 
   asm
@@ -1274,6 +1898,12 @@ begin
     }
   end;
 
+  i := 0;
+  while i < Length(AnimationDiv) do
+  begin
+    AnimationDiv[i].ElementHandle.style.setProperty('opacity','0');
+    i := i + 1;
+  end;
 end;
 
 procedure TForm1.Animate(Anim: Integer);

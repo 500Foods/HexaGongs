@@ -1,8 +1,10 @@
 object Form1: TForm1
   Width = 957
   Height = 737
-  Caption = 'overflow-hidden'
+  Caption = 'HexaGongs'
+  Color = clBlack
   CSSLibrary = cssBootstrap
+  ElementClassName = 'overflow-hidden bg-black'
   ElementFont = efCSS
   OnCreate = WebFormCreate
   OnResize = WebFormResize
@@ -372,8 +374,8 @@ object Form1: TForm1
       end
     end
     object pageControl: TWebPageControl
-      Left = 326
-      Top = 3
+      Left = 322
+      Top = 0
       Width = 607
       Height = 534
       ElementClassName = 'nointeract'
@@ -437,7 +439,7 @@ object Form1: TForm1
             Height = 36
             AutoSize = False
             Caption = 'Project Title'
-            ElementClassName = 'Title HexInner OrangeL ps-3 pt-1'
+            ElementClassName = 'Title HexInner YellowL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             Layout = tlCenter
@@ -463,7 +465,7 @@ object Form1: TForm1
             Height = 36
             AutoSize = False
             Caption = 'HexaGong Name'
-            ElementClassName = 'Title HexInner OrangeL ps-3 pt-1 '
+            ElementClassName = 'Title HexInner YellowL ps-3 pt-1 '
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             Layout = tlCenter
@@ -482,13 +484,13 @@ object Form1: TForm1
           ElementPosition = epRelative
           ElementFont = efCSS
           Role = ''
-          object WebEdit1: TWebEdit
+          object editHexName: TWebEdit
             Left = 30
             Top = 2
             Width = 300
             Height = 36
             ElementClassName = 'EditText HexInner Black ps-3 '
-            ElementID = 'editTitle'
+            ElementID = 'editHexName'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             WidthStyle = ssPercent
@@ -513,7 +515,7 @@ object Form1: TForm1
             Height = 36
             AutoSize = False
             Caption = 'Project Description / Inspiration'
-            ElementClassName = 'Title HexInner OrangeL ps-3 pt-1 '
+            ElementClassName = 'Title HexInner YellowL ps-3 pt-1 '
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             Layout = tlCenter
@@ -569,7 +571,7 @@ object Form1: TForm1
             Height = 36
             AutoSize = False
             Caption = 'HexaGong Description / Attribution'
-            ElementClassName = 'Title HexInner OrangeL ps-3 pt-1 '
+            ElementClassName = 'Title HexInner YellowL ps-3 pt-1 '
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             Layout = tlCenter
@@ -616,8 +618,12 @@ object Form1: TForm1
         Height = 514
         ElementClassName = 'Page'
         ElementID = 'pageBackground'
+        HeightStyle = ssAuto
+        WidthStyle = ssAuto
         Caption = 'Background'
         ChildOrder = 1
+        ElementBodyClassName = 'd-flex flex-column'
+        ElementFont = efCSS
         object WebHTMLDiv7: TWebHTMLDiv
           Left = 27
           Top = 20
@@ -635,7 +641,7 @@ object Form1: TForm1
             Height = 36
             AutoSize = False
             Caption = 'Background Color Style'
-            ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+            ElementClassName = 'Title HexInner RoyalBlueL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             Layout = tlCenter
@@ -646,10 +652,10 @@ object Form1: TForm1
         object WebHTMLDiv11: TWebHTMLDiv
           Left = 27
           Top = 64
-          Width = 401
+          Width = 550
           Height = 40
-          ElementClassName = 'd-flex flex-row gap-1 mb-3'
-          ChildOrder = 4
+          ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 flex-wrap'
+          ChildOrder = 1
           ElementPosition = epRelative
           ElementFont = efCSS
           Role = ''
@@ -666,8 +672,8 @@ object Form1: TForm1
             Role = ''
             OnClick = divOptionsBGRadialClick
             object divOptionsBGRadialLabel: TWebLabel
-              Left = 26
-              Top = 2
+              Left = 10
+              Top = 1
               Width = 100
               Height = 36
               AutoSize = False
@@ -677,13 +683,13 @@ object Form1: TForm1
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
               Layout = tlCenter
-              WidthPercent = 80.000000000000000000
+              WidthPercent = 100.000000000000000000
             end
           end
           object divOptionsBGLinear: TWebHTMLDiv
-            Left = 143
+            Left = 111
             Top = 0
-            Width = 90
+            Width = 93
             Height = 40
             Cursor = crHandPoint
             ElementClassName = 'HexBtnOuter WhiteR nointeract'
@@ -694,7 +700,7 @@ object Form1: TForm1
             Role = ''
             OnClick = divOptionsBGLinearClick
             object divOptionsBGLinearLabel: TWebLabel
-              Left = 22
+              Left = 10
               Top = 3
               Width = 100
               Height = 36
@@ -706,11 +712,11 @@ object Form1: TForm1
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
               Layout = tlCenter
-              WidthPercent = 82.000000000000000000
+              WidthPercent = 100.000000000000000000
             end
           end
           object divOptionsBGSolid: TWebHTMLDiv
-            Left = 259
+            Left = 210
             Top = 0
             Width = 86
             Height = 40
@@ -723,7 +729,7 @@ object Form1: TForm1
             Role = ''
             OnClick = divOptionsBGSolidClick
             object divOptionsBGSolidLabel: TWebLabel
-              Left = 22
+              Left = 10
               Top = 3
               Width = 100
               Height = 36
@@ -734,35 +740,134 @@ object Form1: TForm1
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
               Layout = tlCenter
-              WidthPercent = 80.000000000000000000
+              WidthPercent = 100.000000000000000000
+            end
+          end
+          object divOptionsBGCustom: TWebHTMLDiv
+            Left = 302
+            Top = 0
+            Width = 105
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGCustom'
+            ChildOrder = 3
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGCustomClick
+            object divOptionsBGCustomLabel: TWebLabel
+              Left = 10
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Custom'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGCustomLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 100.000000000000000000
             end
           end
         end
-        object WebHTMLDiv12: TWebHTMLDiv
+        object divSelectColor: TWebHTMLDiv
           Left = 27
-          Top = 132
+          Top = 120
           Width = 400
           Height = 40
           ElementClassName = 'HexOuter BlueR w-100 mb-3'
-          WidthStyle = ssPercent
+          ElementID = 'divSelectColor'
           ChildOrder = 2
           ElementPosition = epRelative
           ElementFont = efCSS
           Role = ''
-          object WebLabel9: TWebLabel
+          object labelSelectColor: TWebLabel
             Left = 30
             Top = 2
             Width = 300
             Height = 36
             AutoSize = False
-            Caption = 'Select Two Colors'
-            ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+            Caption = 'Select Color'
+            ElementClassName = 'Title HexInner RoyalBlueL ps-3 pt-1'
+            ElementID = 'labelSelectColor'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            Layout = tlCenter
+            WidthStyle = ssPercent
+            WidthPercent = 100.000000000000000000
+          end
+        end
+        object divCustomCSSTitle: TWebHTMLDiv
+          Left = 27
+          Top = 372
+          Width = 400
+          Height = 40
+          ElementClassName = 'HexOuter BlueR w-100'
+          ElementID = 'divCustomCSSHolder'
+          WidthStyle = ssPercent
+          ChildOrder = 4
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object WebLabel22: TWebLabel
+            Left = 30
+            Top = 2
+            Width = 300
+            Height = 36
+            AutoSize = False
+            Caption = 'Custom CSS Background'
+            ElementClassName = 'Title HexInner RoyalBlueL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
           end
+        end
+        object divCustomCSSHolder: TWebHTMLDiv
+          Left = 27
+          Top = 416
+          Width = 400
+          Height = 40
+          ElementClassName = 'EditMemoHolder nointeract HexOuter WhiteR mb-3 w-100'
+          ElementID = 'divCustomCSSHolder'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 5
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object memoCustomCSS: TWebMemo
+            Left = 30
+            Top = 2
+            Width = 300
+            Height = 36
+            AutoSize = False
+            ElementClassName = 'EditMemo HexTallInner Black ps-4 pt-1 '
+            ElementID = 'memoCustomCSS'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            SelLength = 0
+            SelStart = 0
+            SpellCheck = False
+            WidthStyle = ssPercent
+            WidthPercent = 100.000000000000000000
+          end
+        end
+        object divColorPicker1: TWebHTMLDiv
+          Left = 30
+          Top = 165
+          Width = 369
+          Height = 166
+          ElementClassName = 'nointeract'
+          ElementID = 'divColorPicker1'
+          WidthStyle = ssPercent
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
         end
       end
       object pageImage: TWebTabSheet
@@ -772,8 +877,157 @@ object Form1: TForm1
         Height = 514
         ElementClassName = 'Page'
         ElementID = 'pageImage'
+        HeightStyle = ssAuto
+        WidthStyle = ssAuto
         Caption = 'Image'
         ChildOrder = 2
+        ElementBodyClassName = 'd-flex flex-column'
+        ElementFont = efCSS
+        object WebHTMLDiv8: TWebHTMLDiv
+          Left = 35
+          Top = 28
+          Width = 400
+          Height = 40
+          ElementClassName = 'HexOuter OrangeR w-100 mt-2'
+          WidthStyle = ssPercent
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object WebLabel6: TWebLabel
+            Left = 30
+            Top = 2
+            Width = 300
+            Height = 36
+            AutoSize = False
+            Caption = 'Image Source'
+            ElementClassName = 'Title HexInner OrangeL ps-3 pt-1'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            Layout = tlCenter
+            WidthStyle = ssPercent
+            WidthPercent = 80.000000000000000000
+          end
+        end
+        object WebHTMLDiv9: TWebHTMLDiv
+          Left = 35
+          Top = 74
+          Width = 569
+          Height = 40
+          ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 w-100 flex-wrap'
+          ChildOrder = 4
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object WebHTMLDiv10: TWebHTMLDiv
+            Left = 11
+            Top = 0
+            Width = 82
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGRadial'
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGRadialClick
+            object WebLabel7: TWebLabel
+              Left = 26
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Icon'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGRadialLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object WebHTMLDiv13: TWebHTMLDiv
+            Left = 104
+            Top = -1
+            Width = 82
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGLinear'
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGLinearClick
+            object WebLabel8: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'URL'
+              ChildOrder = 1
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGLinearLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 82.000000000000000000
+            end
+          end
+          object WebHTMLDiv14: TWebHTMLDiv
+            Left = 183
+            Top = -1
+            Width = 100
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGSolid'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGSolidClick
+            object WebLabel10: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Upload'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGSolidLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divImageSource: TWebHTMLDiv
+            Left = 301
+            Top = 0
+            Width = 148
+            Height = 40
+            ElementClassName = 'nointeract HexBtnOuter WhiteR flex-grow-1'
+            ElementID = 'divImageSource'
+            WidthStyle = ssAuto
+            ChildOrder = 3
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object editImageSource: TWebEdit
+              Left = 30
+              Top = 2
+              Width = 86
+              Height = 36
+              ElementClassName = 'EditText HexInner Black ps-3 '
+              ElementID = 'editImageSource'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              WidthStyle = ssPercent
+              WidthPercent = 100.000000000000000000
+            end
+          end
+        end
       end
       object pageAudio: TWebTabSheet
         Left = 0
@@ -782,8 +1036,156 @@ object Form1: TForm1
         Height = 514
         ElementClassName = 'Page'
         ElementID = 'pageAudio'
+        HeightStyle = ssAuto
+        WidthStyle = ssAuto
         Caption = 'Audio'
         ChildOrder = 3
+        ElementBodyClassName = 'd-flex flex-column'
+        object WebHTMLDiv15: TWebHTMLDiv
+          Left = 43
+          Top = 36
+          Width = 400
+          Height = 40
+          ElementClassName = 'HexOuter VioletR w-100 mt-2'
+          WidthStyle = ssPercent
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object WebLabel11: TWebLabel
+            Left = 30
+            Top = 2
+            Width = 300
+            Height = 36
+            AutoSize = False
+            Caption = 'Audio Source'
+            ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            Layout = tlCenter
+            WidthStyle = ssPercent
+            WidthPercent = 80.000000000000000000
+          end
+        end
+        object WebHTMLDiv16: TWebHTMLDiv
+          Left = 43
+          Top = 80
+          Width = 550
+          Height = 40
+          ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 w-100 flex-wrap'
+          ChildOrder = 4
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object WebHTMLDiv17: TWebHTMLDiv
+            Left = 11
+            Top = 0
+            Width = 78
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGRadial'
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGRadialClick
+            object WebLabel12: TWebLabel
+              Left = 26
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'List'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGRadialLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 68.000000000000000000
+            end
+          end
+          object WebHTMLDiv18: TWebHTMLDiv
+            Left = 96
+            Top = 0
+            Width = 82
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGLinear'
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGLinearClick
+            object WebLabel13: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'URL'
+              ChildOrder = 1
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGLinearLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 85.000000000000000000
+            end
+          end
+          object WebHTMLDiv19: TWebHTMLDiv
+            Left = 184
+            Top = 0
+            Width = 100
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGSolid'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGSolidClick
+            object WebLabel14: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Upload'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'divOptionsBGSolidLabel'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divAudioSource: TWebHTMLDiv
+            Left = 309
+            Top = 0
+            Width = 148
+            Height = 40
+            ElementClassName = 'nointeract HexBtnOuter WhiteR flex-grow-1'
+            ElementID = 'divAudioSource'
+            WidthStyle = ssAuto
+            ChildOrder = 3
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object editAudioSource: TWebEdit
+              Left = 30
+              Top = 2
+              Width = 86
+              Height = 36
+              ElementClassName = 'EditText HexInner Black ps-3 '
+              ElementID = 'editAudioSource'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              WidthStyle = ssPercent
+              WidthPercent = 100.000000000000000000
+            end
+          end
+        end
       end
       object pageSettings: TWebTabSheet
         Left = 0
@@ -792,8 +1194,308 @@ object Form1: TForm1
         Height = 514
         ElementClassName = 'Page'
         ElementID = 'pageSettings'
+        HeightStyle = ssAuto
+        WidthStyle = ssAuto
         Caption = 'Settings'
         ChildOrder = 4
+        ElementBodyClassName = 'd-flex flex-column'
+        object divSettingsBGETitle: TWebHTMLDiv
+          Left = 19
+          Top = 12
+          Width = 400
+          Height = 40
+          ElementClassName = 'HexOuter GrayR w-100 mt-2'
+          ElementID = 'divSettingsBGETitle'
+          WidthStyle = ssPercent
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object labelSettingsBGETitle: TWebLabel
+            Left = 30
+            Top = 1
+            Width = 300
+            Height = 36
+            AutoSize = False
+            Caption = 'Background Elements'
+            ElementClassName = 'Title HexInner GrayL ps-3 pt-1'
+            ElementID = 'labelSettingsBGETitle'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            Layout = tlCenter
+            WidthStyle = ssPercent
+            WidthPercent = 80.000000000000000000
+          end
+        end
+        object WebHTMLDiv21: TWebHTMLDiv
+          Left = 19
+          Top = 116
+          Width = 400
+          Height = 40
+          ElementClassName = 'HexOuter GrayR w-100 mt-2'
+          WidthStyle = ssPercent
+          ChildOrder = 2
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object WebLabel16: TWebLabel
+            Left = 30
+            Top = 1
+            Width = 300
+            Height = 36
+            AutoSize = False
+            Caption = 'CORS Proxy'
+            ElementClassName = 'Title HexInner GrayL ps-3 pt-1'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            Layout = tlCenter
+            WidthStyle = ssPercent
+            WidthPercent = 80.000000000000000000
+          end
+        end
+        object divSettingsBGEChoices: TWebHTMLDiv
+          Left = 19
+          Top = 58
+          Width = 401
+          Height = 40
+          ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 flex-wrap'
+          ElementID = 'divSettingsBGEChoices'
+          ChildOrder = 1
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object divOptionsBGENone: TWebHTMLDiv
+            Left = 16
+            Top = 0
+            Width = 90
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGENone'
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGENoneClick
+            object labelOptionsBGENone: TWebLabel
+              Left = 26
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'None'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelOptionsBGENone'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divOptionsBGESix: TWebHTMLDiv
+            Left = 112
+            Top = 0
+            Width = 62
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGESix'
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGESixClick
+            object labelOptionsBGESix: TWebLabel
+              Left = 18
+              Top = 3
+              Width = 60
+              Height = 36
+              AutoSize = False
+              Caption = '6'
+              ChildOrder = 1
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelOptionsBGESix'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 100.000000000000000000
+            end
+          end
+          object divOptionsBGETwelve: TWebHTMLDiv
+            Left = 213
+            Top = 0
+            Width = 72
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGETwelve'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGETwelveClick
+            object labelOptionsBGETwelve: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = '12'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelOptionsBGETwelve'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divOptionsBGEEighteen: TWebHTMLDiv
+            Left = 305
+            Top = 0
+            Width = 72
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divOptionsBGEEighteen'
+            ChildOrder = 3
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divOptionsBGEEighteenClick
+            object labelOptionsBGEEighteen: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = '18'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelOptionsBGEEighteen'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+        end
+        object WebHTMLDiv28: TWebHTMLDiv
+          Left = 19
+          Top = 160
+          Width = 569
+          Height = 40
+          ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 w-100 flex-wrap'
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object divProxyDefault: TWebHTMLDiv
+            Left = 11
+            Top = 0
+            Width = 103
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divProxyDefault'
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divProxyDefaultClick
+            object labelProxyDefault: TWebLabel
+              Left = 26
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Default'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelProxyDefault'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divProxyCustom: TWebHTMLDiv
+            Left = 208
+            Top = -1
+            Width = 103
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divProxyCustom'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divProxyCustomClick
+            object labelProxyCustom: TWebLabel
+              Left = 22
+              Top = 3
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Custom'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelProxyCustom'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divProxyNone: TWebHTMLDiv
+            Left = 120
+            Top = 0
+            Width = 90
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'HexBtnOuter WhiteR nointeract'
+            ElementID = 'divProxyNone'
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divProxyNoneClick
+            object labelProxyNone: TWebLabel
+              Left = 23
+              Top = 4
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'None'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelProxyNone'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              Layout = tlCenter
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divProxy: TWebHTMLDiv
+            Left = 317
+            Top = 0
+            Width = 148
+            Height = 40
+            ElementClassName = 'nointeract HexBtnOuter WhiteR flex-grow-1'
+            ElementID = 'divProxy'
+            WidthStyle = ssAuto
+            ChildOrder = 3
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object editProxy: TWebEdit
+              Left = 30
+              Top = 2
+              Width = 86
+              Height = 36
+              ElementClassName = 'EditText HexInner Black ps-3 '
+              ElementID = 'editProxy'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              WidthStyle = ssPercent
+              WidthPercent = 100.000000000000000000
+              OnChange = editProxyChange
+            end
+          end
+        end
       end
     end
     object divOptionsBGBorder: TWebHTMLDiv
