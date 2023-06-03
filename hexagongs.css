@@ -93,7 +93,8 @@ html,body {
 /* ANIMATION */
 
 .Animation {
-  /*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
+  /*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%); */
+  /* clip-path: circle(closest-side at 25%); */
   clip-path: circle();
   z-index: 1;
 }
@@ -142,6 +143,7 @@ html,body {
   opacity: 0.2;
   z-index: 5;
   color: white !important;
+  visiblity: hidden;
 }
 .MainButton:hover {
   opacity: 1;
@@ -219,8 +221,8 @@ pointer-events: none;
 
 #divOptions {
   position: absolute;
-  width: 50%;
-  height: 50%;
+  width: 40%;
+  height: 75%;
   left: 50%;
   top: 50%;
   transform: translate(-50%,-50%);
@@ -248,7 +250,7 @@ pointer-events: none;
   right: 0px;
   bottom: 0px;
   background: white;
-  opacity: 0.2;
+  opacity: 0.15;
   z-index: -2;
   width:100% !important;
 }
@@ -333,8 +335,8 @@ pointer-events: none;
   width: calc(100% - 4px) !important;
   clip-path: polygon(0px 30px, 16px 1.8px, calc(100% - 16px) 1.8px, 100% 30px, 100% calc(100% - 30px), calc(100% - 16px) calc(100% - 1.8px), 16px calc(100% - 1.8px), 0% calc(100% - 30px));
 }
-.Title {
-}
+
+.Title > span,
 .Title > label {
   color: white;
   font-weight: bold;
@@ -382,6 +384,7 @@ pointer-events: none;
 }
 
 
+/* HexaGon Color Picker */
 #divColorPicker1 {
     width: 440px !important;
     height: 370px !important;
@@ -404,6 +407,46 @@ pointer-events: none;
 }
 .ColorTooltip {
   --bs-tooltip-bg: #202020;
+}
+#divColorPicker2 {
+}
+
+/* RGB Color Picker */
+.HexSliderH {
+  top: 4px !important;
+  left: 10px !important;
+  width: calc(100% - 62px) !important;
+  position: relative;
+  z-index: 1;
+  clip-path: polygon(0px 18px, 8px 1.8px, calc(100% - 8px) 1.8px, 100% 18px, 100% calc(100% - 18px), calc(100% - 8px) calc(100% - 1.8px), 8px calc(100% - 1.8px), 0% calc(100% - 18px));
+}
+.RGB::part(input) {
+  cursor: pointer;
+  background-image: linear-gradient(
+      to right,
+      var(--track-color-inactive) 0%,
+      var(--track-color-inactive) min(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) min(var(--percent), var(--track-active-offset)),
+      var(--track-color-active) max(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) max(var(--percent), var(--track-active-offset)),
+      var(--track-color-inactive) 100%
+    );
+}
+.HexSliderThumb {
+  width: 44px;
+  height: 44px;
+  position: absolute;
+  top: 0px;
+  clip-path: polygon(0% 25%, 50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%);
+  z-index: 2;
+}
+.ThumbLabel {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  color: white;
+  font-weight: bold;
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
 }
 
 
@@ -442,5 +485,9 @@ pointer-events: none;
 .RoyalBlueL   { background: linear-gradient(90deg,#000000,royalblue);   }
 .IndigoL      { background: linear-gradient(90deg,#000000,indigo);      }
 .VioletL      { background: linear-gradient(90deg,#000000,violet);      }
+
+.RedW         { background: linear-gradient(60deg,#000000,red,       #000000); }
+.GreenW       { background: linear-gradient(60deg,#000000,darkgreen, #000000); }
+.BlueW        { background: linear-gradient(60deg,#000000,blue,      #000000); }
 
 

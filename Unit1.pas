@@ -146,6 +146,7 @@ type
     divProxy: TWebHTMLDiv;
     editProxy: TWebEdit;
     divColorPicker1: TWebHTMLDiv;
+    divColorPicker2: TWebHTMLDiv;
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure GeneratePositions;
@@ -171,6 +172,8 @@ type
     [async] procedure btnOptionsSettingsClick(Sender: TObject);
     procedure UpdateOptionsCursor;
     procedure UpdateColorPickerSize;
+    procedure UpdateColorPickerRGB;
+    procedure UpdateColorPickerHexagon;
     procedure ColorSelected(ColorName: String; ColorValue: String; ColorIndex: Integer);
     procedure divOptionsBGRadialClick(Sender: TObject);
     procedure divOptionsBGLinearClick(Sender: TObject);
@@ -184,6 +187,9 @@ type
     procedure divProxyNoneClick(Sender: TObject);
     procedure divProxyCustomClick(Sender: TObject);
     procedure editProxyChange(Sender: TObject);
+    procedure btnFullScreenClick(Sender: TObject);
+    procedure btnTrashClick(Sender: TObject);
+    procedure btnCloneClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -210,11 +216,11 @@ type
     AnimationLast:    Array of Integer;      // Last Position of this animation
     AnimationTimers:  JSValue;               // Array of setInterval() timers currently active
 
-    MainMode:   Boolean;   // State of Main button (top-left)
-    ScaleMode:  Boolean;   // State of Scale button (top-right)
-    ChangeMode: Boolean;   // State of Change button (bottom-right)
-    VolumeMode: Boolean;   // State of Volume button (bottom-left)
-    LastClick:  TDateTime; // Used to block clicks from happening before animations are complete.
+    MainMode:       Boolean;   // State of Main button (top-left)
+    ScaleMode:      Boolean;   // State of Scale button (top-right)
+    ChangeMode:     Boolean;   // State of Change button (bottom-right)
+    VolumeMode:     Boolean;   // State of Volume button (bottom-left)
+    LastClick:      TDateTime; // Used to block clicks from happening before animations are complete.
 
     ZoomLevel: Integer;   // Number of hexagons in top row (always an odd number)
     HexRadius: Double;    // Radius of one hexagon (width = 2x)
@@ -222,16 +228,17 @@ type
     ColCount: Integer;    // Number of columns (just the number of hexagons in first row, always odd)
     MarginTop: Double;    // How much of an offset to center the hexagons vertically
 
+    OptionsDiscardGong: Boolean;  // Keep track of whether we'll save the new HexaGong created
+
     OptionsNamesScroll: JSValue;       // SimpleBar reference
     OptionsBackgroundScroll: JSValue;  // SimpleBar reference
     OptionsImagesScroll: JSValue;      // SimpleBar reference
     OptionsAudioScroll: JSValue;       // SimpleBar reference
     OptionsSettingsScroll: JSValue;    // SimpleBar reference
 
-
     OptionsBGStyle: Integer;  // Radial, Linear, or Solid
     OptionsBGColor1: String;  // CSS Color Value
-    OptionsBGColor2: String;  // CSS Color Value
+    OptionsBGColor2: String;  // Hex RGB Value
 
     OptionsImageStyle: Integer; // Icon, URL, Upload
     OptionsImageRef: String;    // Icon name, URL, Data URI
@@ -251,8 +258,6 @@ implementation
 {$R *.dfm}
 
 procedure TForm1.WebFormCreate(Sender: TObject);
-var
-  GongDataString: String;
 begin
 
   // Initial Button States
@@ -262,7 +267,7 @@ begin
   VolumeMode := False;
 
   // Odds and Ends;
-  ZoomLevel := 7;
+  ZoomLevel := 10;
   LastClick := Now - 1;
   pageControl.TabIndex := 0;
 
@@ -285,11 +290,22 @@ begin
   asm this.AnimationTimers = []; end;
 
 
+  // Detect Fullscreen mode changes via browser controls
+  asm
+    document.documentElement.addEventListener("fullscreenchange", (event) => {
+      pas.Unit1.Form1.WebFormResize(null);
+    });
+    window.onresize = function (event) {
+      pas.Unit1.Form1.WebFormResize(null);
+    }
+  end;
+
+
   // Enable Simplebar on Options pages
   asm
     this.OptionsNamesScroll      = new SimpleBar(document.getElementById('pageName'      ), { forceVisible: 'y', autoHide: false });
     this.OptionsBackgroundScroll = new SimpleBar(document.getElementById('pageBackground'), { forceVisible: 'y', autoHide: false });
-    this.OptionsImageScroll      = new SimpleBar(document.getElementById('pageImage'     ), { forceVisible: 'y', autoHide: false });
+    this.OptionsImagesScroll     = new SimpleBar(document.getElementById('pageImage'     ), { forceVisible: 'y', autoHide: false });
     this.OptionsAudioScroll      = new SimpleBar(document.getElementById('pageAudio'     ), { forceVisible: 'y', autoHide: false });
     this.OptionsSettingsScroll   = new SimpleBar(document.getElementById('pageSettings'  ), { forceVisible: 'y', autoHide: false });
   end;
@@ -313,7 +329,7 @@ begin
         // Move cursor to new position
         event.target.appendChild(btnCursor);
         btnCursor.setAttribute('position',event.target.getAttribute('position'));
-        btnCursor.style.setProperty('z-index','5');
+        btnCursor.style.setProperty('z-index','15');
         // Set to jiggling (might be jiggling already)
         btnCursor.parentElement.style.setProperty('animation-name','jiggle');
       }
@@ -404,7 +420,7 @@ begin
             btnCursor.setAttribute('position',position);
             btnCursor.style.setProperty('top','0px');
             btnCursor.style.setProperty('left','0px');
-            btnCursor.style.setProperty('z-index','5');
+            btnCursor.style.setProperty('z-index','15');
             btnCursor.parentElement.style.setProperty('animation-name','jiggle');
           }
 
@@ -430,7 +446,7 @@ begin
               swapel.style.setProperty('top', NewY + 'px');
               swapel.style.setProperty('left', NewX + 'px');
               swapel.style.setProperty('transition','top 0.2s linear, left 0.2s linear');
-              swapel.style.setProperty('z-index',9);
+              swapel.style.setProperty('z-index',10);
               swapel.parentElement.style.removeProperty('animation-name');
 
               // Update data about this element we're swapping
@@ -467,7 +483,7 @@ begin
 
             // After it has been moved, drop it back into its hexagon holder
             // Also, move the cursor to this position as well
-            setTimeout(function(){
+            setTimeout(function() {
               event.target.style.removeProperty('transition');
               event.target.style.setProperty('top','0px');
               event.target.style.setProperty('left','0px');
@@ -486,7 +502,7 @@ begin
             if (swapel !== undefined) {
               swapel.style.top = OldY + 'px';
               swapel.style.left = OldX + 'px';
-              setTimeout(function(){
+              setTimeout(function() {
                 swapel.style.removeProperty('transition');
                 swapel.style.setProperty('top','0px');
                 swapel.style.setProperty('left','0px');
@@ -521,6 +537,10 @@ begin
             target.setAttribute('data-y', y)
             pas.Unit1.Form1.UpdateOptionsCursor();
             pas.Unit1.Form1.UpdateColorPickerSize();
+            pas.Unit1.Form1.UpdateColorPickerRGB();
+            memoHexDesc.dispatchEvent(new Event('input'));
+            memoProjDesc.dispatchEvent(new Event('input'));
+            memoCustomCSS.dispatchEvent(new Event('input'));
           }
         },
         ignoreFrom: '.nointeract, .simplebar-track'
@@ -717,7 +737,7 @@ begin
                                       '#339933','#00CC66','#00FF99','#66FFCC','#66FFFF','#66CCFF','#99CCFF','#9999FF','#9966FF','#9933FF','#9900FF',           // 11
                                  '#006600','#00CC00','#00FF00','#66FF99','#99FFCC','#CCFFFF','#CCCCFF','#CC99FF','#CC66FF','#CC33FF','#CC00FF','#9900CC',      // 12
                             '#003300','#009933','#33CC33','#66FF66','#99FF99','#CCFFCC','#FFFFFF','#FFCCFF','#FF99FF','#FF66FF','#FF00FF','#CC00CC','#660066', // 13
-                                 '#336600','#009900','#66FF33','#99FF66','#CCFF99','#FFFFCC','#FFCCCC','#FF99CC','#FF66CC','#FF33CC','#CC0099','#993399',      // 12
+                                 '#336600','#009900','#66FF33','#99FF66','#CCFF99','#FFFAFA','#FFCCCC','#FF99CC','#FF66CC','#FF33CC','#CC0099','#993399',      // 12
                                       '#333300','#669900','#99FF33','#CCFF66','#FFFF99','#FFCC99','#FF9999','#FF6699','#FF3399','#CC3399','#990099',           // 11
                                            '#666633','#99CC00','#CCFF33','#FFFF66','#FFCC66','#FF9966','#FF6666','#FF0066','#CC6699','#993366',                // 10
                                                 '#999966','#CCCC00','#FFFF00','#FFCC00','#FF9933','#FF6600','#FF5050','#CC0066','#660033',                     // 9
@@ -772,7 +792,6 @@ begin
       Object.entries(CSS_COLOR_NAMES).forEach(([name, rgbvalue]) => {
         if (rgbvalue == colorvalue) {
           colorname = name;
-          console.log(colorname);
         }
       });
       colorpicker += '<div class="ColorHexagon" '+
@@ -787,14 +806,14 @@ begin
     }
     divColorPicker1.innerHTML = colorpicker;
 
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
     divColorPicker1.addEventListener('click', (event) => {
       if (event.target.classList.contains('ColorHexagon')) {
         var colors = divColorPicker1.querySelectorAll('.ColorHexagon');
         colors.forEach(hex => {
-          if ((hex == event.target) || (event.target.getAttribute('data-bs-original-title') == hex.getAttribute('data-bas-original-title'))) {
+          if ((hex == event.target) || (event.target.getAttribute('data-bs-original-title') == hex.getAttribute('data-bs-original-title'))) {
             hex.innerHTML = '<i class="pe-none d-flex justify-content-center align-items-center Picked fa-solid fa-xmark fa-lg"></i>';
             pas.Unit1.Form1.ColorSelected(event.target.getAttribute('data-bs-original-title'),event.target.style.getPropertyValue('background-color'),parseInt(event.target.getAttribute('colorIndex')));
           }
@@ -804,11 +823,95 @@ begin
         });
       }
     });
+
+    // RGB Sliders
+    divColorPicker2.addEventListener('sl-input',function(e){
+      var range = divColorPicker2.getBoundingClientRect().width - 86;
+      if (e.target.id == "ColorRed") {
+        ThumbRed.style.setProperty("left",range * (e.target.value / 255) +'px');
+        ThumbRed.innerHTML = "<div class='ThumbLabel'>"+e.target.value+"</dvi>";
+      }
+      else if (e.target.id == "ColorGreen") {
+        ThumbGreen.style.setProperty("left",range * (e.target.value / 255) +'px');
+        ThumbGreen.innerHTML = "<div class='ThumbLabel'>"+e.target.value+"</dvi>";
+      }
+      else if (e.target.id == "ColorBlue") {
+        ThumbBlue.style.setProperty("left",range * (e.target.value / 255) +'px');
+        ThumbBlue.innerHTML = "<div class='ThumbLabel'>"+e.target.value+"</dvi>";
+      }
+      pas.Unit1.Form1.OptionsBGColor2 = 'rgb('+ColorRed.value+', '+ColorGreen.value+', '+ColorBlue.value+')';
+      pas.Unit1.Form1.UpdateColorPickerHexagon();
+    });
   end;
 end;
 
 procedure TForm1.WebFormResize(Sender: TObject);
+var
+  FullScreenMode: Boolean;
 begin
+
+  // Do our best to detect fullscreen mode?
+
+// ATTEMPT #1
+//  asm
+//   const windowWidth = window.innerWidth * window.devicePixelRatio;
+//   const windowHeight = window.innerHeight * window.devicePixelRatio;
+//   const screenWidth = window.screen.width;
+//   const screenHeight = window.screen.height;
+//   if (((windowWidth/screenWidth)>=0.95) && ((windowHeight/screenHeight)>=0.95)) {
+//     this.FullScreenMode = true;
+//   }
+//   else {
+//     this.FullScreenMode = false;
+//    }
+//  end;
+//
+//  if FullScreenMode = False
+//  then btnFullScreen.Caption := '<i class="fa-solid fa-expand text-white"></i>'
+//  else btnFullScreen.Caption := '<i class="fa-solid fa-compress text-white"></i>';
+
+// ATTEMPT #2
+//  asm
+//    const container = document.documentElement;
+//
+//    if (document.fullscreenElement) {
+//      FullScreenMode = false;
+//      if (document.exitFullscreen) {
+//   		   FullScreenMode = true;
+//      } else if (document.mozCancelFullScreen) {
+//   		   FullScreenMode = true;
+//      } else if (document.webkitCancelFullScreen) {
+//   		   FullScreenMode = true;
+//      } else if (document.msExitFullscreen) {
+//   		   FullScreenMode = true;
+//		  }
+//    } else {
+//      FullScreenMode = true;
+//      if (!document.mozFullScreen && !document.webkitFullScreen) {
+//        if (container.requestFullscreen) {
+//    		   FullScreenMode = false;
+//        }
+//        else if (container.mozRequestFullScreen) {
+//    		   FullScreenMode = false;
+//        }
+//        else if (container.webkitRequestFullScreen) {
+//    		   FullScreenMode = false;
+//        }
+//        else if (container.msRequestFullscreen) {
+//    		   FullScreenMode = false;
+//        }
+//    	}
+//    }
+//  end;
+
+  // ATTEMPT #3
+  asm
+    FullScreenMode = (window.innerHeight === screen.height);
+  end;
+
+  if FullScreenMode = False
+  then btnFullScreen.Caption := '<i class="fa-solid fa-expand text-white"></i>'
+  else btnFullScreen.Caption := '<i class="fa-solid fa-compress text-white"></i>';
 
   // Check that app has initialized before doing this
   if Length(PositionsX) > 0 then
@@ -825,6 +928,7 @@ begin
       btnChangeClick(btnChange);
       UpdateOptionsCursor;
       UpdateColorPickerSize;
+      UpdateColorPickerRGB;
     end;
   end;
 
@@ -860,6 +964,10 @@ begin
           event.target.style.height = event.target.scrollHeight + offset + 'px';
           event.target.parentElement.style.height = event.target.scrollHeight + offset + 4 + 'px';
           pas.Unit1.Form1.OptionsNamesScroll.recalculate();
+          pas.Unit1.Form1.OptionsBackgroundScroll.recalculate();
+          pas.Unit1.Form1.OptionsImagesScroll.recalculate();
+          pas.Unit1.Form1.OptionsAudioScroll.recalculate();
+          pas.Unit1.Form1.OptionsSettingsScroll.recalculate();
         });
         element.removeAttribute('data-autoresize');
       });
@@ -875,27 +983,87 @@ begin
   end;
 end;
 
+procedure TForm1.UpdateColorPickerHexagon;
+begin
+  asm
+    var colors = divColorPicker1.querySelectorAll('.ColorHexagon');
+    var colorname = '';
+    var i = 0;
+    var s = -1;
+    colors.forEach(hex => {
 
+      if (this.OptionsBGColor2 == hex.style.getPropertyValue('background-color')) {
+        colorname = hex.getAttribute('data-bs-original-title');
+        hex.innerHTML = '<i class="pe-none d-flex justify-content-center align-items-center Picked fa-solid fa-xmark fa-lg"></i>';
+        s = i;
+      }
+      else {
+        hex.innerHTML = '';
+      }
+      i = i + 1;
+    });
 
+    if (colorname == '') {
+      var r = parseInt(this.OptionsBGColor2.replace('rgb(','').replace(')','').split(',')[0]);
+      var g = parseInt(this.OptionsBGColor2.replace('rgb(','').replace(')','').split(',')[1]);
+      var b = parseInt(this.OptionsBGColor2.replace('rgb(','').replace(')','').split(',')[2]);
+      colorname = '#'+r.toString(16).padStart(2,'0')+g.toString(16).padStart(2,'0')+b.toString(16).padStart(2,'0');
+    }
+    pas.Unit1.Form1.ColorSelected(colorname,this.OptionsBGColor2,s);
+
+  end;
+end;
+
+procedure TForm1.UpdateColorPickerRGB;
+begin
+  asm
+    var range = divColorPicker2.getBoundingClientRect().width - 86;
+    var r = parseInt(this.OptionsBGColor2.replace('rgb(','').replace(')','').split(',')[0]);
+    var g = parseInt(this.OptionsBGColor2.replace('rgb(','').replace(')','').split(',')[1]);
+    var b = parseInt(this.OptionsBGColor2.replace('rgb(','').replace(')','').split(',')[2]);
+
+    if (r !== ColorRed.value) {
+      ColorRed.setAttribute('value',r);
+      ThumbRed.innerHTML = "<div class='ThumbLabel'>"+r+"</dvi>";
+    }
+    ThumbRed.style.setProperty("left",range * (r / 255) +'px');
+
+    if (g !== ColorGreen.value) {
+      ColorGreen.setAttribute('value',g);
+      ThumbGreen.innerHTML = "<div class='ThumbLabel'>"+g+"</dvi>";
+    }
+    ThumbGreen.style.setProperty("left",range * (g / 255) +'px');
+
+    if (b !== ColorBlue.Value) {
+      ColorBlue.setAttribute('value',b);
+      ThumbBlue.innerHTML = "<div class='ThumbLabel'>"+b+"</dvi>";
+    }
+    ThumbBlue.style.setProperty("left",range * (b / 255) +'px');
+
+  end;
+end;
 
 procedure TForm1.UpdateColorPickerSize;
 var
   avail: Double;
   scale: Double;
+  space: Double;
 begin
   avail := divSelectColor.ElementHandle.getBoundingClientRect.Width;
   scale := Min(avail / 440.0,1.5);
-  divColorPicker1.ElementHandle.style.setProperty('transform','scale('+FloatToSTrF(scale,ffGeneral,8,5)+')');
+  space := scale*370.0;
+  divColorPicker1.ElementHandle.style.setProperty('transform','scale('+FloatToSTrF(scale,ffGeneral,10,5)+')');
+  divColorPicker1.ElementHandle.style.setProperty('height',FloatToSTrF(space,ffGeneral,10,5)+'px','important');
 end;
 
 procedure TForm1.UpdateOptionsCursor;
 var
-  CursorHeight: Double;
-  CursorWidth: Double;
+  CursorLink: TWebButton;
+
   CursorTop: Double;
   CursorLeft: Double;
-  CursorColor: String;
-  CursorLink: TWebButton;
+  CursorWidth: Double;
+  CursorHeight: Double;
 
 begin
 
@@ -910,10 +1078,10 @@ begin
   CursorWidth := CursorLink.ElementHandle.getBoundingClientRect.width;
   CursorHeight := CursorLink.ElementHandle.getBoundingClientRect.height;
 
-  divOptionsCursor.ElementHandle.style.setProperty('top',FloatToStrF(CursorTop,ffGeneral,8,5)+'px');
-  divOptionsCursor.ElementHandle.style.setProperty('left',FloatToStrF(CursorLeft,ffGeneral,8,5)+'px');
-  divOptionsCursor.ElementHandle.style.setProperty('width',FloatToStrF(CursorWidth,ffGeneral,8,5)+'px');
-  divOptionsCursor.ElementHandle.style.setProperty('height',FloatToStrF(CursorHeight,ffGeneral,8,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('top',FloatToStrF(CursorTop,ffGeneral,10,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('left',FloatToStrF(CursorLeft,ffGeneral,10,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('width',FloatToStrF(CursorWidth,ffGeneral,10,5)+'px');
+  divOptionsCursor.ElementHandle.style.setProperty('height',FloatToStrF(CursorHeight,ffGeneral,10,5)+'px');
 
   divOptionsCursor.ElementHandle.style.setProperty('background',window.getComputedStyle(CursorLink.ElementHandle).getPropertyValue('background'));
 
@@ -924,6 +1092,7 @@ var
   CursorPosition: Integer;
 begin
   CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
+  OptionsDiscardGong := False;
 
   // Position of the cursor
   if CursorPosition <> -1 then
@@ -932,7 +1101,8 @@ begin
     // New Gong
     if PositionsG[CursorPosition] = -1 then
     begin
-      console.log('Creating new temporary HexaGong');
+      OptionsDiscardGong := True;
+
       GongID := Length(Gongs);
       SetLength(Gongs, GongID + 1);
       SetLength(GongsP, GongID + 1);
@@ -951,11 +1121,13 @@ begin
 
       Gongs[GongID].ElementHandle.style.setProperty('top','0px');
       Gongs[GongID].ElementHandle.style.setProperty('left','0px');
-      Gongs[GongID].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
-      Gongs[GongID].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+      Gongs[GongID].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
+      Gongs[GongID].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
       Gongs[GongID].ElementHandle.style.setProperty('z-index','10');
       Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient(#00000080,#FFFFFF80)');
       Gongs[GongID].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+
+//      Gongs[GongID].HTML.Text := '<div class="text-white">'+IntToStr(GongID)+'</div>';
 
       document.getElementById('BG-'+IntToStr(CursorPosition)).appendChild(Gongs[GongID].ElementHandle);
       (document.getElementById('BG-'+IntToStr(CursorPosition)) as TJSHTMLElement).style.setProperty('animation-name','jiggle');
@@ -966,15 +1138,14 @@ begin
         this.GongData['HexaGongs'][this.GongID]['Name'] = 'New HexaGong '+(this.GongID + 1);
         this.GongData['HexaGongs'][this.GongID]['Description'] = 'No description';
         this.GongData['HexaGongs'][this.GongID]['BG Style'] = 1;
-        this.GongData['HexaGongs'][this.GongID]['BG Color 1'] = '#00000080';
-        this.GongData['HexaGongs'][this.GongID]['BG Color 2'] = '#FFFFFF80';
+        this.GongData['HexaGongs'][this.GongID]['BG Color 1'] = 'White';
+        this.GongData['HexaGongs'][this.GongID]['BG Color 2'] = 'rgb(255, 255, 255)';
         this.GongData['HexaGongs'][this.GongID]['BG Custom'] = '';
       end;
 
     end
     else
     begin
-      console.log('Editing Existing HexaGong');
       GongID := PositionsG[CursorPosition];
     end;
 
@@ -994,9 +1165,9 @@ begin
     // pageName
     asm
       this.editTitle.SetText(this.GongData['HexaGongs Project Title']);
-      this.memoProjDesc.SetText(this.GongData['HexaGongs Project Description']);
+      this.memoProjDesc.FLines.SetTextStr(this.GongData['HexaGongs Project Description']);
       this.editHexName.SetText(this.GongData['HexaGongs'][this.GongID]['Name']);
-      this.memoHexDesc.SetText(this.GongData['HexaGongs'][this.GongID]['Description']);
+      this.memoHexDesc.FLines.SetTextStr(this.GongData['HexaGongs'][this.GongID]['Description']);
     end;
 
     // pageBackground
@@ -1004,7 +1175,7 @@ begin
       this.OptionsBGStyle = this.GongData['HexaGongs'][this.GongID]['BG Style'];
       this.OptionsBGColor1 = this.GongData['HexaGongs'][this.GongID]['BG Color 1'];
       this.OptionsBGColor2 = this.GongData['HexaGongs'][this.GongID]['BG Color 2'];
-      this.memoCustomCSS.SetText(this.GongData['HexaGongs'][this.GongID]['BG Custom']);
+      this.memoCustomCSS.FLines.SetTextStr(this.GongData['HexaGongs'][this.GongID]['BG Custom']);
     end;
     if OptionsBGStyle = 0 then divOptionsBGRadialClick(Sender);
     if OptionsBGStyle = 1 then divOptionsBGLinearClick(Sender);
@@ -1041,10 +1212,50 @@ begin
   end;
 end;
 
+procedure TForm1.btnFullScreenClick(Sender: TObject);
+begin
+
+  asm
+    const container = document.documentElement;
+
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+   		   document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+      } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+		  }
+    } else {
+      if (!document.mozFullScreen && !document.webkitFullScreen) {
+        if (container.requestFullscreen) {
+            container.requestFullscreen();
+        }
+        else if (container.mozRequestFullScreen) {
+            container.mozRequestFullScreen();
+        }
+        else if (container.webkitRequestFullScreen) {
+            container.webkitRequestFullScreen();
+        }
+        else if (container.msRequestFullscreen) {
+            container.msRequestFullscreen();
+        }
+    	}
+    }
+  end;
+
+  // Trigger WebFormResize to account for new window dimensions
+  asm setTimeout(function() { pas.Unit1.Form1.WebFormResize(null); }, 50);  end;
+
+
+end;
+
 procedure TForm1.btnMainClick(Sender: TObject);
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
+  if (MillisecondsBetween(Now, LastClick) > 1000) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -1109,13 +1320,40 @@ begin
   pageControl.TabIndex := 1;
   UpdateOptionsCursor;
   UpdateColorPickerSize;
+  UpdateColorPickerHexagon;
+  UpdateColorPickerRGB;
+  labelSelectColor.HTML := 'Select Color <span style="padding-left: 20px; color: silver; font-family: var(--bs-font-monospace)"> '+OptionsBGColor1+'   '+OptionsBGColor2+'</span>';
   pageBackground.ElementHandle.style.setProperty('opacity','1');
+
+  asm
+    memoCustomCSS.dispatchEvent(new Event('input'));
+  end;
 end;
 
 procedure TForm1.btnOptionsCancelClick(Sender: TObject);
 var
-  HexaGongString: String;
+//  HexaGongString: String;
+  Ref: Integer;
+  CursorPosition: Integer;
 begin
+  CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
+
+  // Don't save if not a NewGong
+  if OptionsDiscardGong then
+  begin
+    Ref := Length(Gongs) - 1;
+    Gongs[Ref].HTML.Text := '';
+    Gongs[Ref] := nil;
+    SetLength(Gongs, Ref);
+    SetLength(GongsP, Ref);
+    PositionsG[CursorPosition] := -1;
+    asm
+      this.GongData.HexaGongs.pop();
+      document.getElementById('Gong-'+Ref).remove();
+      document.getElementById('BG-'+CursorPosition).style.setProperty('animation-name','jiggle');
+    end;
+  end;
+
   divShade.ElementHandle.style.setProperty('opacity','0');
   divOptions.ElementHandle.style.setProperty('opacity','0');
   asm
@@ -1153,12 +1391,19 @@ begin
   pageControl.TabIndex := 0;
   UpdateOptionsCursor;
   pageName.ElementHandle.style.setProperty('opacity','1');
+
+  asm
+    memoProjDesc.dispatchEvent(new Event('input'));
+    memoHexDesc.dispatchEvent(new Event('input'));
+  end;
 end;
 
 procedure TForm1.btnOptionsOKClick(Sender: TObject);
 begin
   // Save Options to GongData JSON
   asm
+    this.GongData['HexaGongs Project Title'] = this.editTitle.GetText();
+    this.GongData['HexaGongs Project Description'] = this.memoProjDesc.GetText();
     this.GongData['HexaGongs'][this.GongID]['Name'] = this.editHexName.GetText();
     this.GongData['HexaGongs'][this.GongID]['Description'] = this.memoHexDesc.GetText();
     this.GongData['HexaGongs'][this.GongID]['BG Style'] = this.OptionsBGStyle;
@@ -1169,19 +1414,22 @@ begin
 
   // Update UI element - Background
   if OptionsBGStyle = 0
-  then Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient('+OptionsBGColor1+','+OptionsBGColor2+')')
+  then Gongs[GongID].ElementHandle.style.setProperty('background','radial-gradient(black,'+OptionsBGColor1+')')
   else if OptionsBGStyle = 1
-  then Gongs[GongID].ElementHandle.style.setProperty('background','linear-gradient(60deg,'+OptionsBGColor1+','+OptionsBGColor2+')')
+  then Gongs[GongID].ElementHandle.style.setProperty('background','linear-gradient(60deg,black,'+OptionsBGColor1+')')
   else if OptionsBGStyle = 2
   then Gongs[GongID].ElementHandle.style.setProperty('background',OptionsBGColor1)
-  else Gongs[GongID].ElementHandle.style.setProperty('background',memoCustomCSS.Lines.Text);
+  else
+  begin
+    Gongs[GongID].ElementHandle.style.cssText := Gongs[GongID].ElementHandle.style.cssText + memoCustomCSS.Lines.Text;
+  end;
 
   // Update UI element - Image
 
 
   // Update UI element - Audio
 
-
+  OptionsDiscardGong := False;
   btnOptionsCancelClick(Sender);
 end;
 
@@ -1201,7 +1449,7 @@ end;
 procedure TForm1.btnScaleClick(Sender: TObject);
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
+  if (MillisecondsBetween(Now, LastClick) > 1000) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -1247,7 +1495,7 @@ var
   i: Integer;
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
+  if (MillisecondsBetween(Now, LastClick) > 1000) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -1258,8 +1506,11 @@ begin
       i := 0;
       while i < Length(Gongs) do
       begin
-        Gongs[i].ElementHandle.classList.add('dragswap');
-        (Gongs[i].ElementHandle.parentElement as TJSHTMLElement).style.setProperty('animation-name','jiggle');
+        if Gongs[I] <> nil then
+        begin
+          Gongs[i].ElementHandle.classList.add('dragswap');
+          (Gongs[i].ElementHandle.parentElement as TJSHTMLElement).style.setProperty('animation-name','jiggle');
+        end;
         i := i + 1;
       end;
 
@@ -1285,7 +1536,10 @@ begin
       i := 0;
       while i < Length(Gongs) do
       begin
-        Gongs[i].ElementHandle.classList.remove('dragswap');
+        if Gongs[i] <> nil then
+        begin
+          Gongs[i].ElementHandle.classList.remove('dragswap');
+        end;
         i := i + 1;
       end;
 
@@ -1311,10 +1565,69 @@ begin
 
 end;
 
+procedure TForm1.btnCloneClick(Sender: TObject);
+var
+  CursorPosition: Integer;
+  Ref: Integer;
+  i: Integer;
+begin
+  // Remove a HexaGong
+  CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
+  Ref := PositionsG[CursorPosition];
+
+  if Ref <> -1 then
+  begin
+    i := CursorPosition + 1;
+    while ((PositionsT[i] = False) or (PositionsG[i] <> -1)) and (i < length(PositionsT)) do
+      i := i + 1;
+
+    if i = Length(PositionsT) then
+    begin
+      i := CursorPosition - 1;
+      while  ((PositionsT[i] = False) or (PositionsG[i] <> -1)) and (i > -1) do
+        i := i - 1;
+    end;
+
+    if (i >= 0) and (i < Length(PositionsT)) then
+    begin
+      GongID := Length(Gongs);
+      SetLength(Gongs, GongID + 1);
+      SetLength(GongsP, GongID + 1);
+      GongsP[GongID] := i;
+      PositionsG[i] := GongID;
+
+      Gongs[GongID] := TWebHTMLDiv.Create('Gong-'+IntToStr(GongID));
+      Gongs[GongID].Parent := divButtons;
+
+      Gongs[GongID].ElementHandle.setAttribute('gongid',IntToStr(GongID));
+      Gongs[GongID].ElementHandle.setAttribute('position',IntToStr(i));
+      Gongs[GongID].ElementHandle.setAttribute('row',IntToStr(PositionsR[i]));
+      Gongs[GongID].ElementHandle.setAttribute('column',IntToStr(PositionsC[i]));
+
+      Gongs[GongID].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','dragswap');
+
+      Gongs[GongID].ElementHandle.style.cssText := Gongs[Ref].ElementHandle.style.cssText;
+      Gongs[GongID].HTML.Text := Gongs[Ref].HTML.Text;
+
+//      Gongs[GongID].HTML.Text := '<div class="text-white">'+IntToStr(GongID)+'</div>';
+
+      document.getElementById('BG-'+IntToStr(i)).appendChild(Gongs[GongID].ElementHandle);
+      (document.getElementById('BG-'+IntToStr(i)) as TJSHTMLElement).style.setProperty('animation-name','jiggle');
+
+      // Set default values for new HexaGong
+      asm
+        this.GongData['HexaGongs'].push({});
+        this.GongData['HexaGongs'][this.GongID] = this.GongData['HexaGongs'][Ref];
+        this.GongData['HexaGongs'][this.GongID]['Name'] = 'Clone of '+this.GongData['HexaGongs'][Ref]['Name'];
+      end;
+    end;
+  end;
+end;
+
 procedure TForm1.btnVolumeClick(Sender: TObject);
 begin
 
-  if (MillisecondsBetween(Now, LastClick) > 750) or (Sender = nil) then
+  if (MillisecondsBetween(Now, LastClick) > 1000) or (Sender = nil) then
   begin
     LastClick := Now;
 
@@ -1376,18 +1689,21 @@ begin
     i := 0;
     while i < Length(Gongs) do
     begin
-      r := StrToInt(Gongs[i].ElementHandle.getAttribute('row'));
-      c := StrToInt(Gongs[i].ElementHandle.getAttribute('column'));
-      j := 0;
-      while ((PositionsR[j] <> r) or (PositionsC[j] <> c)) and (j < Length(PositionsR)) do
-        j := j + 1;
-      if j < Length(PositionsR) then
+      if Gongs[i] <> nil then
       begin
-        GongsP[i] := j;
-        PositionsG[GongsP[i]] := i;
-        Gongs[i].ElementHandle.setAttribute('position', IntToStr(j));
-        Gongs[i].ElementHandle.setAttribute('row', IntToStr(PositionsR[j]));
-        Gongs[i].ElementHandle.setAttribute('column', IntToStr(PositionsC[j]));
+        r := StrToInt(Gongs[i].ElementHandle.getAttribute('row'));
+        c := StrToInt(Gongs[i].ElementHandle.getAttribute('column'));
+        j := 0;
+        while ((PositionsR[j] <> r) or (PositionsC[j] <> c)) and (j < Length(PositionsR)) do
+          j := j + 1;
+        if j < Length(PositionsR) then
+        begin
+          GongsP[i] := j;
+          PositionsG[GongsP[i]] := i;
+          Gongs[i].ElementHandle.setAttribute('position', IntToStr(j));
+          Gongs[i].ElementHandle.setAttribute('row', IntToStr(PositionsR[j]));
+          Gongs[i].ElementHandle.setAttribute('column', IntToStr(PositionsC[j]));
+        end;
       end;
       i := i + 1;
     end;
@@ -1421,18 +1737,21 @@ begin
     i := 0;
     while i < Length(Gongs) do
     begin
-      r := StrToInt(Gongs[i].ElementHandle.getAttribute('row'));
-      c := StrToInt(Gongs[i].ElementHandle.getAttribute('column'));
-      j := 0;
-      while ((PositionsR[j] <> r) or (PositionsC[j] <> c)) and (j < Length(PositionsR)) do
-        j := j + 1;
-      if j < Length(PositionsR) then
+      if Gongs[i] <> nil then
       begin
-        GongsP[i] := j;
-        PositionsG[GongsP[i]] := i;
-        Gongs[i].ElementHandle.setAttribute('position', IntToStr(j));
-        Gongs[i].ElementHandle.setAttribute('row', IntToStr(PositionsR[j]));
-        Gongs[i].ElementHandle.setAttribute('column', IntToStr(PositionsC[j]));
+        r := StrToInt(Gongs[i].ElementHandle.getAttribute('row'));
+        c := StrToInt(Gongs[i].ElementHandle.getAttribute('column'));
+        j := 0;
+        while ((PositionsR[j] <> r) or (PositionsC[j] <> c)) and (j < Length(PositionsR)) do
+          j := j + 1;
+        if j < Length(PositionsR) then
+        begin
+          GongsP[i] := j;
+          PositionsG[GongsP[i]] := i;
+          Gongs[i].ElementHandle.setAttribute('position', IntToStr(j));
+          Gongs[i].ElementHandle.setAttribute('row', IntToStr(PositionsR[j]));
+          Gongs[i].ElementHandle.setAttribute('column', IntToStr(PositionsC[j]));
+        end;
       end;
       i := i + 1;
     end;
@@ -1443,13 +1762,34 @@ begin
 
 end;
 
-procedure TForm1.ColorSelected(ColorName, ColorValue: String;
-  ColorIndex: Integer);
+procedure TForm1.btnTrashClick(Sender: TObject);
+var
+  CursorPosition: Integer;
+  Ref: Integer;
 begin
-  console.log('Color Name: '+ColorName);
-  console.log('Color Value: '+ColorValue);
-  console.log('Color Index: '+IntToStr(ColorIndex));
+  // Remove a HexaGong
+  CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
+  Ref := PositionsG[CursorPosition];
+
+  if Ref <> -1 then
+  begin
+    Gongs[Ref].HTML.Text := '';
+    Gongs[Ref] := nil;
+    GongsP[Ref] := -1;
+    PositionsG[CursorPosition] := -1;
+    asm
+      this.GongData.HexaGongs[Ref]['Deleted'] = true;
+      document.getElementById('Gong-'+Ref).remove();
+    end;
+  end;
+end;
+
+procedure TForm1.ColorSelected(ColorName, ColorValue: String; ColorIndex: Integer);
+begin
   labelSelectColor.HTML := 'Select Color <span style="padding-left: 20px; color: silver; font-family: var(--bs-font-monospace)"> '+ColorName+'   '+ColorValue+'</span>';
+  OptionsBGColor1 := ColorName;
+  OptionsBGColor2 := ColorValue;
+  UpdateColorPickerRGB;
 end;
 
 procedure TForm1.ConfigButton(btn: TWebButton; HexPosition: Integer; ClassName: String);
@@ -1460,8 +1800,8 @@ begin
   btn.ElementHandle.classList.Add(ClassName,'d-flex','justify-content-center','align-items-center');
   btn.ElementHandle.style.setProperty('top','0px');
   btn.ElementHandle.style.setProperty('left','0px');
-  btn.ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
-  btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
+  btn.ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
+  btn.ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
   btn.ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
   btn.ElementHandle.style.setProperty('transition','opacity 500ms, color 500ms');
   btn.Tag := HexPosition;
@@ -1483,6 +1823,13 @@ begin
 
   divSelectColor.Visible := False;
   divColorPicker1.Visible := False;
+  divColorPicker2.ElementHandle.classList.Replace('d-flex','d-none');
+
+  asm
+    memoCustomCSS.dispatchEvent(new Event('input'));
+  end;
+
+
 end;
 
 procedure TForm1.divOptionsBGEEighteenClick(Sender: TObject);
@@ -1544,6 +1891,10 @@ begin
 
   divSelectColor.Visible := True;
   divColorPicker1.Visible := True;
+  divColorPicker2.ElementHandle.classList.Replace('d-none','d-flex');
+  UpdateColorPickerSize;
+  UpdatecolorPickerHexagon;
+  UpdateColorPickerRGB;
 
 end;
 
@@ -1560,6 +1911,10 @@ begin
 
   divSelectColor.Visible := True;
   divColorPicker1.Visible := True;
+  divColorPicker2.ElementHandle.classList.Replace('d-none','d-flex');
+  UpdateColorPickerSize;
+  UpdatecolorPickerHexagon;
+  UpdateColorPickerRGB;
 end;
 
 procedure TForm1.divOptionsBGSolidClick(Sender: TObject);
@@ -1575,6 +1930,10 @@ begin
 
   divSelectColor.Visible := True;
   divColorPicker1.Visible := True;
+  divColorPicker2.ElementHandle.classList.Replace('d-none','d-flex');
+  UpdateColorPickerSize;
+  UpdatecolorPickerHexagon;
+  UpdateColorPickerRGB;
 
 end;
 
@@ -1621,7 +1980,10 @@ begin
   I := 0;
   while I < Length(Gongs) do
   begin
-    divButtons.ElementHAndle.appendChild(Gongs[I].ElementHandle);
+    if Gongs[I] <> nil then
+    begin
+      divButtons.ElementHAndle.appendChild(Gongs[I].ElementHandle);
+    end;
     I := I + 1;
   end;
 
@@ -1672,10 +2034,10 @@ begin
                    'position="'+IntToStr(I)+'" '+
                    'style="position:absolute;'+
                           'font-size:'+IntToStr(Trunc(HexRadius))+'px;'+
-                          'top:'+FloatToStrF(PositionsY[I],ffGeneral,5,3)+'px;'+
-                          'left:'+FloatToSTrF(PositionsX[I],ffGeneral,5,3)+'px;'+
-                          'width:'+FloatToStrF(HexRadius*2,ffGeneral,5,3)+'px;'+
-                          'height:'+FloatToSTrf(HexRadius*2,ffGeneral,5,3)+'px;'+
+                          'top:'+FloatToStrF(PositionsY[I],ffGeneral,10,5)+'px;'+
+                          'left:'+FloatToSTrF(PositionsX[I],ffGeneral,10,5)+'px;'+
+                          'width:'+FloatToStrF(HexRadius*2,ffGeneral,10,5)+'px;'+
+                          'height:'+FloatToSTrf(HexRadius*2,ffGeneral,10,5)+'px;'+
                           'transform-origin:'+IntToStr(Trunc(10+Random(80)))+'% '+IntToStr(10+Random(80))+'%;'+
                           'animation-duration:'+FloatToSTr(0.40+Random*0.40)+'s;'+
                           'animation-iteration-count:'+'infinite;'+
@@ -1710,12 +2072,15 @@ begin
   then document.getElementById('BG-'+btnCursor.ElementHandle.getAttribute('position')).appendChild(btnCursor.ElementHandle);
 
   I := 0;
-  while I < Length(Gongs) do
+  while I < min(Length(Gongs), Length(PositionsG)) do
   begin
-    Gongs[I].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
-    Gongs[I].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
-    Gongs[I].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,5,3)+'px');
-    document.GetElementById('BG-'+IntToStr(GongsP[I])).appendChild(Gongs[I].ElementHandle);
+    if Gongs[I] <> nil  then
+    begin
+      Gongs[I].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+      Gongs[I].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
+      Gongs[I].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
+      document.GetElementById('BG-'+IntToStr(GongsP[I])).appendChild(Gongs[I].ElementHandle);
+    end;
     I := I + 1;
   end;
 
@@ -1773,6 +2138,8 @@ begin
     setLength(PositionsY, I+1);
     setLength(PositionsR, I+1);
     setLength(PositionsC, I+1);
+    setLength(PositionsV, I+1);
+    setLength(PositionsT, I+1);
 
     PositionsX[I] := X;
     PositionsY[I] := Y;
@@ -1780,7 +2147,11 @@ begin
     PositionsC[I] := ColCount;
     PositionsV[I] := False;
     PositionsT[I] := False;
-    PositionsG[I] := -1;
+    if Length(PositionsG) < length(PositionsX) then
+    begin
+      setLength(PositionsG, max(Length(PositionsG), Length(PositionsX)));
+      PositionsG[Length(PositionsG)-1] := -1;
+    end;
 
     // Fill Row, then wrap to odd or even row
     if (X+HexRadius*3 < WindowWidth) then
@@ -1807,7 +2178,7 @@ begin
   then MarginTop := 5+ -1.05*HexRadius/2 + (WindowHeight - PositionsY[I]) / 2
   else MarginTop := 5+ -1.05*HexRadius/2 + (WindowHeight - PositionsY[I-ColCount]) / 2;
 
-  divBackground.ElementHandle.style.setProperty('margin-top',FloatToStrF(MarginTop,ffGeneral,5,3)+'px');
+  divBackground.ElementHandle.style.setProperty('margin-top',FloatToStrF(MarginTop,ffGeneral,10,5)+'px');
 
 end;
 
@@ -1954,8 +2325,8 @@ begin
   end;
 
   // Trigger the Movement
-  AnimationDiv[Anim].ElementHandle.style.setProperty('top',FloatToSTrF(PositionsY[NextPos] + MarginTop - 5,ffGeneral,5,3)+'px');
-  AnimationDiv[Anim].ElementHandle.style.setProperty('left',FloatToSTrF(PositionsX[NextPos] - 3,ffGeneral,5,3)+'px');
+  AnimationDiv[Anim].ElementHandle.style.setProperty('top',FloatToSTrF(PositionsY[NextPos] + MarginTop - 5,ffGeneral,10,5)+'px');
+  AnimationDiv[Anim].ElementHandle.style.setProperty('left',FloatToSTrF(PositionsX[NextPos] - 3,ffGeneral,10,5)+'px');
 
   // Set Animation States for next time
   AnimationDir[Anim] := Direction;

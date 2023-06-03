@@ -44,6 +44,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnMain'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnMainClick
     end
@@ -56,6 +57,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btmScale'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnScaleClick
     end
@@ -68,6 +70,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnChange'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnChangeClick
     end
@@ -80,6 +83,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnVolume'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnVolumeClick
     end
@@ -92,6 +96,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnShare'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
     end
     object btnDownload: TWebButton
@@ -103,6 +108,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnDownload'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
     end
     object btnUpload: TWebButton
@@ -114,6 +120,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnUpload'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
     end
     object btnScalePlus: TWebButton
@@ -125,6 +132,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnScalePlus'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnScalePlusClick
     end
@@ -137,7 +145,9 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnFullScreen'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnFullScreenClick
     end
     object btnScaleMinus: TWebButton
       Left = 379
@@ -148,6 +158,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnScaleMinus'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnScaleMinusClick
     end
@@ -160,7 +171,9 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnTrash'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnTrashClick
     end
     object btnEdit: TWebButton
       Left = 251
@@ -171,6 +184,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnEdit'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
       OnClick = btnEditClick
     end
@@ -183,7 +197,9 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnClone'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnCloneClick
     end
     object btnVolumeUp: TWebButton
       Left = 123
@@ -194,6 +210,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnVolumeUp'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
     end
     object btnVolumeMute: TWebButton
@@ -205,6 +222,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnVolumeMute'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
     end
     object btnVolumeDown: TWebButton
@@ -216,6 +234,7 @@ object Form1: TForm1
       ChildOrder = 2
       ElementID = 'btnVolumeDown'
       HeightPercent = 100.000000000000000000
+      Visible = False
       WidthPercent = 100.000000000000000000
     end
     object btnCursor: TWebButton
@@ -224,7 +243,7 @@ object Form1: TForm1
       Width = 96
       Height = 33
       ChildOrder = 2
-      ElementClassName = 'dragswap'
+      ElementClassName = 'pe-none'
       ElementID = 'btnCursor'
       HeightPercent = 100.000000000000000000
       WidthPercent = 100.000000000000000000
@@ -442,6 +461,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner YellowL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -468,6 +488,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner YellowL ps-3 pt-1 '
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -518,6 +539,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner YellowL ps-3 pt-1 '
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -574,6 +596,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner YellowL ps-3 pt-1 '
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -644,6 +667,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner RoyalBlueL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -682,6 +706,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGRadialLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 100.000000000000000000
             end
@@ -711,6 +736,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGLinearLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 100.000000000000000000
             end
@@ -739,6 +765,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGSolidLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 100.000000000000000000
             end
@@ -767,6 +794,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGCustomLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 100.000000000000000000
             end
@@ -794,6 +822,7 @@ object Form1: TForm1
             ElementID = 'labelSelectColor'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 100.000000000000000000
@@ -801,7 +830,7 @@ object Form1: TForm1
         end
         object divCustomCSSTitle: TWebHTMLDiv
           Left = 27
-          Top = 372
+          Top = 412
           Width = 400
           Height = 40
           ElementClassName = 'HexOuter BlueR w-100'
@@ -821,6 +850,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner RoyalBlueL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -828,7 +858,7 @@ object Form1: TForm1
         end
         object divCustomCSSHolder: TWebHTMLDiv
           Left = 27
-          Top = 416
+          Top = 471
           Width = 400
           Height = 40
           ElementClassName = 'EditMemoHolder nointeract HexOuter WhiteR mb-3 w-100'
@@ -857,7 +887,7 @@ object Form1: TForm1
           end
         end
         object divColorPicker1: TWebHTMLDiv
-          Left = 30
+          Left = 27
           Top = 165
           Width = 369
           Height = 166
@@ -867,6 +897,78 @@ object Form1: TForm1
           ChildOrder = 3
           ElementPosition = epRelative
           ElementFont = efCSS
+          Role = ''
+        end
+        object divColorPicker2: TWebHTMLDiv
+          Left = 27
+          Top = 336
+          Width = 369
+          Height = 70
+          ElementClassName = 'nointeract mt-3 d-flex gap-2 flex-column'
+          ElementID = 'divColorPicker2'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 4
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          HTML.Strings = (
+            '<div id="divColorRed" style="position:relative;">'
+            '  <sl-range '
+            '      id="ColorRed" '
+            '      max="255"'
+            '      class="RGB HexSliderH" '
+            '      tooltip="none" '
+            
+              '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
+              'olor-active:maroon; --track-color-inactive: black;"'
+            '    > '
+            '  </sl-range>'
+            
+              '  <div id="ThumbRed" class="HexSliderThumb RedW pe-none d-flex j' +
+              'ustify-content-center align-items-center"></div>'
+            
+              '  <div id="BorderRed" class="HexOuter RedR pe-none" style="posit' +
+              'ion:absolute; top:2px; height:40px; width: 100%;"></div>'
+            '</div>'
+            ''
+            '<div id="divColorGreen" style="position:relative;">'
+            '  <sl-range '
+            '      id="ColorGreen" '
+            '      max="255"'
+            '      class="RGB HexSliderH" '
+            '      tooltip="none" '
+            
+              '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
+              'olor-active:darkgreen; --track-color-inactive: black;"'
+            '    > '
+            '  </sl-range>'
+            
+              '  <div id="ThumbGreen" class="HexSliderThumb GreenW pe-none d-fl' +
+              'ex justify-content-center align-items-center"></div>'
+            
+              '  <div id="BorderGreen" class="HexOuter GreenR pe-none" style="p' +
+              'osition:absolute; top:2px; height:40px; width: 100%;"></div>'
+            '</div>'
+            ''
+            '<div id="divColorBlue" style="position:relative;">'
+            '  <sl-range '
+            '      id="ColorBlue" '
+            '      max="255"'
+            '      class="RGB HexSliderH" '
+            '      tooltip="none" '
+            
+              '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
+              'olor-active:navy; --track-color-inactive: black;"'
+            '    > '
+            '  </sl-range>'
+            
+              '  <div id="ThumbBlue" class="HexSliderThumb BlueW pe-none d-flex' +
+              ' justify-content-center align-items-center"></div>'
+            
+              '  <div id="BorderBlue" class="HexOuter BlueR pe-none" style="pos' +
+              'ition:absolute; top:2px; height:40px; width: 100%;"></div>'
+            '</div>'
+            '')
           Role = ''
         end
       end
@@ -903,6 +1005,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner OrangeL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -941,6 +1044,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGRadialLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -970,6 +1074,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGLinearLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 82.000000000000000000
             end
@@ -998,6 +1103,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGSolidLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1061,6 +1167,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -1099,6 +1206,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGRadialLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 68.000000000000000000
             end
@@ -1128,6 +1236,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGLinearLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 85.000000000000000000
             end
@@ -1156,6 +1265,7 @@ object Form1: TForm1
               ElementID = 'divOptionsBGSolidLabel'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1221,6 +1331,7 @@ object Form1: TForm1
             ElementID = 'labelSettingsBGETitle'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -1247,6 +1358,7 @@ object Form1: TForm1
             ElementClassName = 'Title HexInner GrayL ps-3 pt-1'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
@@ -1286,6 +1398,7 @@ object Form1: TForm1
               ElementID = 'labelOptionsBGENone'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1315,6 +1428,7 @@ object Form1: TForm1
               ElementID = 'labelOptionsBGESix'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 100.000000000000000000
             end
@@ -1343,6 +1457,7 @@ object Form1: TForm1
               ElementID = 'labelOptionsBGETwelve'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1371,6 +1486,7 @@ object Form1: TForm1
               ElementID = 'labelOptionsBGEEighteen'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1409,6 +1525,7 @@ object Form1: TForm1
               ElementID = 'labelProxyDefault'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1437,6 +1554,7 @@ object Form1: TForm1
               ElementID = 'labelProxyCustom'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
@@ -1465,6 +1583,7 @@ object Form1: TForm1
               ElementID = 'labelProxyNone'
               ElementFont = efCSS
               HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
               Layout = tlCenter
               WidthPercent = 80.000000000000000000
             end
