@@ -42,6 +42,9 @@ html,body {
   margin: 9px 0px !important;
   clip-path: polygon(0px 20px, 10px 2px, calc(100% - 10px) 2px, 100% 20px, 100% calc(100% - 20px), calc(100% - 10px) calc(100% - 2px), 10px calc(100% - 2px), 0% calc(100% - 20px));
 }
+.simplebar-scrollbar {
+    min-height: 60px;
+}
 
 #pageName .simplebar-track { background: radial-gradient(maroon,yellow); }
 #pageName .simplebar-scrollbar::before { background: radial-gradient(black, maroon); }
@@ -200,6 +203,10 @@ pointer-events: none;
   user-select: none; /* Standard syntax */
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
 }
+.Gong > svg,
+.Gong > img {
+  pointer-events: none;
+}
 
 
 
@@ -221,8 +228,8 @@ pointer-events: none;
 
 #divOptions {
   position: absolute;
-  width: 40%;
-  height: 75%;
+  width: 38%;
+  height: 85%;
   left: 50%;
   top: 50%;
   transform: translate(-50%,-50%);
@@ -269,15 +276,24 @@ pointer-events: none;
 
 .OptionsButton {
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
-  border: 1px;
+  border: none;
   width: 64px !important;
   height: 64px !important;
   color: silver;
   transition: color 300ms;
 }
+.OptionsSmallButton {
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  border: none;
+  width: 40px !important;
+  height: 40px !important;
+  color: silver;
+}
+.OptionsSmallButton > i,
 .OptionsButton > i {
   filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
 }
+.OptionsButton:hover,
 .OptionsButton:hover {
   color: white;
 }
@@ -286,6 +302,7 @@ pointer-events: none;
   position: absolute;
   border: 1px;
 }
+
 
 
 
@@ -333,11 +350,13 @@ pointer-events: none;
   top: 2px !important;
   left: 2px !important;
   width: calc(100% - 4px) !important;
+  height: calc(100% - 4px) !important;
   clip-path: polygon(0px 30px, 16px 1.8px, calc(100% - 16px) 1.8px, 100% 30px, 100% calc(100% - 30px), calc(100% - 16px) calc(100% - 1.8px), 16px calc(100% - 1.8px), 0% calc(100% - 30px));
 }
 
 .Title > span,
 .Title > label {
+  display: unset !important;
   color: white;
   font-weight: bold;
   filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
@@ -360,6 +379,21 @@ pointer-events: none;
   top: 2px;
   bottom: 2px;
 }
+.EditCancel {
+  position: absolute;
+  background: none;
+  color: silver;
+  text-decoration: none;
+  border: none;
+  width: 36px !important;
+  height: 36px !important;
+  top: 2px;
+  right: 8px;
+}
+.EditCancel:hover {
+  color: white;
+}
+
 .HexBtnOuter {
   clip-path: polygon(0px 20px, 10px 2px, calc(100% - 10px) 2px, 100% 20px, 100% calc(100% - 20px), calc(100% - 10px) calc(100% - 2px), 10px calc(100% - 2px), 0% calc(100% - 20px));
 }
@@ -386,9 +420,9 @@ pointer-events: none;
 
 /* HexaGon Color Picker */
 #divColorPicker1 {
-    width: 440px !important;
-    height: 370px !important;
-    transform-origin: top left;
+  position: relative;
+  width: 440px !important;
+  transform-origin: top left;
 }
 .ColorHexagon {
   position: absolute;
@@ -417,7 +451,7 @@ pointer-events: none;
   left: 10px !important;
   width: calc(100% - 62px) !important;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   clip-path: polygon(0px 18px, 8px 1.8px, calc(100% - 8px) 1.8px, 100% 18px, 100% calc(100% - 18px), calc(100% - 8px) calc(100% - 1.8px), 8px calc(100% - 1.8px), 0% calc(100% - 18px));
 }
 .RGB::part(input) {
@@ -438,16 +472,89 @@ pointer-events: none;
   position: absolute;
   top: 0px;
   clip-path: polygon(0% 25%, 50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%);
-  z-index: 2;
+  z-index: 3;
 }
 .ThumbLabel {
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  pointer-events: none;
   color: white;
   font-weight: bold;
   filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
 }
+.ThumbLabelR {
+  pointer-events: none;
+  transform: rotate(-90deg);
+  color: white;
+  font-weight: bold;
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
+}
+
+/* Search Icons */
+#divResultsOuter {
+  height: auto !important;
+  padding-bottom: 1px;
+
+}
+#divResultsInner {
+  height: auto !important;
+  margin-bottom: 3px !important;
+  min-height: 100px;
+}
+.SearchIcon {
+  border-radius: 0.375rem;
+  cursor: pointer;
+  max-width: 125px;
+  max-height: 125px;
+  display: flex;
+  gap: 3px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.SearchIcon > div {
+  color: silver;
+}
+.SearchIcon:hover {
+  color: orange;
+}
+.SearchIcon:hover > div {
+  color: white;
+}
+.SearchIcon.Selected > div,
+.SearchIcon.Selected {
+   color: lime;
+}
+.SearchIcon.Selected:hover > div,
+.SearchIcon.Selected:hover {
+   color: orange;
+}
+
+/* Image Adjustments */
+.Gong > svg,
+#divImage > svg {
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 3px black);
+}
+#divImageBG {
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+#divImageFG {
+  background: orange;
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%, 25% 5%,
+                      calc( 25% + 1px) calc(5% + 1px),
+                      calc(  0% + 1px) 50%,
+                      calc( 25% + 1px) calc(95% - 1px),
+                      calc( 75% - 1px) calc(95% - 1px),
+                      calc(100% - 1px) 50%,
+                      calc( 75% - 1px) calc(5% + 1px),
+                      calc( 25% + 1px) calc(5% + 1px));
+  z-index: 1;
+}
+#divImagePreview {
+  z-index: -1;
+}
+#divImageEditor {
+  transform-origin: top left;
+}
+
 
 
 /* COLORS */
@@ -464,16 +571,27 @@ pointer-events: none;
 .Indigo       { background: indigo;    }
 .Violet       { background: violet;    }
 
-.WhiteR       { background: radial-gradient(#00000000,white)       !important;}
-.GrayR        { background: radial-gradient(#00000000,gray)        !important;}
-.RedR         { background: radial-gradient(#00000000,red)         !important;}
-.OrangeR      { background: radial-gradient(#00000000,orange)      !important;}
-.YellowR      { background: radial-gradient(#00000000,yellow)      !important;}
-.GreenR       { background: radial-gradient(#00000000,green)       !important;}
-.BlueR        { background: radial-gradient(#00000000,blue)        !important;}
-.RoyalBlueR   { background: radial-gradient(#00000000,royalblue)   !important;}
-.IndigoR      { background: radial-gradient(#00000000,indigo)      !important;}
-.VioletR      { background: radial-gradient(#00000000,violet)      !important;}
+.WhiteR       { background: radial-gradient(#00000000,white)         !important;}
+.GrayR        { background: radial-gradient(#00000000,gray)          !important;}
+.RedR         { background: radial-gradient(#00000000,red)           !important;}
+.OrangeR      { background: radial-gradient(#00000000,orange)        !important;}
+.YellowR      { background: radial-gradient(#00000000,yellow)        !important;}
+.GreenR       { background: radial-gradient(#00000000,green)         !important;}
+.BlueR        { background: radial-gradient(#00000000,blue)          !important;}
+.RoyalBlueR   { background: radial-gradient(#00000000,royalblue)     !important;}
+.IndigoR      { background: radial-gradient(#00000000,indigo)        !important;}
+.VioletR      { background: radial-gradient(#00000000,violet)        !important;}
+
+.WhiteRS      { background: radial-gradient(#00000000,white     70%) !important;}
+.GrayRS       { background: radial-gradient(#00000000,gray      70%) !important;}
+.RedRS        { background: radial-gradient(#00000000,red       70%) !important;}
+.OrangeRS     { background: radial-gradient(#00000000,orange    70%) !important;}
+.YellowRS     { background: radial-gradient(#00000000,yellow    70%) !important;}
+.GreenRS      { background: radial-gradient(#00000000,green     70%) !important;}
+.BlueRS       { background: radial-gradient(#00000000,blue      70%) !important;}
+.RoyalBlueRS  { background: radial-gradient(#00000000,royalblue 70%) !important;}
+.IndigoRS     { background: radial-gradient(#00000000,indigo    70%) !important;}
+.VioletRS     { background: radial-gradient(#00000000,violet    70%) !important;}
 
 .WhiteL       { background: linear-gradient(90deg,#000000,white);       }
 .GrayL        { background: linear-gradient(90deg,#000000,gray);        }
@@ -487,6 +605,7 @@ pointer-events: none;
 .VioletL      { background: linear-gradient(90deg,#000000,violet);      }
 
 .RedW         { background: linear-gradient(60deg,#000000,red,       #000000); }
+.OrangeW      { background: linear-gradient(60deg,#000000,orange,    #000000); }
 .GreenW       { background: linear-gradient(60deg,#000000,darkgreen, #000000); }
 .BlueW        { background: linear-gradient(60deg,#000000,blue,      #000000); }
 

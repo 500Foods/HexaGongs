@@ -49,12 +49,9 @@ type
     btnVolumeMute: TWebButton;
     btnVolumeDown: TWebButton;
     btnCursor: TWebButton;
+    divShade: TWebHTMLDiv;
     divOptions: TWebHTMLDiv;
     divOptionsList: TWebHTMLDiv;
-    pageControl: TWebPageControl;
-    pageName: TWebTabSheet;
-    pageBackground: TWebTabSheet;
-    pageImage: TWebTabSheet;
     btnOptionsName: TWebButton;
     btnOptionsBackground: TWebButton;
     btnOptionsImage: TWebButton;
@@ -62,57 +59,91 @@ type
     btnOptionsOK: TWebButton;
     btnOptionsCancel: TWebButton;
     btnOptionsSettings: TWebButton;
-    divOptionsBGBorder: TWebHTMLDiv;
-    divShade: TWebHTMLDiv;
-    pageAudio: TWebTabSheet;
-    pageSettings: TWebTabSheet;
+    divOptionsCursor: TWebHTMLDiv;
+    pageControl: TWebPageControl;
+    pageName: TWebTabSheet;
     divTitleHolder: TWebHTMLDiv;
     editTitle: TWebEdit;
-    WebHTMLDiv1: TWebHTMLDiv;
-    WebLabel1: TWebLabel;
-    WebHTMLDiv2: TWebHTMLDiv;
-    WebLabel2: TWebLabel;
-    WebHTMLDiv3: TWebHTMLDiv;
+    divProjectTitle: TWebHTMLDiv;
+    labelProjectTitle: TWebLabel;
+    divHexaGongName: TWebHTMLDiv;
+    labelHexaGongName: TWebLabel;
+    divHexName: TWebHTMLDiv;
     editHexName: TWebEdit;
-    divOptionsCursor: TWebHTMLDiv;
-    WebHTMLDiv4: TWebHTMLDiv;
-    WebLabel3: TWebLabel;
-    WebHTMLDiv5: TWebHTMLDiv;
-    WebHTMLDiv6: TWebHTMLDiv;
-    WebLabel4: TWebLabel;
-    memoHexDescHolder: TWebHTMLDiv;
-    memoHexDesc: TWebMemo;
+    divProjectDescription: TWebHTMLDiv;
+    labelProjectDescription: TWebLabel;
+    divProjDesc: TWebHTMLDiv;
     memoProjDesc: TWebMemo;
-    divOptionsBG: TWebHTMLDiv;
+    divHexaGongDescription: TWebHTMLDiv;
+    labelHexaGongDescription: TWebLabel;
+    divHexDesc: TWebHTMLDiv;
+    memoHexDesc: TWebMemo;
+    pageBackground: TWebTabSheet;
     WebHTMLDiv7: TWebHTMLDiv;
     WebLabel5: TWebLabel;
-    WebHTMLDiv11: TWebHTMLDiv;
+    divBackgroundStyles: TWebHTMLDiv;
     divOptionsBGRadial: TWebHTMLDiv;
     divOptionsBGRadialLabel: TWebLabel;
     divOptionsBGLinear: TWebHTMLDiv;
     divOptionsBGLinearLabel: TWebLabel;
     divOptionsBGSolid: TWebHTMLDiv;
     divOptionsBGSolidLabel: TWebLabel;
+    divOptionsBGCustom: TWebHTMLDiv;
+    divOptionsBGCustomLabel: TWebLabel;
     divSelectColor: TWebHTMLDiv;
     labelSelectColor: TWebLabel;
-    WebHTMLDiv8: TWebHTMLDiv;
+    divCustomCSSTitle: TWebHTMLDiv;
+    WebLabel22: TWebLabel;
+    divCustomCSSHolder: TWebHTMLDiv;
+    memoCustomCSS: TWebMemo;
+    divColorPicker1: TWebHTMLDiv;
+    divColorPicker2: TWebHTMLDiv;
+    pageImage: TWebTabSheet;
+    divImageSourceLabel: TWebHTMLDiv;
     WebLabel6: TWebLabel;
-    WebHTMLDiv9: TWebHTMLDiv;
-    WebHTMLDiv10: TWebHTMLDiv;
-    WebLabel7: TWebLabel;
-    WebHTMLDiv13: TWebHTMLDiv;
-    WebLabel8: TWebLabel;
-    WebHTMLDiv14: TWebHTMLDiv;
-    WebLabel10: TWebLabel;
+    divImageSources: TWebHTMLDiv;
+    divImageSourceIcon: TWebHTMLDiv;
+    labelImageSourceIcon: TWebLabel;
+    divImageSourceURL: TWebHTMLDiv;
+    labelImageSourceURL: TWebLabel;
+    divImageSourceUpload: TWebHTMLDiv;
+    labelImageSourceUpload: TWebLabel;
+    divImageSource: TWebHTMLDiv;
+    editImageSource: TWebEdit;
+    divIconPicker: TWebHTMLDiv;
+    divIconInterface: TWebHTMLDiv;
+    divIconSearch: TWebHTMLDiv;
+    editIconSearch: TWebEdit;
+    btnIconSearchEditCancel: TWebButton;
+    btnIconOK: TWebButton;
+    btnIconCancel: TWebButton;
+    btnIconSearch: TWebButton;
+    divIconSearchLabel: TWebHTMLDiv;
+    labelIconSearch: TWebLabel;
+    divIconInfo: TWebHTMLDiv;
+    labelIconInfo: TWebLabel;
+    divResultsOuter: TWebHTMLDiv;
+    divResultsInner: TWebHTMLDiv;
+    divImageAdjustments: TWebHTMLDiv;
+    divImageAdjustmentsLabel: TWebHTMLDiv;
+    labelImageAdjustments: TWebLabel;
+    btnImageReset: TWebButton;
+    divImageEditor: TWebHTMLDiv;
+    divAdjWidthHolder: TWebHTMLDiv;
+    divAdjSkewXHolder: TWebHTMLDiv;
+    divAdjRotateHolder: TWebHTMLDiv;
+    divAdjShiftXHolder: TWebHTMLDiv;
+    divAdjHeightHolder: TWebHTMLDiv;
+    divAdjSkewYHolder: TWebHTMLDiv;
+    divAdjOpacityHolder: TWebHTMLDiv;
+    divAdjShiftYHolder: TWebHTMLDiv;
+    divImagePreview: TWebHTMLDiv;
+    divImageBG: TWebHTMLDiv;
+    divImage: TWebHTMLDiv;
+    pageAudio: TWebTabSheet;
     WebHTMLDiv15: TWebHTMLDiv;
     WebLabel11: TWebLabel;
-    WebHTMLDiv16: TWebHTMLDiv;
-    WebHTMLDiv17: TWebHTMLDiv;
-    WebLabel12: TWebLabel;
-    WebHTMLDiv18: TWebHTMLDiv;
-    WebLabel13: TWebLabel;
-    WebHTMLDiv19: TWebHTMLDiv;
-    WebLabel14: TWebLabel;
+    pageSettings: TWebTabSheet;
     divSettingsBGETitle: TWebHTMLDiv;
     labelSettingsBGETitle: TWebLabel;
     WebHTMLDiv21: TWebHTMLDiv;
@@ -126,27 +157,19 @@ type
     labelOptionsBGETwelve: TWebLabel;
     divOptionsBGEEighteen: TWebHTMLDiv;
     labelOptionsBGEEighteen: TWebLabel;
-    divImageSource: TWebHTMLDiv;
-    editImageSource: TWebEdit;
     WebHTMLDiv28: TWebHTMLDiv;
     divProxyDefault: TWebHTMLDiv;
     labelProxyDefault: TWebLabel;
     divProxyCustom: TWebHTMLDiv;
     labelProxyCustom: TWebLabel;
-    divAudioSource: TWebHTMLDiv;
-    editAudioSource: TWebEdit;
-    divOptionsBGCustom: TWebHTMLDiv;
-    divOptionsBGCustomLabel: TWebLabel;
-    divCustomCSSTitle: TWebHTMLDiv;
-    WebLabel22: TWebLabel;
-    divCustomCSSHolder: TWebHTMLDiv;
-    memoCustomCSS: TWebMemo;
     divProxyNone: TWebHTMLDiv;
     labelProxyNone: TWebLabel;
     divProxy: TWebHTMLDiv;
     editProxy: TWebEdit;
-    divColorPicker1: TWebHTMLDiv;
-    divColorPicker2: TWebHTMLDiv;
+    divOptionsBGBorder: TWebHTMLDiv;
+    divOptionsBG: TWebHTMLDiv;
+    divImageFG: TWebHTMLDiv;
+    WebOpenDialog1: TWebOpenDialog;
     procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
     procedure GeneratePositions;
@@ -174,6 +197,8 @@ type
     procedure UpdateColorPickerSize;
     procedure UpdateColorPickerRGB;
     procedure UpdateColorPickerHexagon;
+    procedure UpdateImageAdjustments;
+    procedure UpdateImageAdjustmentsSize;
     procedure ColorSelected(ColorName: String; ColorValue: String; ColorIndex: Integer);
     procedure divOptionsBGRadialClick(Sender: TObject);
     procedure divOptionsBGLinearClick(Sender: TObject);
@@ -190,6 +215,18 @@ type
     procedure btnFullScreenClick(Sender: TObject);
     procedure btnTrashClick(Sender: TObject);
     procedure btnCloneClick(Sender: TObject);
+    procedure divImageSourceIconClick(Sender: TObject);
+    procedure divImageSourceURLClick(Sender: TObject);
+    procedure divImageSourceUploadClick(Sender: TObject);
+    [async] procedure editImageSourceClick(Sender: TObject);
+    procedure btnIconOKClick(Sender: TObject);
+    procedure btnIconCancelClick(Sender: TObject);
+    [async] procedure btnIconSearchClick(Sender: TObject);
+    [async] procedure InitializeXData;
+    procedure btnIconSearchEditCancelClick(Sender: TObject);
+    procedure btnImageResetClick(Sender: TObject);
+    procedure WebOpenDialog1GetFileAsBase64(Sender: TObject; AFileIndex: Integer; ABase64: string);
+    procedure editImageSourceChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -240,13 +277,31 @@ type
     OptionsBGColor1: String;  // CSS Color Value
     OptionsBGColor2: String;  // Hex RGB Value
 
-    OptionsImageStyle: Integer; // Icon, URL, Upload
-    OptionsImageRef: String;    // Icon name, URL, Data URI
+    OptionsImageStyle: Integer;  // Icon, URL, Upload
+    OptionsImageRef: String;     // Nice Icon name, URL, Data URI
+    OptionsImageIcon: String;    // Internal Icon name
+    OptionsImageURL: String;     // Internal URL
+    OptionsImageFile: String;    // Internal Filename
 
     OptionsProxyStatus: Integer;   // Default, None, Custom
     OptionsProxy: String;          // Proxy server
 
-
+    IconPickerMode: String;
+    IconPicker: JSValue;
+    IconSets: JSValue;
+    IconSetList: JSValue;
+    IconSetNames: Array of String;
+    IconSetCount: Array of Integer;
+    IconResults: Integer;
+    ImageData: String;
+    ImageW: String;
+    ImageH: String;
+    ImageL: String;
+    ImageT: String;
+    ImageX: String;
+    ImageY: String;
+    ImageR: String;
+    ImageO: String;
   end;
 
 var
@@ -256,6 +311,32 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TForm1.btnImageResetClick(Sender: TObject);
+begin
+  asm
+    this.ImageW = "100";
+    this.ImageH = "100";
+    this.ImageT = "100";
+    this.ImageL = "100";
+    this.ImageX = "0";
+    this.ImageY = "0";
+    this.ImageR = "0";
+    this.ImageO = "100";
+
+    AdjWidth.value   = this.ImageW;
+    AdjHeight.value  = this.ImageH;
+    AdjShiftX.value  = this.ImageT;
+    AdjShiftY.value  = this.ImageL;
+    AdjSkewX.value   = this.ImageX;
+    AdjSkewY.value   = this.ImageY;
+    AdjRotate.value  = this.ImageR;
+    AdjOpacity.value = this.ImageO;
+
+    this.UpdateImageAdjustments();
+  end;
+
+end;
 
 procedure TForm1.WebFormCreate(Sender: TObject);
 begin
@@ -538,6 +619,7 @@ begin
             pas.Unit1.Form1.UpdateOptionsCursor();
             pas.Unit1.Form1.UpdateColorPickerSize();
             pas.Unit1.Form1.UpdateColorPickerRGB();
+            pas.Unit1.Form1.UpdateImageAdjustmentsSize();
             memoHexDesc.dispatchEvent(new Event('input'));
             memoProjDesc.dispatchEvent(new Event('input'));
             memoCustomCSS.dispatchEvent(new Event('input'));
@@ -576,6 +658,8 @@ begin
 
   end;
 
+
+  // Hexagon Color Picker
   asm
     // https://gist.github.com/bobspace/2712980
     const CSS_COLOR_NAMES = {
@@ -824,7 +908,8 @@ begin
       }
     });
 
-    // RGB Sliders
+
+    // RGB Color Picker
     divColorPicker2.addEventListener('sl-input',function(e){
       var range = divColorPicker2.getBoundingClientRect().width - 86;
       if (e.target.id == "ColorRed") {
@@ -842,6 +927,176 @@ begin
       pas.Unit1.Form1.OptionsBGColor2 = 'rgb('+ColorRed.value+', '+ColorGreen.value+', '+ColorBlue.value+')';
       pas.Unit1.Form1.UpdateColorPickerHexagon();
     });
+  end;
+
+
+  // Icon Picker
+  asm
+    divResultsInner.addEventListener('click', (e) => {
+
+      // Remove current highlight
+      var selected = divResultsInner.querySelectorAll('.Selected');
+      selected.forEach(el => {
+        el.classList.remove('Selected');
+      });
+      pas.Unit1.Form1.btnIconOK.FEnabled = false;
+      btnIconOK.setAttribute('disabled','');
+
+     // What was clicked on? Could be the icon itself or the icon name
+      var el = null;
+      if (e.target.getAttribute('icon-library') !== null) {
+        var el = e.target;
+        this.ImageData = el.firstElementChild.outerHTML;
+        this.OptionsImageIcon = el.lastElementChild.innerHTML;
+        pas.Unit1.Form1.btnIconOKClick(null);
+      } else if (e.target.classList.contains('IconName')) {
+        var el = e.target.parentElement;
+        el.classList.add('Selected');
+        btnIconOK.removeAttribute('disabled');
+        pas.Unit1.Form1.btnIconOK.FEnabled = true;
+        labelIconInfo.innerHTML = '<div class="d-flex justify-content-between align-itens-center pe-3">'+
+            '<div>Results: '+this.IconResults+'</div>'+
+            '<div>'+el.getAttribute('icon-library')+'</div>'+
+            '<div>'+el.getAttribute('icon-license')+'</div>'+
+          '</div>';
+      }
+    });
+  end;
+
+
+  // Configure Image Adjustments Interface
+  divImageEditor.Width := 960;
+  divImageEditor.Height := 970;
+
+
+  // Horizontal
+  divAdjWidthHolder.Top := 0;
+  divAdjWidthHOlder.Left := 40 - 4;
+  divAdjWidthHolder.Width := (1000 - 40*2) + 8;
+  divAdjWidthHolder.Height := 40;
+
+  //Horizontal
+  divAdjSkewXHolder.Top := 40 + 4;
+  divAdjSkewXHolder.Left := 40*2 - 4;
+  divAdjSkewXHolder.Width := (1000 - 40*4) + 8;
+  divAdjSkewXHolder.Height := 40;
+
+  // Vertical
+  divAdjHeightHolder.Top := 40;
+  divAdjHeightHolder.Left := 40;
+  divAdjHeightHolder.Width := (1000 - 40*2) +8;
+  divAdjHeightHolder.Height := 40;
+  divAdjHeightHolder.ElementHandle.style.setProperty('transform-origin','top left');
+  divAdjHeightHOlder.ElementHandle.style.setProperty('transform','rotate(90deg)');
+
+  // Vertical
+  divAdjSkewYHolder.Top := 40*2;
+  divAdjSkewYHolder.Left := 40*2 + 4;
+  divAdjSkewYHolder.Width := (1000 - 40*4) + 8;
+  divAdjSkewYHolder.Height := 40;
+  divAdjSkewYHolder.ElementHandle.style.setProperty('transform-origin','top left');
+  divAdjSkewYHolder.ElementHandle.style.setProperty('transform','rotate(90deg)');
+
+  // Vertical
+  divAdjShiftYHolder.Top := 40*2;
+  divAdjShiftYHolder.Left := (1000 - 40*2) - 4;
+  divAdjShiftYHolder.Width := (1000 - 40*4) + 8;
+  divAdjShiftYHolder.Height := 40;
+  divAdjShiftYHolder.ElementHandle.style.setProperty('transform-origin','top left');
+  divAdjShiftYHOlder.ElementHandle.style.setProperty('transform','rotate(90deg)');
+
+  // Vertical
+  divAdjOpacityHolder.Top := 40;
+  divAdjOpacityHolder.Left := (1000 - 40);
+  divAdjOpacityHolder.Width := (1000 - 40*2) + 8;
+  divAdjOpacityHolder.Height := 40;
+  divAdjOpacityHolder.ElementHandle.style.setProperty('transform-origin','top left');
+  divAdjOpacityHolder.ElementHandle.style.setProperty('transform','rotate(90deg)');
+
+  // Horizontal
+  divAdjShiftXHolder.Top := (1000 - 40*3) - 4;
+  divAdjShiftXHolder.Left := 40*2 - 4;
+  divAdjShiftXHolder.Width := (1000 - 40*4) + 8;
+  divAdjShiftXHolder.Height := 40;
+
+  //Horizontal
+  divAdjRotateHolder.Top := (1000 - 40*2);
+  divAdjRotateHolder.Left := 40 - 4;
+  divAdjRotateHolder.Width := (1000 - 40*2) + 8;
+  divAdjRotateHolder.Height := 40;
+
+  //Center
+  divImagePreview.Top := 2*40;
+  divImagePreview.Left := 2*40;
+  divImagePreview.Width := (1000 - 40*5);
+  divImagePreview.Height := (1000 - 40*5);
+
+  // Center
+  divImageBG.Top := 40 + 8;
+  divImageBG.Left := 40 + 8;
+  divImageBG.Width := (1000 - 40*7) - 16;
+  divImageBG.Height := (1000 - 40*7) - 16;
+
+  // Center
+  divImageFG.Top := 40 + 8;
+  divImageFG.Left := 40 + 8;
+  divImageFG.Width := (1000 - 40*7) - 16;
+  divImageFG.Height := (1000 - 40*7) - 16;
+
+  // Center
+  divImage.Top := 40 + 8;
+  divImage.Left := 40 - 8;
+  divImage.Width := (1000 - 40*7) + 16;
+  divImage.Height := (1000 - 40*7) - 16;
+
+
+  // Image Adjustment Sliders
+  asm
+    divImageEditor.addEventListener('sl-input',function(e){
+      var This = pas.Unit1.Form1;
+      if (e.target.id == "AdjWidth") {
+        This.ImageW = e.target.value;
+      }
+      else if (e.target.id == "AdjHeight") {
+        This.ImageH = e.target.value;
+      }
+      else if (e.target.id == "AdjShiftX") {
+        This.ImageL = e.target.value;
+      }
+      else if (e.target.id == "AdjShiftY") {
+        This.ImageT = e.target.value;
+      }
+      else if (e.target.id == "AdjSkewX") {
+        This.ImageX = e.target.value;
+      }
+      else if (e.target.id == "AdjSkewY") {
+        This.ImageY = e.target.value;
+      }
+      else if (e.target.id == "AdjRotate") {
+        This.ImageR = e.target.value;
+      }
+      else if (e.target.id == "AdjOpacity") {
+        This.ImageO = e.target.value;
+      }
+
+      This.UpdateImageAdjustments();
+    });
+  end;
+
+  // Image mouse handling
+  asm
+    // Mousewheel
+    function imagescroll(e) {
+      e.preventDefault();
+      var This = pas.Unit1.Form1;
+      This.ImageW = Math.min(Math.max(parseInt(parseInt(This.ImageW) + e.deltaY * -0.125), -200),400);
+      This.ImageH = Math.min(Math.max(parseInt(parseInt(This.ImageH) + e.deltaY * -0.125), -200),400);
+      AdjWidth.value = This.ImageW;
+      AdjHeight.value = This.ImageH;
+      This.UpdateImageAdjustments();
+    }
+    divImage.addEventListener('wheel',function(e) { imagescroll(e) });
+    divImagePreview.addEventListener('wheel',function(e) { imagescroll(e) });
   end;
 end;
 
@@ -929,10 +1184,36 @@ begin
       UpdateOptionsCursor;
       UpdateColorPickerSize;
       UpdateColorPickerRGB;
+      UpdateImageAdjustmentsSize;
     end;
   end;
 
 end;
+
+procedure TForm1.WebOpenDialog1GetFileAsBase64(Sender: TObject; AFileIndex: Integer; ABase64: string);
+var
+  ImageType: String;
+begin
+  // Figure out what kind of image we have
+  OptionsImageFile := Lowercase(WebOpenDialog1.Files[AFileIndex].Name);
+  if Pos('jpg',  OptionsImageFile) > 0 then ImageType := 'image/jpeg';
+  if Pos('jpeg', OptionsImageFile) > 0 then ImageType := 'image/jpeg';
+  if Pos('png',  OptionsImageFile) > 0 then ImageType := 'image/png';
+  if Pos('gif',  OptionsImageFile) > 0 then ImageType := 'image/gif';
+  if Pos('bmp',  OptionsImageFile) > 0 then ImageType := 'image/bmp';
+  if Pos('webp', OptionsImageFile) > 0 then ImageType := 'image/webp';
+  if Pos('svg',  OptionsImageFile) > 0 then ImageType := 'image/svg+xml';
+  if Pos('ico',  OptionsImageFile) > 0 then ImageType := 'image/x-icon';
+
+  // Set Form variables
+  ImageData := '<img width="70%" src="data:'+ImageType+';base64,'+ABase64+'">';
+  OptionsImageFile := WebOpenDialog1.Files[AFileIndex].Name;
+
+  // Update interface
+  editImageSource.Text := OptionsImageFile;
+  divImage.HTML.Text := ImageData;
+end;
+
 
 procedure TForm1.tmrStartupTimer(Sender: TObject);
 begin
@@ -981,6 +1262,24 @@ begin
 
     addAutoResize();
   end;
+
+  InitializeXData;
+
+  // Swap DOM positions of divBackground and divOptions so our gradients always work
+  asm
+    const swap = function (nodeA, nodeB) {
+      const parentA = nodeA.parentNode;
+      const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+
+      // Move `nodeA` to before the `nodeB`
+      nodeB.parentNode.insertBefore(nodeA, nodeB);
+
+      // Move `nodeB` to before the sibling of `nodeA`
+      parentA.insertBefore(nodeB, siblingA);
+    };
+    swap(divBackground,divOptions);
+  end;
+
 end;
 
 procedure TForm1.UpdateColorPickerHexagon;
@@ -1050,10 +1349,117 @@ var
   space: Double;
 begin
   avail := divSelectColor.ElementHandle.getBoundingClientRect.Width;
-  scale := Min(avail / 440.0,1.5);
+  scale := Min(avail / 440.0,5);
   space := scale*370.0;
   divColorPicker1.ElementHandle.style.setProperty('transform','scale('+FloatToSTrF(scale,ffGeneral,10,5)+')');
-  divColorPicker1.ElementHandle.style.setProperty('height',FloatToSTrF(space,ffGeneral,10,5)+'px','important');
+  divColorPicker1.ElementHandle.style.setProperty('height','unset');
+  divColorPicker2.ElementHandle.style.setProperty('top',FloatToSTrF(space,ffGeneral,10,5)+'px','important');
+end;
+
+procedure TForm1.UpdateImageAdjustments;
+begin
+  asm
+    var This = pas.Unit1.Form1;
+    var range = 0;
+    var scale = 1000 / divImageAdjustmentsLabel.getBoundingClientRect().width;
+
+    range = scale * (AdjWidth.getBoundingClientRect().width - 24);
+    ThumbWidth.style.setProperty("left",((parseInt(This.ImageW) + 200)  / 300) * range / 2 +'px');
+    if (This.ImageW == 100) {
+      ThumbWidth.innerHTML = '<div class="ThumbLabel"><i class="fa-solid fa-arrows-left-right fa-xl"></div>';
+    }
+    else {
+      ThumbWidth.innerHTML = '<div class="ThumbLabel">'+(This.ImageW)+'%</div>';
+    }
+
+    range = scale * (AdjHeight.getBoundingClientRect().height - 28);
+    ThumbHeight.style.setProperty("left", 2 + ((parseInt(This.ImageH) + 200) / 300) * range / 2 +'px');
+    if (This.ImageH == 100) {
+      ThumbHeight.innerHTML = '<div class="ThumbLabelR"><i class="fa-solid fa-arrows-up-down fa-xl"></div>';
+    }
+    else {
+      ThumbHeight.innerHTML = '<div class="ThumbLabelR">'+(This.ImageH)+'%</div>';
+    }
+
+    range = scale * (AdjShiftX.getBoundingClientRect().width - 24);
+    ThumbShiftX.style.setProperty("left",(This.ImageL  / 100) * range / 2 +'px');
+    if (This.ImageL == 100) {
+      ThumbShiftX.innerHTML = '<div style="transform: ShiftX(-15deg)" class="ThumbLabel"><i class="fa-solid fa-arrow-right fa-xl"></div>';
+    }
+    else {
+      ThumbShiftX.innerHTML = '<div class="ThumbLabel">'+(This.ImageL -100)+'%</div>';
+    }
+
+    range = scale * (AdjShiftY.getBoundingClientRect().height - 28);
+    ThumbShiftY.style.setProperty("left", 2 + (This.ImageT  / 100) * range / 2 +'px');
+    if (This.ImageT == 100) {
+      ThumbShiftY.innerHTML = '<div style="transform: ShiftX(15deg)" class="ThumbLabelR"><i class="fa-solid fa-arrow-up fa-xl"></div>';
+    }
+    else {
+      ThumbShiftY.innerHTML = '<div class="ThumbLabelR">'+(100 - This.ImageT)+'%</div>';
+    }
+
+    range = scale * (AdjSkewX.getBoundingClientRect().width - 24);
+    ThumbSkewX.style.setProperty("left",((This.ImageX + 90)  / 180) * range  +'px');
+    if (This.ImageX == 0) {
+      ThumbSkewX.innerHTML = '<div style="transform: skewX(-25deg)" class="ThumbLabel"><i class="fa-regular fa-square fa-xl"></div>';
+    }
+    else {
+      ThumbSkewX.innerHTML = '<div class="ThumbLabel">'+(This.ImageX)+'°</div>';
+    }
+
+    range = scale * (AdjSkewY.getBoundingClientRect().height - 28);
+    ThumbSkewY.style.setProperty("left",2 + ((This.ImageY + 90) / 180) * range +'px');
+    if (This.ImageY == 0) {
+      ThumbSkewY.innerHTML = '<div style="transform: skewX(25deg)" class="ThumbLabelR"><i class="fa-regular fa-square fa-xl"></div>';
+    }
+    else {
+      ThumbSkewY.innerHTML = '<div class="ThumbLabelR">'+(-This.ImageY)+'°</div>';
+    }
+
+    range = scale * (AdjRotate.getBoundingClientRect().width - 24);
+    ThumbRotate.style.setProperty("left",((This.ImageR + 180)  / 360) * range  +'px');
+    if (This.ImageR == 0) {
+      ThumbRotate.innerHTML = '<div class="ThumbLabel"><i class="fa-solid fa-arrows-spin fa-xl"></div>';
+    }
+    else {
+      ThumbRotate.innerHTML = '<div class="ThumbLabel">'+(This.ImageR)+'°</div>';
+    }
+
+    range = scale * (AdjOpacity.getBoundingClientRect().height - 28);
+    ThumbOpacity.style.setProperty("left",2 + (This.ImageO / 100) * range +'px');
+    if (This.ImageO == 100) {
+      ThumbOpacity.innerHTML = '<div class="ThumbLabelR"><i class="fa-solid fa-circle-half-stroke fa-xl"></div>';
+    }
+    else {
+      ThumbOpacity.innerHTML = '<div class="ThumbLabelR">'+(This.ImageO)+'%</div>';
+    }
+
+
+    // Update Preview Image
+    divImage.style.setProperty('transform',
+      'translate('+(This.ImageL - 100)+'%,'+(This.ImageT - 100)+'%) '+
+      'scale('+This.ImageW/100+','+This.ImageH/100+') '+
+      'skew('+(-This.ImageX)+'deg,'+(This.ImageY)+'deg) '+
+      'rotate('+This.ImageR+'deg) ');
+    divImage.style.setProperty('opacity',This.ImageO / 100);
+
+  end;
+end;
+
+procedure TForm1.UpdateImageAdjustmentsSize;
+var
+  avail: Double;
+  scale: Double;
+//  space: Double;
+begin
+  avail := divImageAdjustmentsLabel.ElementHandle.getBoundingClientRect.Width;
+  scale := Min(avail / 970,5);
+//  space := scale*1000;
+  divImageEditor.ElementHandle.style.setProperty('transform','scale('+FloatToSTrF(scale,ffGeneral,10,5)+')');
+//  divColorPicker1.ElementHandle.style.setProperty('height','unset');
+//  divColorPicker2.ElementHandle.style.setProperty('top',FloatToSTrF(space,ffGeneral,10,5)+'px','important');
+  divImageAdjustments.ElementHandle.Style.SetProperty('height',FloatToStrF(scale+60,ffGeneral,10,5)+'px');
 end;
 
 procedure TForm1.UpdateOptionsCursor;
@@ -1111,13 +1517,15 @@ begin
 
       Gongs[GongID] := TWebHTMLDiv.Create('Gong-'+IntToStr(GongID));
       Gongs[GongID].Parent := divButtons;
+      Gongs[GongID].ElementFont := efCSS;
+      Gongs[GongID].ElementPosition := epAbsolute;
 
       Gongs[GongID].ElementHandle.setAttribute('gongid',IntToStr(GongID));
       Gongs[GongID].ElementHandle.setAttribute('position',IntToStr(CursorPosition));
       Gongs[GongID].ElementHandle.setAttribute('row',IntToStr(PositionsR[CursorPosition]));
       Gongs[GongID].ElementHandle.setAttribute('column',IntToStr(PositionsC[CursorPosition]));
 
-      Gongs[GongID].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','dragswap');
+      Gongs[GongID].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','dragswap','text-white');
 
       Gongs[GongID].ElementHandle.style.setProperty('top','0px');
       Gongs[GongID].ElementHandle.style.setProperty('left','0px');
@@ -1141,6 +1549,21 @@ begin
         this.GongData['HexaGongs'][this.GongID]['BG Color 1'] = 'White';
         this.GongData['HexaGongs'][this.GongID]['BG Color 2'] = 'rgb(255, 255, 255)';
         this.GongData['HexaGongs'][this.GongID]['BG Custom'] = '';
+        this.GongData['HexaGongs'][this.GongID]['Image Style'] = 0;
+        this.GongData['HexaGongs'][this.GongID]['Image Ref'] = 'hexagon-fill';
+        this.GongData['HexaGongs'][this.GongID]['Image Icon'] = 'hexagon-fill';
+        this.GongData['HexaGongs'][this.GongID]['Image URL'] = '';
+        this.GongData['HexaGongs'][this.GongID]['Image File'] = '';
+        this.GongData['HexaGongs'][this.GongID]['Image Data'] = '<svg class="pe-none" width="75%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M8.5.134a1 1 0 0 0-1 0l-6 3.577a1 1 0 0 0-.5.866v6.846a1 1 0 0 0 .5.866l6 3.577a1 1 0 0 0 1 0l6-3.577a1 1 0 0 0 .5-.866V4.577a1 1 0 0 0-.5-.866L8.5.134z"></path></svg>';
+        this.GongData['HexaGongs'][this.GongID]['Image W'] = '100';
+        this.GongData['HexaGongs'][this.GongID]['Image H'] = '100';
+        this.GongData['HexaGongs'][this.GongID]['Image L'] = '100';
+        this.GongData['HexaGongs'][this.GongID]['Image T'] = '100';
+        this.GongData['HexaGongs'][this.GongID]['Image X'] = '0';
+        this.GongData['HexaGongs'][this.GongID]['Image Y'] = '0';
+        this.GongData['HexaGongs'][this.GongID]['Image R'] = '0';
+        this.GongData['HexaGongs'][this.GongID]['Image O'] = '100';
+
       end;
 
     end
@@ -1153,7 +1576,7 @@ begin
 
     // Display Options dialog in a predetermined state
     divShade.ElementHandle.style.setProperty('visibility','visible');
-    divShade.ElementHandle.style.SetProperty('opacity','0.5');
+    divShade.ElementHandle.style.SetProperty('opacity','0.7');
     divOptions.ElementHandle.style.setProperty('visibility','visible');
     divOptions.ElementHandle.style.SetProperty('opacity','1');
 
@@ -1186,7 +1609,35 @@ begin
     asm
       this.OptionsImageStyle = this.GongData['HexaGongs'][this.GongID]['Image Style'];
       this.OptionsImageRef = this.GongData['HexaGongs'][this.GongID]['Image Ref'];
+      this.OptionsImageIcon = this.GongData['HexaGongs'][this.GongID]['Image Icon'];
+      this.OptionsImageURL = this.GongData['HexaGongs'][this.GongID]['Image URL'];
+      this.OptionsImageFile = this.GongData['HexaGongs'][this.GongID]['Image File'];
+      this.ImageData = this.GongData['HexaGongs'][this.GongID]['Image Data'];
+      divImage.innerHTML = this.ImageData;
+
+      this.ImageW = this.GongData['HexaGongs'][this.GongID]['Image W'];
+      this.ImageH = this.GongData['HexaGongs'][this.GongID]['Image H'];
+      this.ImageL = this.GongData['HexaGongs'][this.GongID]['Image L'];
+      this.ImageT = this.GongData['HexaGongs'][this.GongID]['Image T'];
+      this.ImageX = this.GongData['HexaGongs'][this.GongID]['Image X'];
+      this.ImageY = this.GongData['HexaGongs'][this.GongID]['Image Y'];
+      this.ImageR = this.GongData['HexaGongs'][this.GongID]['Image R'];
+      this.ImageO = this.GongData['HexaGongs'][this.GongID]['Image O'];
+
+      AdjWidth.value   = this.ImageW;
+      AdjHeight.value  = this.ImageH;
+      AdjShiftX.value  = this.ImageT;
+      AdjShiftY.value  = this.ImageL;
+      AdjSkewX.value   = this.ImageX;
+      AdjSkewY.value   = this.ImageY;
+      AdjRotate.value  = this.ImageR;
+      AdjOpacity.value = this.ImageO;
     end;
+    editImageSource.Text := OptionsImageRef;
+    if OptionsImageStyle = 0 then divImageSourceIconClick(Sender);
+    if OptionsImageStyle = 1 then divImageSourceURLClick(Sender);
+    if OptionsImageStyle = 2 then divImageSourceUploadClick(Sender);
+
 
     // pageAudio
 
@@ -1252,6 +1703,122 @@ begin
 
 end;
 
+procedure TForm1.btnIconCancelClick(Sender: TObject);
+begin
+  asm
+    divResultsInner.replaceChildren();
+  end;
+
+  divIconPicker.Visible := False;
+end;
+
+procedure TForm1.btnIconOKClick(Sender: TObject);
+begin
+  editImageSource.Text := OptionsImageIcon;
+  btnIconCancelClick(Sender);
+  divImage.HTML.Text := ImageData;
+end;
+
+procedure TForm1.btnIconSearchClick(Sender: TObject);
+var
+  Search: String;
+  IconSize:Integer;
+  MaxResults: Integer;
+  SearchLib: String;
+begin
+  // Icon names are always lower case, so search with that
+  Search := LowerCase(Trim(editIconSearch.text));
+
+  // Limit returns while typing
+  MaxResults := 500;
+  if True then MaxResults := MaxResults; // hide compiler hint
+
+
+  // Icon Size from slider - determines font-size
+  IconSize := 40;
+  if True then IconSize := IconSize; // hide compiler hint
+
+  // Figure out which libraries we're searching through
+  SearchLib := 'all';
+  if True then SearchLib := SearchLib; // hide compiler hint
+
+
+  // Must have something to search for and somewhere to search
+  if Trim(Search) = '' then
+  begin
+    asm
+      divResultsInner.replaceChildren();
+    end;
+  end
+  else
+  begin
+    asm
+
+      // Build a new results array
+      var results = [];
+
+      // Search for at most three terms
+      var searchterms = Search.split(' ').slice(0,3).join(' ');
+
+      var response = await fetch('http://localhost:65432/tms/xdata/HexaGongsService/SearchIcons'+
+        '?SearchTerms='+encodeURIComponent(searchterms)+
+        '&Results='+MaxResults);
+      var results = await response.json();
+
+      // Sort results by icon name
+      results = results.sort((a, b) => {
+        if (a[0] < b[0]) {
+          return -1;
+        }
+      });
+
+      // Update count
+      labelIconInfo.innerHTML = 'Results: '+results.length;
+      this.IconResults = results.length;
+
+      // Clear existing results
+      divResultsInner.replaceChildren();
+
+      // Create icons for display
+      var display = '';
+      for (var i = 0; i < results.length; i++) {
+
+        // Figure out which library we're using - note that it is now sorted differently
+        var lib = this.IconSetList.find( o => o.library == results[i][1]);
+
+        // Each library has its default width and height, and then overrides at the icon level
+        var iconheight = results[i][2].height || lib.height;
+        var iconwidth = results[i][2].width || lib.width;
+
+        var displayicon = '<div style="font-size:'+IconSize+'px;" class="SearchIcon" '+
+                               'icon-library="'+lib.name+'" '+
+                               'icon-license="'+lib.license+'">'+
+                             '<svg class="pe-none" width="70%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '+
+                               'viewBox="0 0 '+iconwidth+' '+iconheight+'">'+
+                                 results[i][2].body+
+                             '</svg>'+
+                             '<div class="IconName text-wrap" style="font-size:12px; text-align:center; width:100%;">'+
+                               results[i][0]+
+                             '</div>'+
+                           '</div>';
+
+        display += displayicon;
+      }
+      divResultsInner.innerHTML = display;
+    end;
+
+  end;
+end;
+
+procedure TForm1.btnIconSearchEditCancelClick(Sender: TObject);
+begin
+  editIconSearch.Text := '';
+  editIconSearch.SetFocus;
+  asm
+    divResultsInner.replaceChildren();
+  end;
+end;
+
 procedure TForm1.btnMainClick(Sender: TObject);
 begin
 
@@ -1294,7 +1861,11 @@ begin
     end;
   end;
 
+
+
 end;
+
+
 
 procedure TForm1.btnOptionsAudioClick(Sender: TObject);
 begin
@@ -1375,8 +1946,23 @@ begin
     asm await sleep(200); end;
   end;
 
+  // Update UI element - Background
+  if OptionsBGStyle = 0
+  then divImageBG.ElementHandle.style.setProperty('background','radial-gradient(black,'+OptionsBGColor1+')')
+  else if OptionsBGStyle = 1
+  then divImageBG.ElementHandle.style.setProperty('background','linear-gradient(60deg,black,'+OptionsBGColor1+')')
+  else if OptionsBGStyle = 2
+  then divImageBG.ElementHandle.style.setProperty('background',OptionsBGColor1)
+  else
+  begin
+    divImageBG.ElementHandle.style.cssText := divImageBG.ElementHandle.style.cssText + memoCustomCSS.Lines.Text;
+    console.log(divImageBG.ElementHandle.style.cssText);
+  end;
+
   pageControl.TabIndex := 2;
   UpdateOptionsCursor;
+  UpdateImageAdjustmentsSize;
+  UpdateImageAdjustments;
   pageImage.ElementHandle.style.setProperty('opacity','1');
 end;
 
@@ -1406,10 +1992,41 @@ begin
     this.GongData['HexaGongs Project Description'] = this.memoProjDesc.GetText();
     this.GongData['HexaGongs'][this.GongID]['Name'] = this.editHexName.GetText();
     this.GongData['HexaGongs'][this.GongID]['Description'] = this.memoHexDesc.GetText();
+
     this.GongData['HexaGongs'][this.GongID]['BG Style'] = this.OptionsBGStyle;
     this.GongData['HexaGongs'][this.GongID]['BG Color 1'] = this.OptionsBGColor1;
     this.GongData['HexaGongs'][this.GongID]['BG Color 2'] = this.OptionsBGColor2;
     this.GongData['HexaGongs'][this.GongID]['BG Custom'] = this.memoCustomCSS.GetText();
+
+    this.GongData['HexaGongs'][this.GongID]['Image Style'] = this.OptionsImageStyle;
+    this.GongData['HexaGongs'][this.GongID]['Image Ref'] = this.OptionsImageRef;
+    this.GongData['HexaGongs'][this.GongID]['Image Icon'] = this.OptionsImageIcon;
+    this.GongData['HexaGongs'][this.GongID]['Image URL'] = this.OptionsImageURL;
+    this.GongData['HexaGongs'][this.GongID]['Image File'] = this.OptionsImageFile;
+    this.GongData['HexaGongs'][this.GongID]['Image Data'] = this.ImageData;
+
+    this.GongData['HexaGongs'][this.GongID]['Image W'] = this.ImageW;
+    this.GongData['HexaGongs'][this.GongID]['Image H'] = this.ImageH;
+    this.GongData['HexaGongs'][this.GongID]['Image T'] = this.ImageT;
+    this.GongData['HexaGongs'][this.GongID]['Image L'] = this.ImageL;
+    this.GongData['HexaGongs'][this.GongID]['Image X'] = this.ImageX;
+    this.GongData['HexaGongs'][this.GongID]['Image Y'] = this.ImageY;
+    this.GongData['HexaGongs'][this.GongID]['Image R'] = this.ImageR;
+    this.GongData['HexaGongs'][this.GongID]['Image O'] = this.ImageO;
+  end;
+
+  Gongs[GongID].HTML.Text := divImage.HTML.Text;
+
+  // Update UI element - Image
+  asm
+    var This = pas.Unit1.Form1;
+    var gong = document.getElementById('Gong-'+this.GongID).firstElementChild;
+    gong.style.setProperty('transform',
+      'translate('+(This.ImageL - 100)+'%,'+(This.ImageT - 100)+'%) '+
+      'scale('+This.ImageW/100+','+This.ImageH/100+') '+
+      'skew('+(-This.ImageX)+'deg,'+(This.ImageY)+'deg) '+
+      'rotate('+This.ImageR+'deg) ');
+    gong.style.setProperty('opacity',This.ImageO / 100);
   end;
 
   // Update UI element - Background
@@ -1423,8 +2040,6 @@ begin
   begin
     Gongs[GongID].ElementHandle.style.cssText := Gongs[GongID].ElementHandle.style.cssText + memoCustomCSS.Lines.Text;
   end;
-
-  // Update UI element - Image
 
 
   // Update UI element - Audio
@@ -1608,6 +2223,13 @@ begin
 
       Gongs[GongID].ElementHandle.style.cssText := Gongs[Ref].ElementHandle.style.cssText;
       Gongs[GongID].HTML.Text := Gongs[Ref].HTML.Text;
+
+      // Update UI element - Image
+      asm
+        var gong = document.getElementById('Gong-'+this.GongID).firstElementChild;
+        var refg = document.getElementById('Gong-'+Ref).firstElementChild;
+        gong.style.cssText = refg.style.cssText;
+      end;
 
 //      Gongs[GongID].HTML.Text := '<div class="text-white">'+IntToStr(GongID)+'</div>';
 
@@ -1807,6 +2429,67 @@ begin
   btn.Tag := HexPosition;
 
   if HexPosition >= 0 then PositionsT[HexPosition] := False;
+
+end;
+
+procedure TForm1.divImageSourceIconClick(Sender: TObject);
+begin
+  OptionsImageStyle := 0;
+  labelImageSourceIcon.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelImageSourceURL.ElementHandle.style.setProperty('background','black');
+  labelImageSourceUpload.ElementHandle.style.setProperty('background','black');
+
+  editImageSource.ReadOnly := True;
+  editImageSource.ElementHandle.style.setProperty('background','radial-gradient(#00000000,#202020)');
+  editImageSource.ElementHandle.style.setProperty('cursor','pointer');
+  divImageSource.ElementHandle.classList.replace('WhiteR','GrayR');
+
+  divIconPicker.Visible := False;
+  editImageSource.Text := Copy(OptionsImageIcon, pos(':', OptionsImageIcon)+1,length(OptionsImageIcon));
+  divImage.HTML.Text := ImageData;
+  asm
+    divResultsInner.replaceChildren();
+  end;
+
+end;
+
+procedure TForm1.divImageSourceUploadClick(Sender: TObject);
+begin
+  OptionsImageStyle := 2;
+  labelImageSourceUpload.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelImageSourceURL.ElementHandle.style.setProperty('background','black');
+  labelImageSourceIcon.ElementHandle.style.setProperty('background','black');
+
+  editImageSource.ReadOnly := True;
+  editImageSource.ElementHandle.style.setProperty('background','radial-gradient(#00000000,#202020)');
+  editImageSource.ElementHandle.style.setProperty('cursor','pointer');
+  divImageSource.ElementHandle.classList.replace('WhiteR','GrayR');
+
+  divIconPicker.Visible := False;
+  editImageSource.Text := OptionsImageFile;
+  asm
+    divResultsInner.replaceChildren();
+  end;
+
+end;
+
+procedure TForm1.divImageSourceURLClick(Sender: TObject);
+begin
+  OptionsImageStyle := 1;
+  labelImageSourceURL.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelImageSourceIcon.ElementHandle.style.setProperty('background','black');
+  labelImageSourceUpload.ElementHandle.style.setProperty('background','black');
+
+  editImageSource.ReadOnly := False;
+  editImageSource.ElementHandle.style.setProperty('background','black');
+  editImageSource.ElementHandle.style.removeProperty('cursor');
+  divImageSource.ElementHandle.classList.replace('GrayR','WhiteR');
+
+  divIconPicker.Visible := False;
+  editImageSource.Text := OptionsImageURL;
+  asm
+    divResultsInner.replaceChildren();
+  end;
 
 end;
 
@@ -2086,6 +2769,62 @@ begin
 
 end;
 
+procedure TForm1.editImageSourceChange(Sender: TObject);
+begin
+  // Set Form variables
+  ImageData := '<img width="70%" src="'+editImageSource.Text+'">';
+  OptionsImageFile := editImageSource.Text;
+
+  // Update interface
+  divImage.HTML.Text := ImageData;
+end;
+
+procedure TForm1.editImageSourceClick(Sender: TObject);
+var
+  i: Integer;
+begin
+
+  // Icon
+  if OptionsIMageStyle = 0 then
+  begin
+    // Toggle Icon Picker
+    divIconPicker.Visible := not(divIconPicker.Visible);
+
+    if divIconPicker.Visible  then
+    begin
+      editIconSearch.Text := editImageSource.Text;
+      btnIconSearchClick(Sender);
+    end
+    else
+    begin
+      asm
+        divResultsInner.replaceChildren();
+      end;
+    end;
+  end
+
+  // URL
+  else if OptionsImageStyle = 1  then
+  begin
+    // Don't really have to do anything in this case
+  end
+
+  // Upload
+  else if OptionsImageStyle = 2 then
+  begin
+    WebOpenDialog1.Accept := 'image/*';
+    await(string, WebOpenDialog1.Perform);
+    // If files were selected, iterate through them
+    i := 0;
+    while (i < WebOpenDialog1.Files.Count) do
+    begin
+      WebOpenDialog1.Files.Items[i].GetFileAsBase64;
+      i := i + 1;
+    end;
+  end;
+
+end;
+
 procedure TForm1.editProxyChange(Sender: TObject);
 begin
   OptionsProxy := editProxy.Text;
@@ -2182,6 +2921,45 @@ begin
 
 end;
 
+
+procedure TForm1.InitializeXData;
+var
+  i: Integer;
+  c: Integer;
+begin
+  // This intializes the custom icon editor to use the "remote" approach.
+  asm
+    this.IconSets = [];
+    this.IconSetNames = [];
+    this.IconSetCount = [];
+
+    // Load up our Local icon sets
+    var response = await fetch('http://localhost:65432/tms/xdata/HexaGongsService/AvailableIconSets');
+    this.IconSetList = await response.json()
+
+    // Original list is soprted by filename.  Lets sort it by library name instead (case-insensitive)
+    this.IconSetList = this.IconSetList.sort((a, b) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1;
+      }
+    });
+
+    // Get count data from this list
+    for (var i = 0; i < this.IconSetList.length; i++) {
+      var iconcount = this.IconSetList[i].count
+      this.IconSetNames.push(this.IconSetList[i].name+': '+iconcount+' icons');
+      this.IconSetCount.push(iconcount);
+    };
+  end;
+
+  // Populate the listLibraries control
+  c := 0;
+  for i := 0 to Length(IconsetNames)-1 do
+  begin
+    c := c + IconSetCount[i];
+  end;
+  labelIconSearch.Caption := 'Icon Search: '+FloatToStrF(c,ffNumber,5,0)+' icons available';
+end;
 
 procedure TForm1.StartAnimation;
 var
