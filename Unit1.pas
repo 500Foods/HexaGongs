@@ -16,6 +16,7 @@ uses
   Vcl.Controls,
   Vcl.StdCtrls,
 
+  WEBLib.REST,
   WEBLib.JSON,
   WEBLib.Graphics,
   WEBLib.Controls,
@@ -24,7 +25,9 @@ uses
   WEBLib.WebCtrls,
   WEBLib.ExtCtrls,
   WEBLib.StdCtrls,
-  WEBLib.ComCtrls;
+  WEBLib.ComCtrls,
+  WEBLib.Devices,
+  WEBLib.Crypto;
 
 type
   TForm1 = class(TWebForm)
@@ -141,8 +144,8 @@ type
     divImageBG: TWebHTMLDiv;
     divImage: TWebHTMLDiv;
     pageAudio: TWebTabSheet;
-    WebHTMLDiv15: TWebHTMLDiv;
-    WebLabel11: TWebLabel;
+    divAudoSourceLabel: TWebHTMLDiv;
+    labelAudioSource: TWebLabel;
     pageSettings: TWebTabSheet;
     divSettingsBGETitle: TWebHTMLDiv;
     labelSettingsBGETitle: TWebLabel;
@@ -170,9 +173,53 @@ type
     divOptionsBG: TWebHTMLDiv;
     divImageFG: TWebHTMLDiv;
     WebOpenDialog1: TWebOpenDialog;
-    procedure WebFormCreate(Sender: TObject);
-    procedure WebFormResize(Sender: TObject);
+    WebHttpRequest1: TWebHttpRequest;
+    WebMediaCapture1: TWebMediaCapture;
+    divAudioSources: TWebHTMLDiv;
+    divAudioClip: TWebHTMLDiv;
+    labelAudioClip: TWebLabel;
+    divAudioURL: TWebHTMLDiv;
+    labelAudioURL: TWebLabel;
+    divAudioUpload: TWebHTMLDiv;
+    labelAudioUpload: TWebLabel;
+    divAudioRecord: TWebHTMLDiv;
+    labelAudioRecord: TWebLabel;
+    divAudioSource: TWebHTMLDiv;
+    editAudioSource: TWebEdit;
+    divAudioSet: TWebHTMLDiv;
+    labelAudioSet: TWebLabel;
+    divAudioClips: TWebHTMLDiv;
+    divAudioPresetListLabel: TWebHTMLDiv;
+    labelAudioClipsList: TWebLabel;
+    divAudioClipTableHolder: TWebHTMLDiv;
+    divAudioClipTable: TWebHTMLDiv;
+    divAudioAdjustments: TWebHTMLDiv;
+    divAudioAdjustmentsLabel: TWebHTMLDiv;
+    labelAudioAdjustments: TWebLabel;
+    btnAudioReset: TWebButton;
+    divAudioRecording: TWebHTMLDiv;
+    divAudioRecordingLabel: TWebHTMLDiv;
+    labelAudioRecording: TWebLabel;
+    WebCamera1: TWebCamera;
+    divAudioControls: TWebHTMLDiv;
+    divAudioRecordStart: TWebHTMLDiv;
+    labelAudioRecordStart: TWebLabel;
+    divAudioRecordStop: TWebHTMLDiv;
+    labelAudioRecordStop: TWebLabel;
+    divAudioWaveformHolder: TWebHTMLDiv;
+    divAudioParams: TWebHTMLDiv;
+    divAudioWaveformContainer: TWebHTMLDiv;
+    divAudioWaveform: TWebHTMLDiv;
+    divAudioStart: TWebHTMLDiv;
+    divAudioEnd: TWebHTMLDiv;
+    divAudioSets: TWebHTMLDiv;
+    divAudioSetsLabel: TWebHTMLDiv;
+    labelAudioSets: TWebLabel;
+    divAudioSetsTableHolder: TWebHTMLDiv;
+    divAudioSetsTable: TWebHTMLDiv;
     procedure GeneratePositions;
+    [async] procedure WebFormCreate(Sender: TObject);
+    procedure WebFormResize(Sender: TObject);
     procedure DrawBackground;
     procedure StartAnimation;
     procedure StopAnimation;
@@ -227,16 +274,47 @@ type
     procedure btnImageResetClick(Sender: TObject);
     procedure WebOpenDialog1GetFileAsBase64(Sender: TObject; AFileIndex: Integer; ABase64: string);
     procedure editImageSourceChange(Sender: TObject);
+    [async] procedure PlayAudioClip(AudioClip: String; AudioProgress: TJSHTMLElement);
+    [async] procedure SelectAudioClip(AudioClipName: String; AudioClip:String);
+    procedure divAudioClipClick(Sender: TObject);
+    [async] procedure editAudioSourceClick(Sender: TObject);
+    procedure divAudioURLClick(Sender: TObject);
+    procedure divAudioUploadClick(Sender: TObject);
+    procedure divAudioRecordClick(Sender: TObject);
+    procedure divAudioSetClick(Sender: TObject);
+    procedure btnVolumeUpClick(Sender: TObject);
+    procedure btnVolumeDownClick(Sender: TObject);
+    procedure btnVolumeMuteClick(Sender: TObject);
+    procedure WebOpenDialog1GetFileAsArrayBuffer(Sender: TObject; AFileIndex: Integer; ABuffer: TJSArrayBufferRecord);
+    [async] procedure editAudioSourceChange(Sender: TObject);
+    procedure divAudioRecordStartClick(Sender: TObject);
+    procedure divAudioRecordStopClick(Sender: TObject);
+    procedure WebMediaCapture1StopCapture(Sender: TObject; ABinary: TJSUint8Array; ABase: string);
+    procedure UpdateWaveform;
+    procedure divAudioWaveformHolderClick(Sender: TObject);
+    procedure UpdateAudioParams;
+    procedure btnAudioResetClick(Sender: TObject);
+    procedure btnDownloadClick(Sender: TObject);
+    [async] procedure btnUploadClick(Sender: TObject);
+    procedure WebOpenDialog1GetFileAsText(Sender: TObject; AFileIndex: Integer; AText: string);
   private
     { Private declarations }
   public
     { Public declarations }
 
+    AppProject: String;     // Name of Project
+    AppVersion: String;     // Version Number
+    AppRelease: String;     // Released
+    AppStarted: TDateTime;  // Start Time
+
     GongID: Integer;                // Currently Editing
     Gongs: Array of TWebHTMLDiv;    // HexaGong UI elements
     GongsP: Array of Integer;       // Position of HexaGong
     GongData: JSValue;              // JSON describing HexaGong contents
-
+    GongAudio: JSValue;             // Array of Array Buffers containing decoded audio data
+    GongSource: JSValue;            // Array of AudioBufferSource elements that play the audio
+    GongTimers: JSValue;            // Array of timers to stop audio when complete
+    GongProgress: JSValue;          // Array of timers to show progress
 
     PositionsX: Array of Double;    // X Position
     PositionsY: Array of Double;    // Y Position
@@ -259,13 +337,21 @@ type
     VolumeMode:     Boolean;   // State of Volume button (bottom-left)
     LastClick:      TDateTime; // Used to block clicks from happening before animations are complete.
 
+    Server_URL: String; // Where can we find our XData server?
+    ConfigData: TJSONObject;
+
     ZoomLevel: Integer;   // Number of hexagons in top row (always an odd number)
     HexRadius: Double;    // Radius of one hexagon (width = 2x)
     RowCount: Integer;    // Number of rows (includes odd and even)
     ColCount: Integer;    // Number of columns (just the number of hexagons in first row, always odd)
     MarginTop: Double;    // How much of an offset to center the hexagons vertically
 
-    OptionsDiscardGong: Boolean;  // Keep track of whether we'll save the new HexaGong created
+    AudioCtx: JSValue;
+    AudioGain: JSValue;
+    AudioMediaDestination: JSValue;
+    AudioStart: JSValue;
+    MasterVolume: Double;
+    MuteVolume: Double;
 
     OptionsNamesScroll: JSValue;       // SimpleBar reference
     OptionsBackgroundScroll: JSValue;  // SimpleBar reference
@@ -273,35 +359,67 @@ type
     OptionsAudioScroll: JSValue;       // SimpleBar reference
     OptionsSettingsScroll: JSValue;    // SimpleBar reference
 
+    OptionsDiscardGong: Boolean;  // Keep track of whether we'll save the new HexaGong created
+
+    // Options Background Page
+
     OptionsBGStyle: Integer;  // Radial, Linear, or Solid
     OptionsBGColor1: String;  // CSS Color Value
     OptionsBGColor2: String;  // Hex RGB Value
+    OptionsBGCustom: String;  // Custom CSS value
+
+    // Options Image Page
 
     OptionsImageStyle: Integer;  // Icon, URL, Upload
     OptionsImageRef: String;     // Nice Icon name, URL, Data URI
     OptionsImageIcon: String;    // Internal Icon name
     OptionsImageURL: String;     // Internal URL
     OptionsImageFile: String;    // Internal Filename
+    ImageData: String;           // Image applied to <img> src attribute
 
-    OptionsProxyStatus: Integer;   // Default, None, Custom
-    OptionsProxy: String;          // Proxy server
+    IconSetList: JSValue;            // Icon sets retrieved from server
+    IconSetNames: Array of String;   // Icon set names
+    IconSetCount: Array of Integer;  // How many icons in each set
+    IconResults: Integer;            // How many total icons
 
-    IconPickerMode: String;
-    IconPicker: JSValue;
-    IconSets: JSValue;
-    IconSetList: JSValue;
-    IconSetNames: Array of String;
-    IconSetCount: Array of Integer;
-    IconResults: Integer;
-    ImageData: String;
-    ImageW: String;
-    ImageH: String;
-    ImageL: String;
-    ImageT: String;
-    ImageX: String;
-    ImageY: String;
-    ImageR: String;
-    ImageO: String;
+    ImageW: String;   // Width    (transform: scaleX %)
+    ImageH: String;   // Height   (transform: scaleY %)
+    ImageL: String;   // Left     (transform: translateX %)
+    ImageT: String;   // Top      (transform: translateY %)
+    ImageX: String;   // X        (transform: skewX %)
+    ImageY: String;   // Y        (transform: skewY %)
+    ImageR: String;   // Rotation (transform: rotate deg)
+    ImageO: String;   // Opacity  (opacity)
+
+    pz: JSValue; // Image Pan/Zoom object
+
+    // Options Audio Page
+
+    OptionsAudioStyle: Integer;  // AudioClip, Upload, Record, etc.
+    OptionsAudioFile: String;    // Name of audio file
+    OptionsAudioTime: Double;    // Length (seconds) of audio file
+    tabAudioClips: JSValue;      // Tabulator for Audio Clips
+    tabAudioSets: JSValue;       // Tabulator for Audio Sets
+    AudioClipsPlaying: JSValue;  // Array of currently playing clips
+
+    AudioPreview: JSValue;          // AudioBufferSource for preview
+    AudioPreviewTimer: JSValue;     // Used to end preview
+    AUdioPreviewProgress: JSValue;  // Used to update preview progress
+
+    OptionsAudioGain: Integer;    // Audio Parameter: Gain
+    OptionsAudioStart: Integer;   // Audio Parameter: Start Offset
+    OptionsAudioEnd: Integer;     // audio Parameter: End Offset
+
+    OptionsAudioSets: String;        // Selected Audio Sets
+    OptionsAudioSetStyle: Integer;   // 0 = Series, 1 = Parallel
+    OptionsAudioSetsData: JSValue;   // JSON used to populate table
+
+
+    // Options Settings Page
+
+    OptionsProxyStyle: Integer;   // Default, None, Custom
+    OptionsProxy: String;         // Proxy server
+
   end;
 
 var
@@ -333,13 +451,32 @@ begin
     AdjRotate.value  = this.ImageR;
     AdjOpacity.value = this.ImageO;
 
+    // Reset Pan/Zoom
+    pas.Unit1.Form1.pz.reset();
+
     this.UpdateImageAdjustments();
   end;
 
 end;
 
 procedure TForm1.WebFormCreate(Sender: TObject);
+var
+  ConfigResponse: TJSXMLHttpRequest;
+  ConfigData: TJSONObject;
+  ConfigURL: String;
 begin
+
+  // Initialization
+  asm
+    this.AppProject = window.ProjectName.split('_')[0];
+    this.AppVersion = window.ProjectName.split('_').slice(1).join('.');
+    this.AppRelease = new luxon.DateTime.fromISO(new Date(document.lastModified).toISOString()).toFormat('yyyy-MMM-dd');
+  end;
+  AppStarted := Now;
+  Caption := AppProject+' v'+AppVersion;
+  console.log('App Version: '+AppProject+' v'+AppVersion);
+//  console.log('App Release: '+AppRelease);
+//  console.log('App Started: '+FormatDateTime('yyyy-MMM-dd hh:nn:ss',AppStarted));
 
   // Initial Button States
   MainMode := False;
@@ -353,12 +490,13 @@ begin
   pageControl.TabIndex := 0;
 
   // CORS Proxy
-  OptionsProxyStatus := 0;   // Default: Use HexaGongs proxy
-  OptionsProxy := '';        // Nothing defined
+  OptionsProxyStyle := 0;   // Default: Use HexaGongs proxy
+  OptionsProxy := '';       // Nothing defined
 
 
   // Initialize GongData
   asm
+    this.GongID = 0;
     this.GongData = {};
     this.GongData['HexaGongs Project Title'] = "New Project";
     this.GongData['HexaGongs Project Description'] = 'No Description';
@@ -371,14 +509,42 @@ begin
   asm this.AnimationTimers = []; end;
 
 
-  // Detect Fullscreen mode changes via browser controls
+  // JavaScript Sleep Function
+  asm window.sleep = async function(msecs) {return new Promise((resolve) => setTimeout(resolve, msecs)); } end;
+
+
+  // Initialize Web Audio API
   asm
-    document.documentElement.addEventListener("fullscreenchange", (event) => {
-      pas.Unit1.Form1.WebFormResize(null);
-    });
-    window.onresize = function (event) {
-      pas.Unit1.Form1.WebFormResize(null);
-    }
+    this.AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this.AudioGain = new GainNode(this.AudioCtx);
+    this.AudioAnalyser = new AnalyserNode(this.AudioCtx);
+    this.AudioMediaDestination = new MediaStreamAudioDestinationNode(this.AudioCtx);
+    this.GongAudio = [];
+    this.GongSource = [];
+    this.GongTimers = [];
+    this.GongProgress = [];
+    this.MasterVolume = 1.0;
+    this.MuteVolume = 0.0;
+  end;
+
+  // Audio Clips Play Array
+  asm
+    this.AudioClipsPlaying = [];
+  end;
+
+  // Swap DOM positions of divBackground and divOptions so our gradients always work
+  asm
+    const swap = function (nodeA, nodeB) {
+      const parentA = nodeA.parentNode;
+      const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+
+      // Move `nodeA` to before the `nodeB`
+      nodeB.parentNode.insertBefore(nodeA, nodeB);
+
+      // Move `nodeB` to before the sibling of `nodeA`
+      parentA.insertBefore(nodeB, siblingA);
+    };
+    swap(divBackground,divOptions);
   end;
 
 
@@ -391,13 +557,32 @@ begin
     this.OptionsSettingsScroll   = new SimpleBar(document.getElementById('pageSettings'  ), { forceVisible: 'y', autoHide: false });
   end;
 
-  // JavaScript Sleep Function
-  asm window.sleep = async function(msecs) {return new Promise((resolve) => setTimeout(resolve, msecs)); } end;
+  // Figure out what our server connection might be - Server_URL is a form variable
+  Server_URL := '';
+  try
+    asm ConfigURL = window.location.origin+(window.location.pathname.split('/').slice(0,-1).join('/')+'/configuration.json').replace('/\/\//g','/'); end;
+    WebHTTPRequest1.URL := ConfigURL;
+    ConfigResponse := await( TJSXMLHttpRequest, WebHTTPRequest1.Perform() );
+    if String(ConfigResponse.Response) <> '' then
+    begin
+      ConfigData := TJSONObject.ParseJSONValue(String(ConfigResponse.Response)) as TJSONObject;
+      Server_URL := (ConfigData.GetValue('Server') as TJSONString).Value;
+    end;
+  except on E:Exception do
+    begin
+    end
+  end;
+  if (Server_URL = '') then
+  begin
+    Server_URL := 'http://localhost:65432/tms/xdata';
+  end;
 
+  InitializeXData;
 
   // Deal with button clicks that aren't on buttons directly
   asm
     divBackground.addEventListener('click', (event) => {
+      var This = pas.Unit1.Form1;
       // Cursor handling
       if (  event.target.classList.contains('Valid')
             && (This.ChangeMode == true)
@@ -423,10 +608,99 @@ begin
         This.btnScaleClick(null);
         This.btnChangeClick(null);
         This.btnVolumeClick(null);
+
+        if (event.target.classList.contains('Gong')) {
+          var playid = parseInt(event.target.getAttribute('gongid'));
+
+          function stopplaying(hexid, element) {
+            element.classList.remove('Playback');
+            if (element.lastElementChild.classList.contains('progress')) {
+              element.lastElementChild.remove();
+            }
+            clearInterval(This.GongTimers[hexid])
+            clearTimeout(This.GongProgress[hexid]);
+            This.GongSource[hexid].disconnect();
+            This.GongSource[hexid].stop();
+            This.GongSource[hexid] = null;
+          }
+
+          // If currently playing, stop
+          if (event.target.classList.contains('Playback')) {
+            stopplaying(playid, event.target);
+          }
+
+          // If not playing, start
+          else {
+            var sets = JSON.parse(event.target.getAttribute('audiosets'));
+            var setstyle = event.target.getAttribute('audiosetstyle');
+            if (sets !== null)  {
+              // Play HexaGongs in parallel (all at the same time)
+              if (setstyle == 'parallel') {
+                sets.forEach(gong => {
+                  var el = document.getElementById(gong);
+                  el.click();
+                });
+              }
+              // Play HexaGongs in series (one after another)
+              else {
+                var playdelay = 0;
+                sets.forEach(gong => {
+                  var el = document.getElementById(gong);
+                  if (el !== null) {
+                    setTimeout(function() { el.click(); }, playdelay);
+                    playdelay += parseFloat(el.getAttribute('audiotime')) * 1000 * ((100 - (parseFloat(el.getAttribute('audiostart')) + parseFloat(el.getAttribute('audioend')))) / 100);
+                  }
+                });
+              }
+              return;
+            }
+
+            if (This.GongAudio[playid] == undefined) {
+              return
+            }
+
+            event.target.classList.add('Playback');
+            var ClipGain = parseFloat(event.target.getAttribute('audiogain'));
+            var ClipStart = parseFloat(event.target.getAttribute('audiostart'));
+            var ClipEnd = parseFloat(event.target.getAttribute('audioend'));
+            var ClipGainNode = new GainNode(This.AudioCtx);
+
+            ClipGainNode.gain.value = ClipGain / 100;
+            This.GongSource[playid] = This.AudioCtx.createBufferSource();
+            This.GongSource[playid].buffer = This.GongAudio[playid];
+            This.GongSource[playid].connect(ClipGainNode).connect(This.AudioGain).connect(This.AudioCtx.destination);
+
+            var offset = (ClipStart / 100) * This.GongSource[playid].buffer.duration;
+            var playlength = ((100 - (ClipStart + ClipEnd)) / 100) * This.GongSource[playid].buffer.duration;
+
+            This.GongSource[playid].start(0, offset, playlength);
+            event.target.setAttribute('starttime',This.AudioCtx.currentTime);
+
+            // Update progress display
+            var progress = '<div class="progress" style="position:absolute; top:0px; left:0px; width:100%; height:100%; z-index:100; background:none; pointer-events:none;"><div>';
+            event.target.innerHTML += progress;
+            This.GongProgress[playid] = setInterval(function() {
+              if (This.GongSource[playid] !== null) {
+                var elapsed = Math.min(360, ((This.AudioCtx.currentTime - event.target.getAttribute('starttime'))  / playlength * 360.0));
+                if (elapsed >= 360) {
+                  stopplaying(playid, event.target);
+                }
+                else {
+                  event.target.lastElementChild.style.setProperty('background','conic-gradient(#FFFFFF60 0deg '+elapsed+'deg, transparent '+elapsed+'deg 360deg)')
+                }
+              }
+            },100);
+
+            // Stop when we're done playing
+            This.GongTimers[playid] = setTimeout(function() {
+              stopplaying(playid, event.target);
+            }, playlength * 1000);
+
+          }
+        }
       }
     });
   end;
-
 
   // Configure InteractJS for Drag & Swap functionality
   asm
@@ -440,6 +714,7 @@ begin
           }
           event.target.parentElement.appendChild(btnCursor);
           btnCursor.setAttribute('position',event.target.parentElement.getAttribute('position'));
+          btnCursor.style.setProperty('z-index','15');
           btnCursor.parentElement.style.setProperty('animation-name','jiggle');
         }, { capture: true })
 
@@ -620,6 +895,7 @@ begin
             pas.Unit1.Form1.UpdateColorPickerSize();
             pas.Unit1.Form1.UpdateColorPickerRGB();
             pas.Unit1.Form1.UpdateImageAdjustmentsSize();
+            pas.Unit1.Form1.UpdateAudioParams();
             memoHexDesc.dispatchEvent(new Event('input'));
             memoProjDesc.dispatchEvent(new Event('input'));
             memoCustomCSS.dispatchEvent(new Event('input'));
@@ -965,25 +1241,25 @@ begin
 
 
   // Configure Image Adjustments Interface
-  divImageEditor.Width := 960;
-  divImageEditor.Height := 970;
+  divImageEditor.Width := 965;
+  divImageEditor.Height := 965;
 
 
   // Horizontal
   divAdjWidthHolder.Top := 0;
-  divAdjWidthHOlder.Left := 40 - 4;
+  divAdjWidthHOlder.Left := 5 + 40 - 4;
   divAdjWidthHolder.Width := (1000 - 40*2) + 8;
   divAdjWidthHolder.Height := 40;
 
   //Horizontal
   divAdjSkewXHolder.Top := 40 + 4;
-  divAdjSkewXHolder.Left := 40*2 - 4;
+  divAdjSkewXHolder.Left := 5 + 40*2 - 4;
   divAdjSkewXHolder.Width := (1000 - 40*4) + 8;
   divAdjSkewXHolder.Height := 40;
 
   // Vertical
   divAdjHeightHolder.Top := 40;
-  divAdjHeightHolder.Left := 40;
+  divAdjHeightHolder.Left := 5 + 40;
   divAdjHeightHolder.Width := (1000 - 40*2) +8;
   divAdjHeightHolder.Height := 40;
   divAdjHeightHolder.ElementHandle.style.setProperty('transform-origin','top left');
@@ -991,7 +1267,7 @@ begin
 
   // Vertical
   divAdjSkewYHolder.Top := 40*2;
-  divAdjSkewYHolder.Left := 40*2 + 4;
+  divAdjSkewYHolder.Left := 5 + 40*2 + 4;
   divAdjSkewYHolder.Width := (1000 - 40*4) + 8;
   divAdjSkewYHolder.Height := 40;
   divAdjSkewYHolder.ElementHandle.style.setProperty('transform-origin','top left');
@@ -999,7 +1275,7 @@ begin
 
   // Vertical
   divAdjShiftYHolder.Top := 40*2;
-  divAdjShiftYHolder.Left := (1000 - 40*2) - 4;
+  divAdjShiftYHolder.Left := 5 + (1000 - 40*2) - 4;
   divAdjShiftYHolder.Width := (1000 - 40*4) + 8;
   divAdjShiftYHolder.Height := 40;
   divAdjShiftYHolder.ElementHandle.style.setProperty('transform-origin','top left');
@@ -1007,7 +1283,7 @@ begin
 
   // Vertical
   divAdjOpacityHolder.Top := 40;
-  divAdjOpacityHolder.Left := (1000 - 40);
+  divAdjOpacityHolder.Left := 5 +  (1000 - 40);
   divAdjOpacityHolder.Width := (1000 - 40*2) + 8;
   divAdjOpacityHolder.Height := 40;
   divAdjOpacityHolder.ElementHandle.style.setProperty('transform-origin','top left');
@@ -1015,37 +1291,37 @@ begin
 
   // Horizontal
   divAdjShiftXHolder.Top := (1000 - 40*3) - 4;
-  divAdjShiftXHolder.Left := 40*2 - 4;
+  divAdjShiftXHolder.Left := 5 + 40*2 - 4;
   divAdjShiftXHolder.Width := (1000 - 40*4) + 8;
   divAdjShiftXHolder.Height := 40;
 
   //Horizontal
   divAdjRotateHolder.Top := (1000 - 40*2);
-  divAdjRotateHolder.Left := 40 - 4;
+  divAdjRotateHolder.Left := 5 + 40 - 4;
   divAdjRotateHolder.Width := (1000 - 40*2) + 8;
   divAdjRotateHolder.Height := 40;
 
   //Center
   divImagePreview.Top := 2*40;
-  divImagePreview.Left := 2*40;
+  divImagePreview.Left := 5 + 2*40;
   divImagePreview.Width := (1000 - 40*5);
   divImagePreview.Height := (1000 - 40*5);
 
   // Center
   divImageBG.Top := 40 + 8;
-  divImageBG.Left := 40 + 8;
+  divImageBG.Left := 5 + 40 + 8;
   divImageBG.Width := (1000 - 40*7) - 16;
   divImageBG.Height := (1000 - 40*7) - 16;
 
   // Center
   divImageFG.Top := 40 + 8;
-  divImageFG.Left := 40 + 8;
+  divImageFG.Left := 5 +  40 + 8;
   divImageFG.Width := (1000 - 40*7) - 16;
   divImageFG.Height := (1000 - 40*7) - 16;
 
   // Center
   divImage.Top := 40 + 8;
-  divImage.Left := 40 - 8;
+  divImage.Left := 5 + 40 - 8;
   divImage.Width := (1000 - 40*7) + 16;
   divImage.Height := (1000 - 40*7) - 16;
 
@@ -1083,20 +1359,161 @@ begin
     });
   end;
 
-  // Image mouse handling
+  // Image mouse handling 'natively'
+//  asm
+//    // Mousewheel
+//    function imagescroll(e) {
+//      e.preventDefault();
+//      var This = pas.Unit1.Form1;
+//      This.ImageW = Math.min(Math.max(parseInt(parseInt(This.ImageW) + e.deltaY * -0.125), -200),400);
+//      This.ImageH = Math.min(Math.max(parseInt(parseInt(This.ImageH) + e.deltaY * -0.125), -200),400);
+//      AdjWidth.value = This.ImageW;
+//      AdjHeight.value = This.ImageH;
+//      This.UpdateImageAdjustments();
+//    }
+//    divImage.addEventListener('wheel',function(e) { imagescroll(e) });
+//    divImagePreview.addEventListener('wheel',function(e) { imagescroll(e) });
+//  end;
+
+  // This loads up our pan/zoom functionality
   asm
-    // Mousewheel
-    function imagescroll(e) {
-      e.preventDefault();
+    this.pz = Panzoom(divImage, {
+      animate: true,
+      cursor: 'all-scroll',
+      setTransform: (elem, { scale, x, y }) => {
+
+        var This = pas.Unit1.Form1;
+        This.ImageL = 100 + parseInt( 100 * x / divImage.offsetWidth * (divImage.offsetWidth / divImage.getBoundingClientRect().width));
+        This.ImageT = 100 + parseInt( 100 * y / divImage.offsetHeight * (divImage.offsetWidth / divImage.getBoundingClientRect().width));
+        This.ImageW = parseInt(scale * 100);
+        This.ImageH = parseInt(scale * 100);
+
+        AdjShiftX.value = This.ImageL;
+        AdjShiftY.value = This.ImageT;
+        AdjWidth.value = This.ImageW;
+        AdjHeight.value = This.ImageH;
+
+        divImage.style.setProperty('transform',
+          'translate('+(This.ImageL - 100)+'%,'+(This.ImageT - 100)+'%) '+
+          'scale('+This.ImageW/100+','+This.ImageH/100+') '+
+          'skew('+(-This.ImageX)+'deg,'+(This.ImageY)+'deg) '+
+          'rotate('+This.ImageR+'deg) ');
+
+        This.UpdateImageAdjustments();
+      }
+    });
+    divImage.addEventListener('wheel',pas.Unit1.Form1.pz.zoomWithWheel)
+  end;
+
+  // Setup Tabulator for Audio Clips table
+  asm
+    this.tabAudioClips =  new Tabulator("#divAudioClipTable", {
+      layout: "fitColumns",
+      placeholder: "No Audio Clips available.",
+      rowHeight: 30,
+      selectable: 1,
+      headerVisible: false,
+      columnDefaults:{
+        resizable: false
+      },
+      columns: [
+        { title: "Play", minWidth: 40, width: 40, hozAlign: "center", cssClass: "PlayClip",
+          formatter: function(cell, formatterParams, onRendered) {
+            return '<div style="width: 30px; height: 29px; margin: -3px 0px 0px 4px; padding: 4px 8px; "><i class="fa-solid fa-play fa-xl"></i></div>'
+          },
+          cellClick: function(e, cell) {
+            pas.Unit1.Form1.tabAudioClips.selectRow(cell.getRow());
+            pas.Unit1.Form1.PlayAudioClip(cell.getRow().getCell('FullName').getValue(), cell.getElement());
+          },
+        },
+        { title: "Name", field: "Name" },
+        { title: "Type", field: "Type", width: 50 },
+        { title: "FullName", field: "FullName", visible: false },
+        { title: "Size", field: "Size", width: 60, hozAlign: "right",
+          formatter: function(cell, formatterParams, onRendered) {
+            var audiosize = 0;
+            if (parseInt(cell.getValue()) < 1024) {
+              audiosize = cell.getValue()+' B';
+            } else if (parseInt(cell.getValue()) < 1024*1024) {
+              audiosize = parseInt(cell.getValue() / 1024)+' KB';
+            } else if (parseInt(cell.getValue()) < 1024*1024*1024) {
+              audiosize = parseInt(cell.getValue() / 1024 / 1024)+' MB';
+            } else {
+              audiosize = parseInt(cell.getValue() / 1024 / 1024 / 1024)+' GB';
+            }
+            return '<div style="padding-right: 8px;">'+audiosize+'</div>';
+          }
+        }
+      ]
+    });
+    this.tabAudioClips.on('rowClick', function(e, row){
+      pas.Unit1.Form1.tabAudioClips.selectRow(row);
+    });
+    this.tabAudioClips.on('rowDblClick', function(e, row){
+      pas.Unit1.Form1.tabAudioClips.selectRow(row);
+      pas.Unit1.Form1.SelectAudioClip(row.getCell('Name').getValue(),row.getCell('FullName').getValue());
+    });
+  end;
+
+  // Setup Tabulator for Audio Sets table
+  asm
+    this.tabAudioSets =  new Tabulator("#divAudioSetsTable", {
+      index: "ID",
+      layout: "fitColumns",
+      placeholder: "No HexaGongs available.",
+      rowHeight: 30,
+      selectable: 1,
+      headerVisible: false,
+      movableRows: true,
+      columnDefaults:{
+        resizable: false
+      },
+      initialSort: [
+        {column:"Sort", dir:"asc"},
+        {column:"Name", dir:"asc"}
+      ],
+      columns: [
+        { title: "ID", field: "ID", visible: false },
+        { title: "Selected", field: "Selected", width: 40, cssClass: "PlayClip",
+          formatter: function(cell, formatterParams, onRendered) {
+            if (cell.getValue() == false) {
+              return '<div style="background: purple; width: 30px; height: 29px; margin: -3px 0px 0px 4px; padding: 5px 8px; "><i class="fa-solid fa-xmark fa-xl"></i></div>'
+            }
+            else {
+              return '<div style="background: violet; width: 30px; height: 29px; margin: -3px 0px 0px 4px; padding: 5px 4px; "><i class="fa-solid fa-check fa-xl"></i></div>'
+            }
+          },
+          cellClick: function(e, cell) {
+            pas.Unit1.Form1.tabAudioClips.selectRow(cell.getRow());
+            cell.setValue(!cell.getValue());
+          },
+        },
+        { title: "Sort", field: "Sort", width: 30, minWidth:30, formatter: "handle" },
+        { title: "Name", field: "Name" },
+        { title: "Length", field: "Length", width: 60, hozAlign: "right", formatter:"html" },
+        { title: "PlayTime", field: "PlayTime", visible: false }
+      ]
+    });
+    this.tabAudioSets.on('rowClick', function(e, row){
+      pas.Unit1.Form1.tabAudioSets.selectRow(row);
+    });
+  end;
+
+  // Audio Parameter Sliders
+  asm
+    divAudioParams.addEventListener('sl-input',function(e){
       var This = pas.Unit1.Form1;
-      This.ImageW = Math.min(Math.max(parseInt(parseInt(This.ImageW) + e.deltaY * -0.125), -200),400);
-      This.ImageH = Math.min(Math.max(parseInt(parseInt(This.ImageH) + e.deltaY * -0.125), -200),400);
-      AdjWidth.value = This.ImageW;
-      AdjHeight.value = This.ImageH;
-      This.UpdateImageAdjustments();
-    }
-    divImage.addEventListener('wheel',function(e) { imagescroll(e) });
-    divImagePreview.addEventListener('wheel',function(e) { imagescroll(e) });
+      if (e.target.id == "SliderGain") {
+        This.OptionsAudioGain = e.target.value;
+      }
+      else if (e.target.id == "SliderStart") {
+        This.OptionsAudioStart = e.target.value;
+      }
+      else if (e.target.id == "SliderEnd") {
+        This.OptionsAudioEnd = e.target.value;
+      }
+      pas.Unit1.Form1.UpdateAudioParams();
+    });
   end;
 end;
 
@@ -1185,9 +1602,49 @@ begin
       UpdateColorPickerSize;
       UpdateColorPickerRGB;
       UpdateImageAdjustmentsSize;
+      UpdateWaveform;
+      UpdateAudioParams;
     end;
   end;
 
+end;
+
+procedure TForm1.WebMediaCapture1StopCapture(Sender: TObject; ABinary: TJSUint8Array; ABase: string);
+begin
+  OptionsAudioFile := 'Locally Recorded Audio';
+  asm
+    var This = pas.Unit1.Form1;
+    This.GongAudio[This.GongID] = This.AudioCtx.createBufferSource();
+    This.AudioCtx.decodeAudioData(
+      ABinary.buffer,
+      (buffer) => {
+        This.GongAudio[This.GongID] = buffer;
+        This.OptionsAudioTime = buffer.duration;
+        editAudioSource.value = This.OptionsAudioFile;
+        This.UpdateWaveform();
+        labelAudioAdjustments.firstElementChild.textContent = 'Adjustments [ '+buffer.duration.toFixed(1)+'s ]';
+      }
+    );
+  end;
+end;
+
+procedure TForm1.WebOpenDialog1GetFileAsArrayBuffer(Sender: TObject; AFileIndex: Integer; ABuffer: TJSArrayBufferRecord);
+begin
+  OptionsAudioFile := WebOpenDialog1.Files[AFileIndex].Name;
+  asm
+    var This = pas.Unit1.Form1;
+    This.GongAudio[This.GongID] = This.AudioCtx.createBufferSource();
+    This.AudioCtx.decodeAudioData(
+      ABuffer.jsarraybuffer,
+      (buffer) => {
+        This.GongAudio[This.GongID] = buffer;
+        This.OptionsAudioTime = buffer.duration;
+        editAudioSource.value = This.OptionsAudioFile;
+        This.UpdateWaveform();
+        labelAudioAdjustments.firstElementChild.textContent = 'Adjustments [ '+buffer.duration.toFixed(1)+'s ]';
+      }
+    );
+  end;
 end;
 
 procedure TForm1.WebOpenDialog1GetFileAsBase64(Sender: TObject; AFileIndex: Integer; ABase64: string);
@@ -1214,6 +1671,156 @@ begin
   divImage.HTML.Text := ImageData;
 end;
 
+
+procedure TForm1.WebOpenDialog1GetFileAsText(Sender: TObject; AFileIndex: Integer; AText: string);
+var
+  i: Integer;
+  GongHTML: String;
+  GongCount: Integer;
+  GongDeleted: Boolean;
+begin
+  GongCount := 0;
+  GongHTML := '';
+  
+  asm
+    function base64ToArrayBuffer(base64) {
+      var binary_string =  window.atob(base64);
+      var len = binary_string.length;
+      var bytes = new Uint8Array( len );
+      for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    var This = pas.Unit1.Form1;
+    var Saved = JSON.parse(AText);
+
+    if (Saved.SaveFormat == 'JSON') {
+      This.ZoomLevel        = Saved.ZoomLevel;
+      This.AnimatedElements = Saved.AnimatedElements;
+      This.GongData         = JSON.parse(Saved.GongData);
+      This.PositionsR       = JSON.parse(Saved.PositionsR);           
+      This.PositionsC       = JSON.parse(Saved.PositionsC);           
+      This.PositionsG       = JSON.parse(Saved.PositionsG);           
+      This.GongsP           = JSON.parse(Saved.GongsP);         
+      var AudioStrings      = JSON.parse(Saved.Audio);
+
+      for (var i = 0; i < AudioStrings.length; i++) {
+        if ((AudioStrings[i] !== null) && (AudioStrings[i] !== undefined)) {
+          var decoder = new aas.Decoder();
+          This.GongAudio[i] = decoder.execute(base64ToArrayBuffer(AudioStrings[i]));
+        }
+      }
+
+      GongCount = This.GongData['HexaGongs'].length;
+    }
+  end;
+
+  setLength(Gongs, GongCount);
+  i := 0;
+  while i < length(Gongs) do
+  begin
+    GongDeleted := False;
+    asm
+      GongHTML = pas.Unit1.Form1.GongData['HexaGongs'][i]['Image Data'];
+      GongDeleted = pas.Unit1.Form1.GongData['HexaGongs'][i]['Deleted'];
+    end;
+
+    if not(GongDeleted) then
+    begin
+      Gongs[i] := TWebHTMLDiv.Create('Gong-'+IntToStr(i));
+      Gongs[i].Parent := divButtons;
+      Gongs[i].ElementFont := efCSS;
+      Gongs[i].ElementPosition := epAbsolute;
+      Gongs[i].ElementHandle.setAttribute('gongid',IntToStr(i));
+      Gongs[i].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','text-white');
+      Gongs[i].ElementHandle.style.setProperty('z-index','10');
+      Gongs[i].ElementHandle.setAttribute('position',IntToStr(GongsP[i]));
+      Gongs[i].ElementHandle.setAttribute('row',IntToStr(PositionsR[GongsP[i]]));
+      Gongs[i].ElementHandle.setAttribute('column',IntToStr(PositionsC[GongsP[i]]));
+      Gongs[i].HTML.Text := GongHTML;
+
+      asm
+    
+        var This = pas.Unit1.Form1;
+        var gong = document.getElementById('Gong-'+i).firstElementChild;
+      
+        This.ImageW = This.GongData['HexaGongs'][i]['Image W'];
+        This.ImageH = This.GongData['HexaGongs'][i]['Image H'];
+        This.ImageT = This.GongData['HexaGongs'][i]['Image T'];
+        This.ImageL = This.GongData['HexaGongs'][i]['Image L'];
+        This.ImageX = This.GongData['HexaGongs'][i]['Image X'];
+        This.ImageY = This.GongData['HexaGongs'][i]['Image Y'];
+        This.ImageR = This.GongData['HexaGongs'][i]['Image R'];
+        This.ImageO = This.GongData['HexaGongs'][i]['Image O'];
+
+        This.OptionsBGStyle = parseInt(This.GongData['HexaGongs'][i]['BG Style']);
+        This.OptionsBGColor1 = This.GongData['HexaGongs'][i]['BG Color 1'];
+        This.OptionsBGColor2 = This.GongData['HexaGongs'][i]['BG Color 2'];
+        This.OptionsBGCustom = This.GongData['HexaGongs'][i]['BG Custom'];
+
+        This.OptionsAudioStyle = parseInt(This.GongData['HexaGongs'][i]['Audio Style']);
+        This.OptionsAudioTime = parseFloat(This.GongData['HexaGongs'][i]['Audio Time']);
+        This.OptionsAudioFile = This.GongData['HexaGongs'][i]['Audio File'];
+        This.OptionsAudioGain = parseInt(This.GongData['HexaGongs'][i]['Audio Gain']);
+        This.OptionsAudioStart = parseInt(This.GongData['HexaGongs'][i]['Audio Start']);
+        This.OptionsAudioEnd = parseInt(This.GongData['HexaGongs'][i]['Audio End']);
+        This.OptionsAudioSets = This.GongData['HexaGongs'][i]['Audio Sets'];
+        This.OptionsAudioSetStyle = This.GongData['HexaGongs'][i]['Audio Set Style'];
+      
+        gong.style.setProperty('transform',
+          'translate('+(This.ImageL - 100)+'%,'+(This.ImageT - 100)+'%) '+
+          'scale('+This.ImageW/100+','+This.ImageH/100+') '+
+          'skew('+(-This.ImageX)+'deg,'+(This.ImageY)+'deg) '+
+          'rotate('+This.ImageR+'deg) ');
+        gong.style.setProperty('opacity',This.ImageO / 100);
+
+      
+      end;
+
+      // Update UI element - Background
+      if OptionsBGStyle = 0
+      then Gongs[i].ElementHandle.style.setProperty('background','radial-gradient(black,'+OptionsBGColor1+')')
+      else if OptionsBGStyle = 1
+      then Gongs[i].ElementHandle.style.setProperty('background','linear-gradient(60deg,black,'+OptionsBGColor1+')')
+      else if OptionsBGStyle = 2
+      then Gongs[i].ElementHandle.style.setProperty('background',OptionsBGColor1)
+      else
+      begin
+        Gongs[GongID].ElementHandle.style.cssText := OptionsBGCustom;
+      end;
+
+      // Update UI element - Audio
+      Gongs[i].ElementHandle.setAttribute('audiotime', FloatToStr(OptionsAudioTime));
+      Gongs[i].ElementHandle.setAttribute('audiogain', IntToStr(OptionsAudioGain));
+      Gongs[i].ElementHandle.setAttribute('audiostart', IntToStr(OptionsAudioStart));
+      Gongs[i].ElementHandle.setAttribute('audioend', IntToStr(OptionsAudioEnd));
+      if OptionsAudioStyle = 4 then
+      begin
+        Gongs[i].ElementHandle.setAttribute('audiosets',OptionsAudioSets);
+        if OptionsAudioSetStyle = 0
+        then Gongs[i].ElementHandle.setAttribute('audiosetstyle','series')
+        else Gongs[i].ElementHandle.setAttribute('audiosetstyle','parallel');
+      end
+      else
+      begin
+        Gongs[i].ElementHandle.removeAttribute('audiosets');
+        Gongs[i].ElementHandle.removeAttribute('audiosetstyle');
+      end;
+    end;
+
+    i := i + 1;
+  end;
+    
+  // Force a complete refresh
+  
+  btnMainClick(nil);
+  StopAnimation;
+  GeneratePositions;
+  DrawBackground;
+  StartAnimation;
+end;
 
 procedure TForm1.tmrStartupTimer(Sender: TObject);
 begin
@@ -1263,23 +1870,66 @@ begin
     addAutoResize();
   end;
 
-  InitializeXData;
+  // Enable our Shoelace Range Sliders
+  divColorPicker2.HTML.Text     := StringReplace(divColorPicker2.HTML.Text,    'slX-range','sl-range',[rfReplaceAll]);
+  divAdjWidthHolder.HTML.Text   := StringReplace(divAdjWidthHolder.HTML.Text,  'slX-range','sl-range',[rfReplaceAll]);
+  divAdjHeightHolder.HTML.Text  := StringReplace(divAdjHeightHolder.HTML.Text, 'slX-range','sl-range',[rfReplaceAll]);
+  divAdjShiftXHolder.HTML.Text  := StringReplace(divAdjShiftXHolder.HTML.Text, 'slX-range','sl-range',[rfReplaceAll]);
+  divAdjShiftYHolder.HTML.Text  := StringReplace(divAdjShiftYHolder.HTML.Text, 'slX-range','sl-range',[rfReplaceAll]);
+  divAdjSkewXHolder.HTML.Text   := StringReplace(divAdjSkewXHolder.HTML.Text,  'slX-range','sl-range',[rfReplaceAll]);
+  divAdjSkewYHolder.HTML.Text   := StringReplace(divAdjSkewYHolder.HTML.Text,  'slX-range','sl-range',[rfReplaceAll]);
+  divAdjRotateHolder.HTML.Text  := StringReplace(divAdjRotateHolder.HTML.Text, 'slX-range','sl-range',[rfReplaceAll]);
+  divAdjOpacityHolder.HTML.Text := StringReplace(divAdjOpacityHolder.HTML.Text,'slX-range','sl-range',[rfReplaceAll]);
+  divAudioParams.HTML.Text      := StringReplace(divAudioParams.HTML.Text,     'slX-range','sl-range',[rfReplaceAll]);
 
-  // Swap DOM positions of divBackground and divOptions so our gradients always work
+end;
+
+procedure TForm1.UpdateAudioParams;
+begin
   asm
-    const swap = function (nodeA, nodeB) {
-      const parentA = nodeA.parentNode;
-      const siblingA = nodeA.nextSibling === nodeB ? nodeA : nodeA.nextSibling;
+    var This = pas.Unit1.Form1;
+    var range = divAudioParams.getBoundingClientRect().width - 86;
 
-      // Move `nodeA` to before the `nodeB`
-      nodeB.parentNode.insertBefore(nodeA, nodeB);
+    SliderGain.value = This.OptionsAudioGain;
+    ThumbGain.style.setProperty("left",range * (This.OptionsAudioGain / 200) +'px');
+    if (This.OptionsAudioGain == 100) {
+      ThumbGain.innerHTML = '<i class="fa-solid fa-volume-high fa-lg text-white"></i>';
+    }
+    else {
+      ThumbGain.innerHTML = "<div class='ThumbLabel'>"+This.OptionsAudioGain+"%</dvi>";
+    }
 
-      // Move `nodeB` to before the sibling of `nodeA`
-      parentA.insertBefore(nodeB, siblingA);
-    };
-    swap(divBackground,divOptions);
+    SliderStart.value = This.OptionsAudioStart;
+    ThumbStart.style.setProperty("left",range * (This.OptionsAudioStart / 100) +'px');
+    if (This.OptionsAudioStart == 0) {
+      ThumbStart.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket fa-lg text-white"></i>';
+    }
+    else {
+      ThumbStart.innerHTML = "<div class='ThumbLabel'>"+This.OptionsAudioStart+"%</dvi>";
+    }
+    divAudioStart.style.setProperty('position','absolute');
+    divAudioStart.style.setProperty('top','0px');
+    divAudioStart.style.setProperty('left','0px');
+    divAudioStart.style.setProperty('width',(10 + (divAudioWaveform.getBoundingClientRect().width - 20) * (This.OptionsAudioStart / 100))+'px');
+    divAudioStart.style.setProperty('height','68px');
+    divAudioStart.style.setProperty('background','linear-gradient(to right,#00000080, #EE82EEC0)'); // violet 50% opacity
+
+    SliderEnd.value = This.OptionsAudioEnd;
+    ThumbEnd.style.setProperty("left",range * ((100 - This.OptionsAudioEnd) / 100) +'px');
+    if (This.OptionsAudioEnd == 0) {
+      ThumbEnd.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket fa-lg fa-flip-horizontal text-white"></i>';
+    }
+    else {
+       ThumbEnd.innerHTML = "<div class='ThumbLabel'>"+This.OptionsAudioEnd+"%</dvi>";
+    }
+    divAudioEnd.style.setProperty('position','absolute');
+    divAudioEnd.style.setProperty('top','0px');
+    divAudioEnd.style.setProperty('right','0px');
+    divAudioEnd.style.setProperty('width',(10 + (divAudioWaveform.getBoundingClientRect().width - 20) * (This.OptionsAudioEnd / 100))+'px');
+    divAudioEnd.style.setProperty('height','68px');
+    divAudioEnd.style.setProperty('background','linear-gradient(to left,#00000080, #EE82EEC0)'); // violet 50% opacity
   end;
-
+  UpdateWaveform;
 end;
 
 procedure TForm1.UpdateColorPickerHexagon;
@@ -1426,7 +2076,7 @@ begin
       ThumbRotate.innerHTML = '<div class="ThumbLabel">'+(This.ImageR)+'°</div>';
     }
 
-    range = scale * (AdjOpacity.getBoundingClientRect().height - 28);
+    range = scale * (AdjOpacity.getBoundingClientRect().height - 24);
     ThumbOpacity.style.setProperty("left",2 + (This.ImageO / 100) * range +'px');
     if (This.ImageO == 100) {
       ThumbOpacity.innerHTML = '<div class="ThumbLabelR"><i class="fa-solid fa-circle-half-stroke fa-xl"></div>';
@@ -1454,12 +2104,12 @@ var
 //  space: Double;
 begin
   avail := divImageAdjustmentsLabel.ElementHandle.getBoundingClientRect.Width;
-  scale := Min(avail / 970,5);
+  scale := Min(avail / 980,5);
 //  space := scale*1000;
   divImageEditor.ElementHandle.style.setProperty('transform','scale('+FloatToSTrF(scale,ffGeneral,10,5)+')');
 //  divColorPicker1.ElementHandle.style.setProperty('height','unset');
 //  divColorPicker2.ElementHandle.style.setProperty('top',FloatToSTrF(space,ffGeneral,10,5)+'px','important');
-  divImageAdjustments.ElementHandle.Style.SetProperty('height',FloatToStrF(scale+60,ffGeneral,10,5)+'px');
+  divImageAdjustments.ElementHandle.Style.SetProperty('height',FloatToStrF(scale+45,ffGeneral,10,5)+'px');
 end;
 
 procedure TForm1.UpdateOptionsCursor;
@@ -1491,6 +2141,83 @@ begin
 
   divOptionsCursor.ElementHandle.style.setProperty('background',window.getComputedStyle(CursorLink.ElementHandle).getPropertyValue('background'));
 
+end;
+
+procedure TForm1.UpdateWaveform;
+begin
+
+  if (GongID < 0) then
+  begin
+    divAudioWaveform.HTML.Text := '';
+    exit;
+  end;
+
+  asm
+    var This = pas.Unit1.Form1;
+    var h = 64;
+    var w = divAudioWaveform.getBoundingClientRect().width - 20;
+
+    const detachedSVG = d3.create("svg");
+    const audio = This.GongAudio[This.GongID];
+
+    if (audio == undefined) {
+      divAudioWaveform.replaceChildren();
+      return;
+    }
+
+    const step = Math.floor(
+      audio.getChannelData(0).length / w
+    );
+
+    const samplesL = [];
+    for (let i = 0; i < w; i++) {
+      samplesL.push(audio.getChannelData(0)[i * step]);
+    }
+    const samplesR = [];
+    for (let i = 0; i < w; i++) {
+      samplesR.push(audio.getChannelData(1)[i * step]);
+    }
+
+    detachedSVG.attr("width", w)
+               .attr("height", h);
+
+    const dataL = Array.from(samplesL.entries());
+    const dataR = Array.from(samplesR.entries());
+
+    const xValue = d => d[0];
+    const yValue = d => d[1];
+
+    const xScale = d3
+      .scaleLinear()
+      .domain([0, dataL.length - 1])
+      .range([0, w]);
+
+    // Draw Channel 0
+    detachedSVG.selectAll('.ch0')
+      .data(dataL)
+      .enter()
+      .append('rect')
+        .attr('width', ((w / dataL.length) * 0.8))
+        .attr('height', function (d) { return Math.abs(yValue(d) * 30 * This.OptionsAudioGain / 100)})
+        .attr('x', function (d, i) { return (((w / dataL.length) * i) + ((w / dataL.length) * 0.1)) })
+        .attr('y', function (d) { return 31 - Math.abs(yValue(d) * 30 * This.OptionsAudioGain / 100)})
+        .attr('fill', 'silver');
+
+    // Draw Channel 1
+    detachedSVG.selectAll('.ch1')
+      .data(dataR)
+      .enter()
+      .append('rect')
+        .attr('width', ((w / dataL.length) * 0.8))
+        .attr('height', function (d) { return Math.abs(yValue(d) * 30 * This.OptionsAudioGain / 100) })
+        .attr('x', function (d, i) { return (((w / dataL.length) * i) + ((w / dataL.length) * 0.1)) })
+        .attr('y', 31)
+        .attr('fill', 'silver');
+
+    divAudioWaveform.innerHTML = '<div style="width: '+w+'px; top: 2px; left: 10px; height: '+h+'px; width: '+w+'px; color: #fff; overflow:hidden; position:absolute;">'+
+                                   detachedSVG.node().outerHTML+
+                                 '</div>';
+  end;
 end;
 
 procedure TForm1.btnEditClick(Sender: TObject);
@@ -1563,8 +2290,16 @@ begin
         this.GongData['HexaGongs'][this.GongID]['Image Y'] = '0';
         this.GongData['HexaGongs'][this.GongID]['Image R'] = '0';
         this.GongData['HexaGongs'][this.GongID]['Image O'] = '100';
-
-      end;
+        this.GongData['HexaGongs'][this.GongID]['Audio Style'] = 0;
+        this.GongData['HexaGongs'][this.GongID]['Audio File'] = 'No audio selected';
+        this.GongData['HexaGongs'][this.GongID]['Audio Time'] = 0;
+        this.GongData['HexaGongs'][this.GongID]['Audio Gain'] = 100;
+        this.GongData['HexaGongs'][this.GongID]['Audio Start'] = 0;
+        this.GongData['HexaGongs'][this.GongID]['Audio End'] = 0;
+        this.GongData['HexaGongs'][this.GongID]['Audio Sets'] = [];
+        this.GongData['HexaGongs'][this.GongID]['Audio Sets Data'] = [];
+        this.GongData['HexaGongs'][this.GongID]['Audio Set Style'] = 0;
+       end;
 
     end
     else
@@ -1640,6 +2375,58 @@ begin
 
 
     // pageAudio
+    asm
+      this.OptionsAudioStyle = this.GongData['HexaGongs'][this.GongID]['Audio Style'];
+      this.OptionsAudioFile = this.GongData['HexaGongs'][this.GongID]['Audio File'];
+      this.OptionsAudioTime = this.GongData['HexaGongs'][this.GongID]['Audio Time'];
+      this.OptionsAudioGain = this.GongData['HexaGongs'][this.GongID]['Audio Gain'];
+      this.OptionsAudioStart = this.GongData['HexaGongs'][this.GongID]['Audio Start'];
+      this.OptionsAudioEnd = this.GongData['HexaGongs'][this.GongID]['Audio End'];
+      this.OptionsAudioSets = this.GongData['HexaGongs'][this.GongID]['Audio Sets'];
+      labelAudioAdjustments.firstElementChild.textContent = 'Adjustments [ '+this.OptionsAudioTime.toFixed(1)+'s ]';
+    end;
+    if OptionsAudioStyle = 0 then divAudioClipClick(Sender);
+    if OptionsAudioStyle = 1 then divAudioURLClick(Sender);
+    if OptionsAudioStyle = 2 then divAudioUploadClick(Sender);
+    if OptionsAudioStyle = 3 then divAudioRecordClick(Sender);
+    if OptionsAudioStyle = 4 then divAudioSetClick(Sender);
+    editAudioSource.Text := OptionsAudioFile;
+
+    asm
+      // Get list of known HexaGongs (not including the current HexaGong or deleted HexaGongs)
+      this.OptionsAudioSetsData = [];
+      for (var i = 0; i < this.GongData['HexaGongs'].length; i++) {
+        if (parseInt(this.GongID) !== i) {
+          if (this.GongData['HexaGongs'][i]['Deleted'] !== true) {
+            this.OptionsAudioSetsData.push({
+              "ID": i,
+              "Selected": false,
+              "Sort": -1,
+              "Name": this.GongData['HexaGongs'][i]['Name'],
+              "Length": '<div style="padding-right: 8px;">'+this.GongData['HexaGongs'][i]['Audio Time'].toFixed(1)+'s'+'</div>',
+              "PlayTime": parseFloat(this.GongData['HexaGongs'][i]['Audio Time'])
+            });
+          }
+        }
+      }
+
+      // update the list to reflect the last sort order and selection for this HexaGong.
+      for (var i = 0; i < this.GongData['HexaGongs'][this.GongID]['Audio Sets Data'].length; i++) {
+        var id = this.GongData['HexaGongs'][this.GongID]['Audio Sets Data'][i].ID;
+        for (var j = 0; j < this.OptionsAudioSetsData.length; j++) {
+          if (this.OptionsAudioSetsData[j].ID == id) {
+            this.OptionsAudioSetsData[j].Sort     = this.GongData['HexaGongs'][this.GongID]['Audio Sets Data'][i].Sort;
+            this.OptionsAudioSetsData[j].Selected = this.GongData['HexaGongs'][this.GongID]['Audio Sets Data'][i].Selected;
+          }
+        }
+      }
+
+      this.tabAudioSets.setData(this.OptionsAudioSetsData);
+      this.tabAudioSets.setSort([
+        {column:"Name", dir:"asc"},
+        {column:"Sort", dir:"asc"}
+      ]);
+    end;
 
     // pageSettings
     if AnimatedElements = 0
@@ -1656,9 +2443,9 @@ begin
     else labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','radial-gradient(#00000000,black)');
 
     editProxy.Text := OptionsProxy;
-    if OptionsProxyStatus = 0 then divProxyDefaultClick(Sender)
-    else if OptionsProxyStatus  = 1 then divProxyNoneClick(Sender)
-    else if OptionsProxyStatus  = 2 then divProxyDefaultClick(Sender)
+    if OptionsProxyStyle = 0 then divProxyDefaultClick(Sender)
+    else if OptionsProxyStyle  = 1 then divProxyNoneClick(Sender)
+    else if OptionsProxyStyle  = 2 then divProxyDefaultClick(Sender)
 
   end;
 end;
@@ -1760,7 +2547,7 @@ begin
       // Search for at most three terms
       var searchterms = Search.split(' ').slice(0,3).join(' ');
 
-      var response = await fetch('http://localhost:65432/tms/xdata/HexaGongsService/SearchIcons'+
+      var response = await fetch(this.Server_URL+'/HexaGongsService/SearchIcons'+
         '?SearchTerms='+encodeURIComponent(searchterms)+
         '&Results='+MaxResults);
       var results = await response.json();
@@ -1877,7 +2664,24 @@ begin
 
   pageControl.TabIndex := 3;
   UpdateOptionsCursor;
+  UpdateAudioParams;
   pageAudio.ElementHandle.style.setProperty('opacity','1');
+
+  // Select current audioclip
+  asm
+    this.tabAudioClips.deselectRow();
+  end;
+
+  if OptionsAudioStyle = 0 then
+  begin
+    asm
+      var rows = this.tabAudioClips.searchRows('Name','=',this.OptionsAudioFile);
+      if (rows.length > 0) {
+        this.tabAudioClips.selectRow(rows[0]);
+      }
+    end;
+  end;
+
 end;
 
 procedure TForm1.btnOptionsBackgroundClick(Sender: TObject);
@@ -1955,8 +2759,8 @@ begin
   then divImageBG.ElementHandle.style.setProperty('background',OptionsBGColor1)
   else
   begin
+    OptionsBGCustom := memoCustomCSS.Lines.Text;
     divImageBG.ElementHandle.style.cssText := divImageBG.ElementHandle.style.cssText + memoCustomCSS.Lines.Text;
-    console.log(divImageBG.ElementHandle.style.cssText);
   end;
 
   pageControl.TabIndex := 2;
@@ -1985,7 +2789,15 @@ begin
 end;
 
 procedure TForm1.btnOptionsOKClick(Sender: TObject);
+var
+  Sets: String;
+  Longest: Double;
+  Combined: Double;
 begin
+  Sets := '';
+  Longest := 0;
+  Combined := 0;
+
   // Save Options to GongData JSON
   asm
     this.GongData['HexaGongs Project Title'] = this.editTitle.GetText();
@@ -2013,6 +2825,37 @@ begin
     this.GongData['HexaGongs'][this.GongID]['Image Y'] = this.ImageY;
     this.GongData['HexaGongs'][this.GongID]['Image R'] = this.ImageR;
     this.GongData['HexaGongs'][this.GongID]['Image O'] = this.ImageO;
+
+    this.GongData['HexaGongs'][this.GongID]['Audio Style'] = this.OptionsAudioStyle;
+    this.GongData['HexaGongs'][this.GongID]['Audio File'] = this.OptionsAudioFile;
+    this.GongData['HexaGongs'][this.GongID]['Audio Gain'] = this.OptionsAudioGain;
+    this.GongData['HexaGongs'][this.GongID]['Audio Start'] = this.OptionsAudioStart;
+    this.GongData['HexaGongs'][this.GongID]['Audio End'] = this.OptionsAudioEnd;
+    this.GongData['HexaGongs'][this.GongID]['Audio Set Style'] = this.OptionsAudioSetStyle;
+
+    var SelectedSets = [];
+    for (var i = 0; i < this.tabAudioSets.getDataCount(); i++) {
+      this.tabAudioSets.getRowFromPosition(i+1).getCell('Sort').setValue(i);
+      if (this.tabAudioSets.getRowFromPosition(i+1).getCell('Selected').getValue() == true) {
+        SelectedSets.push('Gong-'+this.tabAudioSets.getRowFromPosition(i+1).getCell('ID').getValue());
+        Longest = Math.max(Longest, this.tabAudioSets.getRowFromPosition(i+1).getCell('PlayTime').getValue());
+        Combined += this.tabAudioSets.getRowFromPosition(i+1).getCell('PlayTime').getValue();
+      }
+    }
+    this.GongData['HexaGongs'][this.GongID]['Audio Sets Data'] = this.tabAudioSets.getData();
+    this.GongData['HexaGongs'][this.GongID]['Audio Sets'] = JSON.stringify(SelectedSets);
+    if (this.OptionsAudioStyle == 4) {
+      if (this.OptionsAudioSetType == 0) {
+        this.OptionsAudioTime = Longest;
+      }
+      else {
+        this.OptionsAudioTime = Combined;
+      }
+    }
+    Sets = JSON.stringify(SelectedSets);
+
+    this.GongData['HexaGongs'][this.GongID]['Audio Time'] = this.OptionsAudioTime;
+
   end;
 
   Gongs[GongID].HTML.Text := divImage.HTML.Text;
@@ -2041,8 +2884,23 @@ begin
     Gongs[GongID].ElementHandle.style.cssText := Gongs[GongID].ElementHandle.style.cssText + memoCustomCSS.Lines.Text;
   end;
 
-
   // Update UI element - Audio
+  Gongs[GongID].ElementHandle.setAttribute('audiotime', FloatToStr(OptionsAudioTime));
+  Gongs[GongID].ElementHandle.setAttribute('audiogain', IntToStr(OptionsAudioGain));
+  Gongs[GongID].ElementHandle.setAttribute('audiostart', IntToStr(OptionsAudioStart));
+  Gongs[GongID].ElementHandle.setAttribute('audioend', IntToStr(OptionsAudioEnd));
+  if OptionsAudioStyle = 4 then
+  begin
+    Gongs[GongID].ElementHandle.setAttribute('audiosets',Sets);
+    if OptionsAudioSetStyle = 0
+    then Gongs[GongID].ElementHandle.setAttribute('audiosetstyle','series')
+    else Gongs[GongID].ElementHandle.setAttribute('audiosetstyle','parallel');
+  end
+  else
+  begin
+    Gongs[GongID].ElementHandle.removeAttribute('audiosets');
+    Gongs[GongID].ElementHandle.removeAttribute('audiosetstyle');
+  end;
 
   OptionsDiscardGong := False;
   btnOptionsCancelClick(Sender);
@@ -2103,6 +2961,14 @@ begin
     end;
   end;
 
+end;
+
+procedure TForm1.btnAudioResetClick(Sender: TObject);
+begin
+  OptionsAudioGain := 100;
+  OptionsAudioStart := 0;
+  OptionsAudioEnd := 0;
+  UpdateAudioParams;
 end;
 
 procedure TForm1.btnChangeClick(Sender: TObject);
@@ -2190,7 +3056,7 @@ begin
   CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
   Ref := PositionsG[CursorPosition];
 
-  if Ref <> -1 then
+  if (CursorPosition <> -1) and (Ref <> -1) then
   begin
     i := CursorPosition + 1;
     while ((PositionsT[i] = False) or (PositionsG[i] <> -1)) and (i < length(PositionsT)) do
@@ -2219,7 +3085,7 @@ begin
       Gongs[GongID].ElementHandle.setAttribute('row',IntToStr(PositionsR[i]));
       Gongs[GongID].ElementHandle.setAttribute('column',IntToStr(PositionsC[i]));
 
-      Gongs[GongID].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','dragswap');
+      Gongs[GongID].ElementHandle.classList.Add('Gong','d-flex','justify-content-center','align-items-center','dragswap','text-white');
 
       Gongs[GongID].ElementHandle.style.cssText := Gongs[Ref].ElementHandle.style.cssText;
       Gongs[GongID].HTML.Text := Gongs[Ref].HTML.Text;
@@ -2239,12 +3105,82 @@ begin
       // Set default values for new HexaGong
       asm
         this.GongData['HexaGongs'].push({});
-        this.GongData['HexaGongs'][this.GongID] = this.GongData['HexaGongs'][Ref];
+        this.GongData['HexaGongs'][this.GongID] = JSON.parse(JSON.stringify(this.GongData['HexaGongs'][Ref]));
         this.GongData['HexaGongs'][this.GongID]['Name'] = 'Clone of '+this.GongData['HexaGongs'][Ref]['Name'];
       end;
+
+      // Copy audio information
+      asm
+        this.GongAudio[this.GongID] = this.GongAudio[Ref];
+        var gongfrom = document.getElementById('Gong-'+Ref);
+        var gongto =  document.getElementById('Gong-'+this.GongID);
+        gongto.setAttribute('audiotime',gongfrom.getAttribute('audiotime'));
+        gongto.setAttribute('audiogain',gongfrom.getAttribute('audiogain'));
+        gongto.setAttribute('audiostart',gongfrom.getAttribute('audiostart'));
+        gongto.setAttribute('audioend',gongfrom.getAttribute('audioend'));
+        if (gongfrom.getAttribute('audiosets') !== null) {
+          gongto.setAttribute('audiosets',gongfrom.getAttribute('audiosets'));
+          gongto.setAttribute('audiosetstyle',gongfrom.getAttribute('audiosetstyle'));
+        }
+      end;
+
     end;
   end;
 end;
+
+procedure TForm1.btnDownloadClick(Sender: TObject);
+var
+  FileData: String;
+  FileName: String;
+  FileTime: String;
+begin
+  FileTime := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now);
+  FileData := '';
+  FileName := '';
+   
+  asm
+    function arrayBufferToBase64( buffer ) {
+      var binary = '';
+      var bytes = new Uint8Array( buffer );
+      var len = bytes.byteLength;
+      for (var i = 0; i < len; i++) {
+          binary += String.fromCharCode( bytes[ i ] );
+      }
+      return window.btoa( binary );
+    }
+
+    var AudioStrings = [];
+    for (var i = 0; i < this.GongAudio.length; i++) {
+      if ((this.GongAudio[i] !== null) && (this.GongAudio[i] !== undefined)) {
+        var encoder = new aas.Encoder();
+        var audiostring = arrayBufferToBase64(encoder.execute(this.GongAudio[i]));
+        AudioStrings.push(audiostring);
+      }
+      else {
+        AudioStrings.push(null);
+      }
+    }
+    FileData = JSON.stringify({
+      "AppProject":       this.AppProject,
+      "AppVersion":       this.AppVersion,
+      "AooRelease":       this.AppRelease,
+      "SaveTimestamp":    FileTime,
+      "SaveFormat":       "JSON",
+      "ZoomLevel":        this.ZoomLevel,
+      "AnimatedElements": this.AnimatedElements,
+      "GongData":         JSON.stringify(this.GongData),
+      "PositionsR":       JSON.stringify(this.PositionsR),
+      "PositionsC":       JSON.stringify(this.PositionsC),
+      "PositionsG":       JSON.stringify(this.PositionsG),
+      "GongsP":           JSON.stringify(this.GongsP),
+      "Audio":            JSON.stringify(AudioStrings)
+    });
+    FileName = this.GongData['HexaGongs Project Title']+'.hexagongs';
+    var blob = new Blob([FileData], {type: "applications/json;charset=utf-8"});
+    saveAs(blob, FileName);
+  end;
+end;
+
 
 procedure TForm1.btnVolumeClick(Sender: TObject);
 begin
@@ -2290,6 +3226,51 @@ begin
 
 end;
 
+procedure TForm1.btnVolumeDownClick(Sender: TObject);
+begin
+  MasterVolume := Max(0,Min(MasterVolume - 0.1, 1.0));
+  asm
+    btnVolumeDown.innerHTML = '<div style="pointer-events: none; color: white !important; font-family: Cairo;">'+parseInt(this.MasterVolume * 100.0)+'</div>';
+    this.AudioGain.gain.value = this.MasterVolume;
+    setTimeout(function() {
+      btnVolumeDown.innerHTML = '<i class="fa-solid fa-volume-low text-white pe-none"></i>';
+    },500);
+  end;
+end;
+
+procedure TForm1.btnVolumeMuteClick(Sender: TObject);
+begin
+  if MasterVolume = 0 then
+  begin
+    MasterVolume := MuteVolume;
+  end
+  else
+  begin
+    MuteVOlume := MasterVolume;
+    MasterVolume := 0;
+  end;
+
+  asm
+    btnVolumeMute.innerHTML = '<div style="pointer-events: none; color: white !important; font-family: Cairo;">'+parseInt(this.MasterVolume * 100.0)+'</div>';
+    this.AudioGain.gain.value = this.MasterVolume;
+    setTimeout(function() {
+      btnVolumeMute.innerHTML = '<i class="fa-solid fa-volume-xmark text-white pe-none"></i>';
+    },500);
+  end;
+end;
+
+procedure TForm1.btnVolumeUpClick(Sender: TObject);
+begin
+  MasterVolume := Max(0,Min(MasterVolume + 0.1, 1.0));
+  asm
+    btnVolumeUp.innerHTML = '<div style="pointer-events: none; color: white !important; font-family: Cairo;">'+parseInt(this.MasterVolume * 100.0)+'</div>';
+    this.AudioGain.gain.value = this.MasterVolume;
+    setTimeout(function() {
+      btnVolumeUp.innerHTML = '<i class="fa-solid fa-volume-high text-white pe-none"></i>';
+    },500);
+  end;
+end;
+
 procedure TForm1.btnScaleMinusClick(Sender: TObject);
 var
   i: Integer;
@@ -2298,7 +3279,7 @@ var
   c: integer;
 begin
 
-  if Zoomlevel > 5 then
+  if Zoomlevel >= 7 then
   begin
     ZoomLevel := ZoomLevel - 1;
     StopAnimation;
@@ -2393,16 +3374,32 @@ begin
   CursorPosition := StrToInt(btnCursor.ElementHandle.getAttribute('position'));
   Ref := PositionsG[CursorPosition];
 
-  if Ref <> -1 then
+  if (CursorPosition <> -1) and (Ref <> -1) then
   begin
     Gongs[Ref].HTML.Text := '';
     Gongs[Ref] := nil;
     GongsP[Ref] := -1;
     PositionsG[CursorPosition] := -1;
     asm
+      this.GongAudio[Ref] = null;
       this.GongData.HexaGongs[Ref]['Deleted'] = true;
       document.getElementById('Gong-'+Ref).remove();
     end;
+  end;
+end;
+
+procedure TForm1.btnUploadClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  WebOpenDialog1.Accept := '.hexagongs';
+  await(string, WebOpenDialog1.Perform);
+  // If files were selected, iterate through them
+  i := 0;
+  while (i < WebOpenDialog1.Files.Count) do
+  begin
+    WebOpenDialog1.Files.Items[i].GetFileAsText;
+    i := i + 1;
   end;
 end;
 
@@ -2430,6 +3427,203 @@ begin
 
   if HexPosition >= 0 then PositionsT[HexPosition] := False;
 
+end;
+
+procedure TForm1.divAudioClipClick(Sender: TObject);
+begin
+  OptionsAudioStyle := 0;
+  labelAudioClip.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelAudioURL.ElementHandle.style.setProperty('background','black');
+  labelAudioUpload.ElementHandle.style.setProperty('background','black');
+  labelAudioRecord.ElementHandle.style.setProperty('background','black');
+  labelAudioSet.ElementHandle.style.setProperty('background','black');
+
+  editAudioSource.ReadOnly := True;
+  editAudioSource.ElementHandle.style.setProperty('background','radial-gradient(#00000000,#202020)');
+  editAudioSource.ElementHandle.style.setProperty('cursor','pointer');
+  divAudioSource.ElementHandle.classList.replace('WhiteR','GrayR');
+
+  divAudioSource.Visible := True;
+  divAudioAdjustments.Visible := True;
+  divAudioSets.Visible := False;
+
+  UpdateAudioParams;
+end;
+
+procedure TForm1.divAudioRecordClick(Sender: TObject);
+begin
+  OptionsAudioStyle := 3;
+  labelAudioRecord.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelAudioURL.ElementHandle.style.setProperty('background','black');
+  labelAudioUpload.ElementHandle.style.setProperty('background','black');
+  labelAudioClip.ElementHandle.style.setProperty('background','black');
+  labelAudioSet.ElementHandle.style.setProperty('background','black');
+
+  editAudioSource.ReadOnly := True;
+  editAudioSource.ElementHandle.style.setProperty('background','radial-gradient(#00000000,#202020)');
+  editAudioSource.ElementHandle.style.setProperty('cursor','pointer');
+  divAudioSource.ElementHandle.classList.replace('WhiteR','GrayR');
+
+  divAudioSource.Visible := True;
+  divAudioAdjustments.Visible := True;
+  divAudioSets.Visible := False;
+
+  UpdateAudioParams;
+end;
+
+procedure TForm1.divAudioRecordStartClick(Sender: TObject);
+begin
+  WebMediaCapture1.Start;
+  divAudioRecordStop.Visible := True;
+  divAudioRecordStart.Visible := False;
+end;
+
+procedure TForm1.divAudioRecordStopClick(Sender: TObject);
+begin
+  WebMediaCapture1.Stop;
+  divAudioRecordStop.Visible := False;
+  divAudioRecordStart.Visible := True;
+end;
+
+procedure TForm1.divAudioSetClick(Sender: TObject);
+begin
+  OptionsAudioStyle := 4;
+  labelAudioSet.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelAudioURL.ElementHandle.style.setProperty('background','black');
+  labelAudioUpload.ElementHandle.style.setProperty('background','black');
+  labelAudioRecord.ElementHandle.style.setProperty('background','black');
+  labelAudioClip.ElementHandle.style.setProperty('background','black');
+
+  editAudioSource.ReadOnly := True;
+  editAudioSource.ElementHandle.style.setProperty('background','radial-gradient(#00000000,#202020)');
+  editAudioSource.ElementHandle.style.setProperty('cursor','pointer');
+  divAudioSource.ElementHandle.classList.replace('WhiteR','GrayR');
+
+  divAudioSource.Visible := False;
+  divAudioAdjustments.Visible := False;
+  divAudioSets.Visible := True;
+  divAudioClips.Visible := False;
+  divAudioRecording.Visible := False;
+end;
+
+procedure TForm1.divAudioUploadClick(Sender: TObject);
+begin
+  OptionsAudioStyle := 2;
+  labelAudioUpload.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelAudioURL.ElementHandle.style.setProperty('background','black');
+  labelAudioClip.ElementHandle.style.setProperty('background','black');
+  labelAudioRecord.ElementHandle.style.setProperty('background','black');
+  labelAudioSet.ElementHandle.style.setProperty('background','black');
+
+  editAudioSource.ReadOnly := True;
+  editAudioSource.ElementHandle.style.setProperty('background','radial-gradient(#00000000,#202020)');
+  editAudioSource.ElementHandle.style.setProperty('cursor','pointer');
+  divAudioSource.ElementHandle.classList.replace('WhiteR','GrayR');
+
+  divAudioSource.Visible := True;
+  divAudioAdjustments.Visible := True;
+  divAudioSets.Visible := False;
+
+  UpdateAudioParams;
+end;
+
+procedure TForm1.divAudioURLClick(Sender: TObject);
+begin
+  OptionsAudioStyle := 1;
+  labelAudioURL.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelAudioClip.ElementHandle.style.setProperty('background','black');
+  labelAudioUpload.ElementHandle.style.setProperty('background','black');
+  labelAudioRecord.ElementHandle.style.setProperty('background','black');
+  labelAudioSet.ElementHandle.style.setProperty('background','black');
+
+  editAudioSource.ReadOnly := False;
+  editAudioSource.ElementHandle.style.setProperty('background','black)');
+  editAudioSource.ElementHandle.style.setProperty('cursor','unset');
+  divAudioSource.ElementHandle.classList.replace('GrayR','WhiteR');
+
+  divAudioSource.Visible := True;
+  divAudioAdjustments.Visible := True;
+  divAudioSets.Visible := False;
+
+  UpdateAudioParams;
+end;
+
+procedure TForm1.divAudioWaveformHolderClick(Sender: TObject);
+begin
+  // Play the waveform
+  asm
+    var This = pas.Unit1.Form1;
+    var audio = this.GongAudio[This.GongID];
+
+    if (audio == undefined) {
+      return;
+    }
+
+    function StopPreview() {
+      divAudioWaveform.classList.remove('Playback');
+      if (divAudioWaveform.lastElementChild.classList.contains('progress')) {
+        divAudioWaveform.lastElementChild.remove();
+      }
+      clearInterval(This.AudioPreviewProgress)
+      clearTimeout(This.AudioPreviewTimer);
+      This.AudioPreview.disconnect();
+      This.AudioPreview.stop();
+      This.AudioPreview = null;
+    }
+
+    // If currently playing, stop
+    if (divAudioWaveform.classList.contains('Playback')) {
+      StopPreview();
+    }
+
+    // If not playing, start
+    else {
+      divAudioWaveform.classList.add('Playback');
+
+      var ClipGain = new GainNode(This.AudioCtx);
+      ClipGain.gain.value = This.OptionsAudioGain / 100;
+      This.AudioPreview = This.AudioCtx.createBufferSource();
+      This.AudioPreview.buffer = This.GongAudio[This.GongID];
+      This.AudioPreview.connect(ClipGain).connect(This.AudioGain).connect(This.AudioCtx.destination);
+
+      var offset = (This.OptionsAudioStart / 100) * This.AudioPreview.buffer.duration;
+      var playlength = ((100 - (This.OptionsAudioStart + This.OptionsAudioEnd)) / 100) * This.AudioPreview.buffer.duration;
+
+//      console.log(This.OptionsAudioGain / 100);
+//      console.log(This.OptionsAudioStart);
+//      console.log(This.OptionsAudioEnd);
+//      console.log(This.AudioPreview.buffer.duration);
+//      console.log(offset);
+//      console.log(playlength);
+
+      This.AudioPreview.start(0, offset, playlength);
+      divAudioWaveform.setAttribute('starttime',This.AudioCtx.currentTime);
+
+      // Update progress display
+      var progress = '<div class="progress" style="position:absolute; top:0px; left:0px; width:100%; height:100%; z-index:100; background:none; pointer-events:none;"><div>';
+      divAudioWaveform.innerHTML += progress;
+      This.AudioPreviewProgress = setInterval(function() {
+        if (This.AudioPreview !== null) {
+          var elapsed = Math.min(1, (This.AudioCtx.currentTime - divAudioWaveform.getAttribute('starttime')) / playlength);
+          if (elapsed >= 1) {
+            StopPreview();
+          }
+          else {
+            var bar = 12 +
+                     ((This.OptionsAudioStart / 100)) * (divAudioWaveform.getBoundingClientRect().width - 20) +
+                      elapsed * ((divAudioWaveform.getBoundingClientRect().width - 20) * playlength / This.AudioPreview.buffer.duration);
+            divAudioWaveform.lastElementChild.style.setProperty('background','linear-gradient(to right, transparent 0px, transparent '+(bar - 4)+'px, #FFFFFF60 '+(bar - 4)+'px, #FFFFFF60 '+bar+'px, transparent '+bar+'px, transparent 100%)');
+          }
+        }
+      },100);
+
+      // Stop when we're done playing
+      This.AudioPreviewTimer = setTimeout(function() {
+        StopPreview();
+      }, playlength * 1000);
+
+    }
+  end;
 end;
 
 procedure TForm1.divImageSourceIconClick(Sender: TObject);
@@ -2622,7 +3816,7 @@ end;
 
 procedure TForm1.divProxyCustomClick(Sender: TObject);
 begin
-  OptionsProxyStatus := 2;
+  OptionsProxyStyle := 2;
   divProxy.Visible := True;
   labelProxyDefault.ElementHandle.style.setProperty('background','black');
   labelProxyNone.ElementHandle.style.setProperty('background','black');
@@ -2631,7 +3825,7 @@ end;
 
 procedure TForm1.divProxyDefaultClick(Sender: TObject);
 begin
-  OptionsProxyStatus := 0;
+  OptionsProxyStyle := 0;
   divProxy.Visible := False;
   labelProxyDefault.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
   labelProxyNone.ElementHandle.style.setProperty('background','black');
@@ -2640,7 +3834,7 @@ end;
 
 procedure TForm1.divProxyNoneClick(Sender: TObject);
 begin
-  OptionsProxyStatus := 1;
+  OptionsProxyStyle := 1;
   divProxy.Visible := False;
   labelProxyDefault.ElementHandle.style.setProperty('background','black');
   labelProxyNone.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
@@ -2769,6 +3963,88 @@ begin
 
 end;
 
+procedure TForm1.editAudioSourceChange(Sender: TObject);
+begin
+  OptionsAudioFile := editAudioSource.Text;
+  asm
+    var This = pas.Unit1.Form1;
+
+    var Proxy = '';
+    if (This.OptionsProxyStyle == 0) {
+      Proxy = This.Server_URL+'/HexaGongsService/GetRemoteData?RemoteURL=';
+    }
+    else if (This.OptionsProxyStyle == 2) {
+      Proxy = This.OptionsProxy;
+    }
+
+    var response = await fetch(Proxy+This.OptionsAudioFile);
+    var audiodata = await response.arrayBuffer();
+    This.GongAudio[This.GongID] = This.AudioCtx.createBufferSource();
+    This.AudioCtx.decodeAudioData(
+      audiodata,
+      (buffer) => {
+        This.GongAudio[This.GongID] = buffer;
+        This.OptionsAudioTime = buffer.duration;
+        This.UpdateWaveform();
+        labelAudioAdjustments.firstElementChild.textContent = 'Adjustments [ '+buffer.duration.toFixed(1)+'s ]';
+      }
+    );
+  end;
+end;
+
+procedure TForm1.editAudioSourceClick(Sender: TObject);
+var
+  i: Integer;
+begin
+
+  // Toggle Audio Clips
+  if OptionsAudioStyle = 0 then
+  begin
+    divAudioClips.Visible := not(divAudioClips.Visible);
+    divAudioRecording.Visible := False;
+  end
+
+  // URL
+  else if OptionsAudioStyle = 1  then
+  begin
+    // Don't really have to do anything in this case
+    // This is handled by the onChange event of editAudioSource
+    divAudioRecording.Visible := False;
+    divAudioClips.Visible := False;
+  end
+
+  // Upload
+  else if OptionsAudioStyle = 2 then
+  begin
+    divAudioRecording.Visible := False;
+    divAudioClips.Visible := False;
+
+    // Seems audio/* on its own is insufficient - iPad won't allow access to WAV for example?
+    WebOpenDialog1.Accept := '.mp3,.wav,.ogg,.acc,audio/*';
+    await(string, WebOpenDialog1.Perform);
+    // If files were selected, iterate through them
+    i := 0;
+    while (i < WebOpenDialog1.Files.Count) do
+    begin
+      WebOpenDialog1.Files.Items[i].GetFileAsArrayBuffer;
+      i := i + 1;
+    end;
+  end
+
+  // Record
+  else if OptionsAudioStyle = 3 then
+  begin
+    divAudioRecording.Visible := not(divAudioRecording.Visible);
+    divAudioClips.Visible := False;
+  end
+
+  // Sets
+  else if OptionsAudioStyle = 4 then
+  begin
+    // Don't have to do anything as the table is already showing.
+  end;
+end;
+
 procedure TForm1.editImageSourceChange(Sender: TObject);
 begin
   // Set Form variables
@@ -2807,6 +4083,7 @@ begin
   else if OptionsImageStyle = 1  then
   begin
     // Don't really have to do anything in this case
+    // This is handled by the OnChange event of editImageSource
   end
 
   // Upload
@@ -2934,7 +4211,7 @@ begin
     this.IconSetCount = [];
 
     // Load up our Local icon sets
-    var response = await fetch('http://localhost:65432/tms/xdata/HexaGongsService/AvailableIconSets');
+    var response = await fetch(this.Server_URL+'/HexaGongsService/AvailableIconSets');
     this.IconSetList = await response.json()
 
     // Original list is soprted by filename.  Lets sort it by library name instead (case-insensitive)
@@ -2959,6 +4236,85 @@ begin
     c := c + IconSetCount[i];
   end;
   labelIconSearch.Caption := 'Icon Search: '+FloatToStrF(c,ffNumber,5,0)+' icons available';
+
+
+  // Retrieve list of available Audio clips
+  asm
+    var response = await fetch(this.Server_URL+'/HexaGongsService/AvailableAudioClips');
+    var AudioClips = await response.json();
+    this.tabAudioClips.setData(AudioClips);
+  end;
+
+end;
+
+procedure TForm1.PlayAudioClip(AudioClip: String; AudioProgress: TJSHTMLElement);
+begin
+  if AudioProgress.classList.contains('Playing') then
+  begin
+    AudioProgress.classList.remove('Playing');
+    asm
+      var This = pas.Unit1.Form1;
+      for (var i = 0; i < This.AudioClipsPlaying.length; i++) {
+        if (This.AudioClipsPlaying[i].AudioClip == AudioClip) {
+          AudioProgress.firstElementChild.innerHTML = '<i class="fa-solid fa-play fa-xl"></i>';
+          This.AudioClipsPlaying[i].Player.pause();
+          This.AudioClipsPlaying[i].Player.currentTime = 0;
+          This.AudioClipsPlaying[i].Player.srcObj = null;
+          const indexToRemove = This.AudioClipsPlaying.findIndex((clip) => clip.AudioClip == AudioClip);
+          This.AudioClipsPlaying.splice(indexToRemove, 1);
+        }
+      }
+    end;
+  end
+  else
+  begin
+    AudioProgress.classList.add('Playing');
+    asm
+      var This = pas.Unit1.Form1;
+      var playthis = new Audio(This.Server_URL+'/HexaGongsService/GetAudioClip?AudioClip='+encodeURIComponent(AudioClip));
+      playthis.addEventListener('ended', function (e) {
+        AudioProgress.classList.remove('Playing');
+        AudioProgress.firstElementChild.style.setProperty('background','violet');
+        AudioProgress.firstElementChild.innerHTML = '<i class="fa-solid fa-play fa-xl"></i>';
+        const indexToRemove = This.AudioClipsPlaying.findIndex((clip) => clip.AudioClip == AudioClip);
+        This.AudioClipsPlaying.splice(indexToRemove, 1);
+      });
+      playthis.addEventListener('timeupdate', function (e) {
+        var progress = Math.max(5,parseInt(playthis.currentTime / playthis.duration * 360));
+        if (playthis.currentTime == 0) {
+          AudioProgress.firstElementChild.style.setProperty('background','violet');
+        } else {
+          AudioProgress.firstElementChild.style.setProperty('background','conic-gradient(purple 0deg '+progress+'deg, violet '+progress+'deg)');
+        }
+      });
+      AudioProgress.firstElementChild.innerHTML = '<i class="fa-solid fa-square"></i>';
+      AudioProgress.firstElementChild.style.setProperty('background','conic-gradient(purple 0deg 5deg, violet 1deg)');
+      This.AudioClipsPlaying.push({'AudioClip':AudioClip, 'Player':playthis, 'Element':AudioProgress });
+      playthis.play();
+    end;
+  end;
+end;
+
+procedure TForm1.SelectAudioClip(AudioClipName: String; AudioClip: String);
+begin
+  divAudioClips.Visible := False;
+  OptionsAudioFile := AudioClipName;
+  asm
+    var This = pas.Unit1.Form1;
+    var response = await fetch(This.Server_URL+'/HexaGongsService/GetAudioClip?AudioClip='+encodeURIComponent(AudioClip));
+    var audiodata = await response.arrayBuffer();
+    This.GongAudio[This.GongID] = This.AudioCtx.createBufferSource();
+    This.AudioCtx.decodeAudioData(
+      audiodata,
+      (buffer) => {
+        This.GongAudio[This.GongID] = buffer;
+        This.OptionsAudioTime = buffer.duration;
+        editAudioSource.value = This.OptionsAudioFile;
+        This.UpdateWaveform();
+        labelAudioAdjustments.firstElementChild.textContent = 'Adjustments [ '+buffer.duration.toFixed(1)+'s ]';
+      }
+    );
+  end;
 end;
 
 procedure TForm1.StartAnimation;

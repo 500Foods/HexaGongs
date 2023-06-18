@@ -1,7 +1,7 @@
 object Form1: TForm1
   Width = 957
   Height = 822
-  Caption = 'HexaGongs'
+  Caption = 'web'
   Color = clBlack
   CSSLibrary = cssBootstrap
   ElementClassName = 'overflow-hidden bg-black'
@@ -75,12 +75,14 @@ object Form1: TForm1
       OnClick = btnChangeClick
     end
     object btnVolume: TWebButton
+      Tag = 50
       Left = 3
       Top = 120
       Width = 96
       Height = 33
       Caption = '<i class="fa-solid fa-volume-off"></i>'
       ChildOrder = 2
+      ElementClassName = 'text-white'
       ElementID = 'btnVolume'
       HeightPercent = 100.000000000000000000
       Visible = False
@@ -100,7 +102,7 @@ object Form1: TForm1
       WidthPercent = 100.000000000000000000
     end
     object btnDownload: TWebButton
-      Left = 251
+      Left = 249
       Top = 3
       Width = 96
       Height = 33
@@ -110,6 +112,7 @@ object Form1: TForm1
       HeightPercent = 100.000000000000000000
       Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnDownloadClick
     end
     object btnUpload: TWebButton
       Left = 379
@@ -122,6 +125,7 @@ object Form1: TForm1
       HeightPercent = 100.000000000000000000
       Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnUploadClick
     end
     object btnScalePlus: TWebButton
       Left = 123
@@ -206,12 +210,13 @@ object Form1: TForm1
       Top = 120
       Width = 96
       Height = 33
-      Caption = '<i class="fa-solid fa-volume-high text-white"></i>'
+      Caption = '<i class="fa-solid fa-volume-high pe-none text-white"></i>'
       ChildOrder = 2
       ElementID = 'btnVolumeUp'
       HeightPercent = 100.000000000000000000
       Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnVolumeUpClick
     end
     object btnVolumeMute: TWebButton
       Left = 251
@@ -224,6 +229,7 @@ object Form1: TForm1
       HeightPercent = 100.000000000000000000
       Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnVolumeMuteClick
     end
     object btnVolumeDown: TWebButton
       Left = 379
@@ -236,6 +242,7 @@ object Form1: TForm1
       HeightPercent = 100.000000000000000000
       Visible = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnVolumeDownClick
     end
     object btnCursor: TWebButton
       Left = 497
@@ -423,7 +430,7 @@ object Form1: TForm1
     end
     object pageControl: TWebPageControl
       Left = 339
-      Top = -2
+      Top = 0
       Width = 607
       Height = 633
       ElementClassName = 'nointeract'
@@ -435,7 +442,7 @@ object Form1: TForm1
       ElementTabActiveClassName = 'nav-link active'
       ElementTabItemClassName = 'nav-item'
       ElementFont = efCSS
-      TabIndex = 2
+      TabIndex = 1
       ShowTabs = False
       TabOrder = 1
       object pageName: TWebTabSheet
@@ -959,7 +966,7 @@ object Form1: TForm1
           ElementFont = efCSS
           HTML.Strings = (
             '<div id="divColorRed" style="position:relative;">'
-            '  <sl-range '
+            '  <slX-range '
             '      id="ColorRed" '
             '      max="255"'
             '      class="RGB HexSliderH" '
@@ -968,7 +975,7 @@ object Form1: TForm1
               '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
               'olor-active:maroon; --track-color-inactive: black;"'
             '    > '
-            '  </sl-range>'
+            '  </slX-range>'
             
               '  <div id="ThumbRed" class="HexSliderThumb RedW pe-none d-flex j' +
               'ustify-content-center align-items-center"></div>'
@@ -978,7 +985,7 @@ object Form1: TForm1
             '</div>'
             ''
             '<div id="divColorGreen" style="position:relative;">'
-            '  <sl-range '
+            '  <slX-range '
             '      id="ColorGreen" '
             '      max="255"'
             '      class="RGB HexSliderH" '
@@ -987,7 +994,7 @@ object Form1: TForm1
               '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
               'olor-active:darkgreen; --track-color-inactive: black;"'
             '    > '
-            '  </sl-range>'
+            '  </slX-range>'
             
               '  <div id="ThumbGreen" class="HexSliderThumb GreenW pe-none d-fl' +
               'ex justify-content-center align-items-center"></div>'
@@ -997,7 +1004,7 @@ object Form1: TForm1
             '</div>'
             ''
             '<div id="divColorBlue" style="position:relative;" class="mb-4">'
-            '  <sl-range '
+            '  <slX-range '
             '      id="ColorBlue" '
             '      max="255"'
             '      class="RGB HexSliderH" '
@@ -1006,7 +1013,7 @@ object Form1: TForm1
               '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
               'olor-active:navy; --track-color-inactive: black;"'
             '    > '
-            '  </sl-range>'
+            '  </slX-range>'
             
               '  <div id="ThumbBlue" class="HexSliderThumb BlueW pe-none d-flex' +
               ' justify-content-center align-items-center"></div>'
@@ -1031,6 +1038,7 @@ object Form1: TForm1
         ChildOrder = 2
         ElementBodyClassName = 'd-flex flex-column'
         ElementFont = efCSS
+        ElementPosition = epIgnore
         object divImageSourceLabel: TWebHTMLDiv
           Left = 19
           Top = 3
@@ -1443,7 +1451,7 @@ object Form1: TForm1
               Height = 40
               Caption = 'Reset'
               ChildOrder = 4
-              ElementClassName = 'EditCancel text-black me-4'
+              ElementClassName = 'BtnReset text-black me-3'
               ElementID = 'btnImageReset'
               ElementFont = efCSS
               ElementPosition = epIgnore
@@ -1459,7 +1467,7 @@ object Form1: TForm1
             Top = 47
             Width = 529
             Height = 250
-            ElementClassName = 'nointeract overflow-hidden ms-1'
+            ElementClassName = 'nointeract ms-1 overflow-hidden'
             ElementID = 'divImageEditor'
             ChildOrder = 1
             ElementPosition = epRelative
@@ -1475,7 +1483,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjWidth" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjWidth" '
                 '      min="-200"'
                 '      max="400"'
@@ -1483,10 +1491,11 @@ object Form1: TForm1
                 '      class="RGB HexSliderH" '
                 '      tooltip="none" '
                 
-                  '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
-                  'olor-active:darkorange; --track-color-inactive: black;"'
+                  '      style="--track-height: 36px; --thumb-size: 33px; --track-a' +
+                  'ctive-offset: 0%; --track-color-active:darkorange; --track-color' +
+                  '-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbWidth" class="HexSliderThumb OrangeW pe-none d-f' +
                   'lex justify-content-center align-items-center"></div>'
@@ -1506,7 +1515,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjSkewX" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjSkewX" '
                 '      min="-90"'
                 '      max="90"'
@@ -1516,7 +1525,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbSkewX" class="HexSliderThumb OrangeW pe-none d-f' +
                   'lex justify-content-center align-items-center"></div>'
@@ -1536,7 +1545,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjRotate" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjRotate" '
                 '      min="-180"'
                 '      max="180"'
@@ -1546,7 +1555,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbRotate" class="HexSliderThumb OrangeW pe-none d-' +
                   'flex justify-content-center align-items-center"></div>'
@@ -1566,7 +1575,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjShiftX" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjShiftX" '
                 '      value="100"'
                 '      max="200"'
@@ -1576,7 +1585,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbShiftX" class="HexSliderThumb OrangeW pe-none d-' +
                   'flex justify-content-center align-items-center"></div>'
@@ -1596,7 +1605,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjHeight" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjHeight" '
                 '      min="-200"'
                 '      max="400"'
@@ -1607,7 +1616,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbHeight" class="HexSliderThumb OrangeW pe-none d-' +
                   'flex justify-content-center align-items-center"></div>'
@@ -1627,7 +1636,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjSkewY" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjSkewY" '
                 '      min="-90"'
                 '      max="90"'
@@ -1637,7 +1646,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbSkewY" class="HexSliderThumb OrangeW pe-none d-f' +
                   'lex justify-content-center align-items-center"></div>'
@@ -1657,7 +1666,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjOpacity" style="position:relative;">'
-                '  <sl-range '
+                '  <slX-range '
                 '      id="AdjOpacity" '
                 '      value="100"'
                 '      max="100"'
@@ -1667,7 +1676,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbOpacity" class="HexSliderThumb OrangeW pe-none d' +
                   '-flex justify-content-center align-items-center"></div>'
@@ -1687,7 +1696,7 @@ object Form1: TForm1
               ElementFont = efCSS
               HTML.Strings = (
                 '<div id="divAdjShiftY" style="position:relative;">'
-                '  <sl-range'
+                '  <slX-range'
                 '      id="AdjShiftY" '
                 '      value="100"'
                 '      max="200"'
@@ -1697,7 +1706,7 @@ object Form1: TForm1
                   '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
                   'olor-active:darkorange; --track-color-inactive: black;"'
                 '    > '
-                '  </sl-range>'
+                '  </slX-range>'
                 
                   '  <div id="ThumbShiftY" class="HexSliderThumb OrangeW pe-none d-' +
                   'flex justify-content-center align-items-center"></div>'
@@ -1712,7 +1721,9 @@ object Form1: TForm1
               Top = 87
               Width = 306
               Height = 58
-              ElementClassName = 'd-flex justify-content-center align-items-center'
+              ElementClassName = 
+                'overflow-visible d-flex justify-content-center align-items-cente' +
+                'r'
               ElementID = 'divImagePreview'
               ChildOrder = 8
               ElementFont = efCSS
@@ -1766,17 +1777,18 @@ object Form1: TForm1
         ChildOrder = 3
         ElementBodyClassName = 'd-flex flex-column'
         ElementFont = efCSS
-        object WebHTMLDiv15: TWebHTMLDiv
-          Left = 43
-          Top = 36
+        object divAudoSourceLabel: TWebHTMLDiv
+          Left = 19
+          Top = 8
           Width = 400
           Height = 40
-          ElementClassName = 'HexOuter VioletR w-100 mt-2'
+          ElementClassName = 'order-0 HexOuter VioletR w-100 mt-2'
+          ElementID = 'divAudoSourceLabel'
           WidthStyle = ssPercent
           ElementPosition = epRelative
           ElementFont = efCSS
           Role = ''
-          object WebLabel11: TWebLabel
+          object labelAudioSource: TWebLabel
             Left = 30
             Top = 2
             Width = 300
@@ -1784,12 +1796,671 @@ object Form1: TForm1
             AutoSize = False
             Caption = 'Audio Source'
             ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+            ElementID = 'labelAudioSource'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             HTMLType = tSPAN
             Layout = tlCenter
             WidthStyle = ssPercent
             WidthPercent = 80.000000000000000000
+          end
+        end
+        object divAudioSources: TWebHTMLDiv
+          Left = 19
+          Top = 52
+          Width = 550
+          Height = 40
+          ElementClassName = 'order-1 HexHolder d-flex flex-row gap-1 w-100 flex-wrap'
+          ElementID = 'divAudioSources'
+          WidthStyle = ssPercent
+          ChildOrder = 1
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object divAudioClip: TWebHTMLDiv
+            Left = 11
+            Top = 0
+            Width = 90
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'order-0 HexBtnOuter WhiteR nointeract'
+            ElementID = 'divAudioClip'
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divAudioClipClick
+            object labelAudioClip: TWebLabel
+              Left = 26
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Clips'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelAudioClip'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssAuto
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divAudioURL: TWebHTMLDiv
+            Left = 120
+            Top = -3
+            Width = 82
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'order-1 HexBtnOuter WhiteR nointeract'
+            ElementID = 'divAudioURL'
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divAudioURLClick
+            object labelAudioURL: TWebLabel
+              Left = 22
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'URL'
+              ChildOrder = 1
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelAudioURL'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssAuto
+              WidthPercent = 82.000000000000000000
+            end
+          end
+          object divAudioUpload: TWebHTMLDiv
+            Left = 235
+            Top = 0
+            Width = 100
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'order-2 HexBtnOuter WhiteR nointeract'
+            ElementID = 'divAudioUpload'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divAudioUploadClick
+            object labelAudioUpload: TWebLabel
+              Left = 22
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Upload'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelAudioUpload'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssAuto
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divAudioRecord: TWebHTMLDiv
+            Left = 341
+            Top = 0
+            Width = 100
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'order-3 HexBtnOuter WhiteR nointeract'
+            ElementID = 'divAudioRecord'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divAudioRecordClick
+            object labelAudioRecord: TWebLabel
+              Left = 24
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Record'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelAudioRecord'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssAuto
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divAudioSet: TWebHTMLDiv
+            Left = 447
+            Top = 0
+            Width = 75
+            Height = 40
+            Cursor = crHandPoint
+            ElementClassName = 'order-4 HexBtnOuter WhiteR nointeract'
+            ElementID = 'divAudioSet'
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divAudioSetClick
+            object labelAudioSet: TWebLabel
+              Left = 18
+              Top = 2
+              Width = 100
+              Height = 36
+              AutoSize = False
+              Caption = 'Set'
+              ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+              ElementID = 'labelAudioSet'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssAuto
+              WidthPercent = 80.000000000000000000
+            end
+          end
+        end
+        object divAudioSource: TWebHTMLDiv
+          Left = 19
+          Top = 98
+          Width = 342
+          Height = 40
+          ElementClassName = 'order-2 nointeract HexOuter WhiteR mb-1'
+          ElementID = 'divAudioSource'
+          WidthStyle = ssPercent
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object editAudioSource: TWebEdit
+            Left = 30
+            Top = 2
+            Width = 86
+            Height = 36
+            ElementClassName = 'EditText HexInner Black ps-3 pb-1'
+            ElementID = 'editAudioSource'
+            ElementFont = efCSS
+            ElementPosition = epRelative
+            HeightPercent = 100.000000000000000000
+            WidthStyle = ssPercent
+            WidthPercent = 100.000000000000000000
+            OnChange = editAudioSourceChange
+            OnClick = editAudioSourceClick
+          end
+        end
+        object divAudioClips: TWebHTMLDiv
+          Left = 19
+          Top = 141
+          Width = 548
+          Height = 95
+          ElementClassName = 'order-3'
+          ElementID = 'divAudioClips'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          Visible = False
+          object divAudioPresetListLabel: TWebHTMLDiv
+            Left = 16
+            Top = 3
+            Width = 400
+            Height = 40
+            ElementClassName = 'HexOuter VioletR w-100 mt-2'
+            ElementID = 'divAudioClipsListLabel'
+            WidthStyle = ssPercent
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object labelAudioClipsList: TWebLabel
+              Left = 30
+              Top = 2
+              Width = 300
+              Height = 36
+              AutoSize = False
+              Caption = 'Select Clip'
+              ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+              ElementID = 'labelAudioClipsList'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssPercent
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divAudioClipTableHolder: TWebHTMLDiv
+            Left = 16
+            Top = 44
+            Width = 529
+            Height = 45
+            ElementClassName = 'nointeract HexOuter WhiteR w-100 mb-2'
+            ElementID = 'divAudioClipTableHolder'
+            HeightStyle = ssAuto
+            WidthStyle = ssAuto
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object divAudioClipTable: TWebHTMLDiv
+              Left = 13
+              Top = 3
+              Width = 473
+              Height = 38
+              ElementClassName = 'HexTallInner Black'
+              ElementID = 'divAudioClipTable'
+              HeightStyle = ssAuto
+              WidthStyle = ssPercent
+              ChildOrder = 1
+              ElementPosition = epRelative
+              ElementFont = efCSS
+              Role = ''
+            end
+          end
+        end
+        object divAudioAdjustments: TWebHTMLDiv
+          Left = 19
+          Top = 458
+          Width = 548
+          Height = 155
+          ElementClassName = 'order-5'
+          ElementID = 'divAudioAdjustments'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object divAudioAdjustmentsLabel: TWebHTMLDiv
+            Left = 16
+            Top = 3
+            Width = 400
+            Height = 40
+            ElementClassName = 'HexOuter VioletR w-100 mt-2'
+            ElementID = 'divAudioAdjustmentsLabel'
+            WidthStyle = ssPercent
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object labelAudioAdjustments: TWebLabel
+              Left = 30
+              Top = 2
+              Width = 300
+              Height = 36
+              AutoSize = False
+              Caption = 'Adjustments'
+              ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+              ElementID = 'labelAudioAdjustments'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssPercent
+              WidthPercent = 80.000000000000000000
+            end
+            object btnAudioReset: TWebButton
+              Left = 311
+              Top = 0
+              Width = 80
+              Height = 40
+              Caption = 'Reset'
+              ChildOrder = 4
+              ElementClassName = 'BtnReset text-black me-3'
+              ElementID = 'btnAudioReset'
+              ElementFont = efCSS
+              ElementPosition = epIgnore
+              HeightStyle = ssAuto
+              HeightPercent = 100.000000000000000000
+              WidthStyle = ssAuto
+              WidthPercent = 100.000000000000000000
+              OnClick = btnAudioResetClick
+            end
+          end
+          object divAudioWaveformHolder: TWebHTMLDiv
+            Left = 16
+            Top = 46
+            Width = 529
+            Height = 73
+            Cursor = crHandPoint
+            ElementClassName = 'nointeract HexOuter WhiteR w-100 '
+            ElementID = 'divAudioWaveformHolder'
+            WidthStyle = ssPercent
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            OnClick = divAudioWaveformHolderClick
+            object divAudioWaveformContainer: TWebHTMLDiv
+              Left = 22
+              Top = 2
+              Width = 372
+              Height = 72
+              ElementClassName = 'HexTallInner Black pe-none'
+              ElementID = 'divAudioWaveformContainer'
+              WidthStyle = ssPercent
+              ChildOrder = 1
+              ElementFont = efCSS
+              Role = ''
+              object divAudioWaveform: TWebHTMLDiv
+                Left = 25
+                Top = 2
+                Width = 112
+                Height = 68
+                ElementClassName = 'pe-none'
+                ElementID = 'divAudioWaveform'
+                WidthStyle = ssPercent
+                ChildOrder = 1
+                ElementPosition = epRelative
+                ElementFont = efCSS
+                Role = ''
+              end
+              object divAudioStart: TWebHTMLDiv
+                Left = 143
+                Top = -4
+                Width = 112
+                Height = 70
+                ElementClassName = 'pe-none'
+                ElementID = 'divAudioStart'
+                WidthStyle = ssPercent
+                ChildOrder = 1
+                ElementPosition = epIgnore
+                ElementFont = efCSS
+                Role = ''
+              end
+              object divAudioEnd: TWebHTMLDiv
+                Left = 257
+                Top = -4
+                Width = 112
+                Height = 70
+                ElementClassName = 'pe-none'
+                ElementID = 'divAudioEnd'
+                WidthStyle = ssPercent
+                ChildOrder = 1
+                ElementPosition = epIgnore
+                ElementFont = efCSS
+                Role = ''
+              end
+            end
+          end
+          object divAudioParams: TWebHTMLDiv
+            Left = 16
+            Top = 121
+            Width = 369
+            Height = 29
+            ElementClassName = 'mb-2 nointeract d-flex gap-2 flex-column'
+            ElementID = 'divAudioParams'
+            HeightStyle = ssAuto
+            WidthStyle = ssPercent
+            ChildOrder = 4
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            HTML.Strings = (
+              '<div id="divGain" style="position:relative;">'
+              '  <slX-range '
+              '      id="SliderGain" '
+              '      value="100"'
+              '      max="200"'
+              '      class="RGB HexSliderH" '
+              '      tooltip="none" '
+              
+                '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
+                'olor-active:purple; --track-color-inactive: black;"'
+              '    > '
+              '  </slX-range>'
+              
+                '  <div id="ThumbGain" class="HexSliderThumb VioletW pe-none d-fl' +
+                'ex justify-content-center align-items-center"></div>'
+              
+                '  <div id="BorderGain" class="HexOuter VioletR pe-none" style="p' +
+                'osition:absolute; top:2px; height:40px; width: 100%;"></div>'
+              '</div>'
+              ''
+              '<div id="divTrimStart" style="position:relative;">'
+              '  <slX-range '
+              '      id="SliderStart" '
+              '      value="0"'
+              '      max="100"'
+              '      class="RGB HexSliderH" '
+              '      tooltip="none" '
+              
+                '      style="--track-height: 36px; --thumb-size: 33px; --track-c' +
+                'olor-active:purple; --track-color-inactive: black;"'
+              '    > '
+              '  </slX-range>'
+              
+                '  <div id="ThumbStart" class="HexSliderThumb VioletW pe-none d-f' +
+                'lex justify-content-center align-items-center"></div>'
+              
+                '  <div id="BorderStart" class="HexOuter VioletR pe-none" style="' +
+                'position:absolute; top:2px; height:40px; width: 100%;"></div>'
+              '</div>'
+              ''
+              '<div id="divTrimEnd" style="position:relative;">'
+              '  <slX-range '
+              '      id="SliderEnd" '
+              '      value="0"'
+              '      max="100"'
+              '      class="RGB HexSliderH" '
+              '      tooltip="none" '
+              
+                '      style="transform: rotate(180deg); --track-height: 36px; --' +
+                'thumb-size: 33px; --track-color-active:purple; --track-color-ina' +
+                'ctive: black;"'
+              '    > '
+              '  </slX-range>'
+              
+                '  <div id="ThumbEnd" class="HexSliderThumb VioletW pe-none d-fle' +
+                'x justify-content-center align-items-center"></div>'
+              
+                '  <div id="BorderEnd" class="HexOuter VioletR pe-none" style="po' +
+                'sition:absolute; top:2px; height:40px; width: 100%;"></div>'
+              '</div>')
+            Role = ''
+          end
+        end
+        object divAudioRecording: TWebHTMLDiv
+          Left = 19
+          Top = 242
+          Width = 548
+          Height = 88
+          ElementClassName = 'order-4'
+          ElementID = 'divAudioAdjustments'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          Visible = False
+          object divAudioRecordingLabel: TWebHTMLDiv
+            Left = 16
+            Top = 3
+            Width = 400
+            Height = 40
+            ElementClassName = 'HexOuter VioletR w-100 mt-2'
+            ElementID = 'divAudioRecordingLabel'
+            WidthStyle = ssPercent
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object labelAudioRecording: TWebLabel
+              Left = 30
+              Top = 1
+              Width = 300
+              Height = 36
+              AutoSize = False
+              Caption = 'Record Audio'
+              ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+              ElementID = 'labelAudioRecording'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssPercent
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object WebCamera1: TWebCamera
+            Left = 314
+            Top = 44
+            Width = 154
+            Height = 40
+            HeightStyle = ssAuto
+            WidthStyle = ssAuto
+          end
+          object divAudioControls: TWebHTMLDiv
+            Left = 16
+            Top = 44
+            Width = 292
+            Height = 40
+            ElementClassName = 'order-1 HexHolder d-flex flex-row gap-1 w-100 flex-wrap'
+            ElementID = 'divAudioControls'
+            WidthStyle = ssPercent
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object divAudioRecordStart: TWebHTMLDiv
+              Left = 3
+              Top = 0
+              Width = 90
+              Height = 40
+              Cursor = crHandPoint
+              ElementClassName = 'order-0 HexBtnOuter WhiteR nointeract'
+              ElementID = 'divAudioRecordStart'
+              ElementPosition = epRelative
+              ElementFont = efCSS
+              Role = ''
+              OnClick = divAudioRecordStartClick
+              object labelAudioRecordStart: TWebLabel
+                Left = 26
+                Top = 2
+                Width = 100
+                Height = 36
+                AutoSize = False
+                Caption = 'Start'
+                ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+                ElementID = 'labelAudioRecordStart'
+                ElementFont = efCSS
+                HeightPercent = 100.000000000000000000
+                HTMLType = tSPAN
+                Layout = tlCenter
+                WidthStyle = ssAuto
+                WidthPercent = 80.000000000000000000
+              end
+            end
+            object divAudioRecordStop: TWebHTMLDiv
+              Left = 125
+              Top = 0
+              Width = 82
+              Height = 40
+              Cursor = crHandPoint
+              ElementClassName = 'order-1 HexBtnOuter RedR nointeract'
+              ElementID = 'divAudioRecordStop'
+              ChildOrder = 1
+              ElementPosition = epRelative
+              ElementFont = efCSS
+              Role = ''
+              Visible = False
+              OnClick = divAudioRecordStopClick
+              object labelAudioRecordStop: TWebLabel
+                Left = 26
+                Top = 3
+                Width = 100
+                Height = 36
+                AutoSize = False
+                Caption = 'Stop'
+                ChildOrder = 1
+                ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+                ElementID = 'labelAudioRecordStop'
+                ElementFont = efCSS
+                HeightPercent = 100.000000000000000000
+                HTMLType = tSPAN
+                Layout = tlCenter
+                WidthStyle = ssAuto
+                WidthPercent = 82.000000000000000000
+              end
+            end
+          end
+        end
+        object divAudioSets: TWebHTMLDiv
+          Left = 19
+          Top = 343
+          Width = 548
+          Height = 95
+          ElementClassName = 'order-3'
+          ElementID = 'divAudioSets'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 3
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          Visible = False
+          object divAudioSetsLabel: TWebHTMLDiv
+            Left = 16
+            Top = 3
+            Width = 400
+            Height = 40
+            ElementClassName = 'HexOuter VioletR w-100 mt-2'
+            ElementID = 'divAudioSetsLabel'
+            WidthStyle = ssPercent
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object labelAudioSets: TWebLabel
+              Left = 30
+              Top = 2
+              Width = 300
+              Height = 36
+              AutoSize = False
+              Caption = 'Select HexaGongs'
+              ElementClassName = 'Title HexInner VioletL ps-3 pt-1'
+              ElementID = 'labelAudioSets'
+              ElementFont = efCSS
+              HeightPercent = 100.000000000000000000
+              HTMLType = tSPAN
+              Layout = tlCenter
+              WidthStyle = ssPercent
+              WidthPercent = 80.000000000000000000
+            end
+          end
+          object divAudioSetsTableHolder: TWebHTMLDiv
+            Left = 16
+            Top = 44
+            Width = 529
+            Height = 45
+            ElementClassName = 'nointeract HexOuter WhiteR w-100 mb-2'
+            ElementID = 'divAudioSetsTableHolder'
+            HeightStyle = ssAuto
+            WidthStyle = ssAuto
+            ChildOrder = 2
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object divAudioSetsTable: TWebHTMLDiv
+              Left = 13
+              Top = 3
+              Width = 473
+              Height = 38
+              ElementClassName = 'HexTallInner bg-black Black'
+              ElementID = 'divAudioSetsTable'
+              HeightStyle = ssAuto
+              WidthStyle = ssPercent
+              ChildOrder = 1
+              ElementPosition = epRelative
+              ElementFont = efCSS
+              Role = ''
+            end
           end
         end
       end
@@ -1995,6 +2666,7 @@ object Form1: TForm1
           Width = 569
           Height = 40
           ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 w-100 flex-wrap'
+          WidthStyle = ssPercent
           ChildOrder = 3
           ElementPosition = epRelative
           ElementFont = efCSS
@@ -2007,8 +2679,6 @@ object Form1: TForm1
             Cursor = crHandPoint
             ElementClassName = 'HexBtnOuter WhiteR nointeract'
             ElementID = 'divProxyDefault'
-            HeightStyle = ssAuto
-            WidthStyle = ssAuto
             ElementPosition = epRelative
             ElementFont = efCSS
             Role = ''
@@ -2023,7 +2693,6 @@ object Form1: TForm1
               ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
               ElementID = 'labelProxyDefault'
               ElementFont = efCSS
-              HeightStyle = ssAuto
               HeightPercent = 100.000000000000000000
               HTMLType = tSPAN
               Layout = tlCenter
@@ -2038,8 +2707,6 @@ object Form1: TForm1
             Cursor = crHandPoint
             ElementClassName = 'HexBtnOuter WhiteR nointeract'
             ElementID = 'divProxyCustom'
-            HeightStyle = ssAuto
-            WidthStyle = ssAuto
             ChildOrder = 2
             ElementPosition = epRelative
             ElementFont = efCSS
@@ -2055,7 +2722,6 @@ object Form1: TForm1
               ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
               ElementID = 'labelProxyCustom'
               ElementFont = efCSS
-              HeightStyle = ssAuto
               HeightPercent = 100.000000000000000000
               HTMLType = tSPAN
               Layout = tlCenter
@@ -2070,8 +2736,6 @@ object Form1: TForm1
             Cursor = crHandPoint
             ElementClassName = 'HexBtnOuter WhiteR nointeract'
             ElementID = 'divProxyNone'
-            HeightStyle = ssAuto
-            WidthStyle = ssAuto
             ChildOrder = 1
             ElementPosition = epRelative
             ElementFont = efCSS
@@ -2087,7 +2751,6 @@ object Form1: TForm1
               ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
               ElementID = 'labelProxyNone'
               ElementFont = efCSS
-              HeightStyle = ssAuto
               HeightPercent = 100.000000000000000000
               HTMLType = tSPAN
               Layout = tlCenter
@@ -2101,7 +2764,6 @@ object Form1: TForm1
             Height = 40
             ElementClassName = 'nointeract HexBtnOuter WhiteR flex-grow-1'
             ElementID = 'divProxy'
-            HeightStyle = ssAuto
             WidthStyle = ssAuto
             ChildOrder = 3
             ElementPosition = epRelative
@@ -2115,8 +2777,6 @@ object Form1: TForm1
               ElementClassName = 'EditText HexInner Black ps-3 '
               ElementID = 'editProxy'
               ElementFont = efCSS
-              ElementPosition = epIgnore
-              HeightStyle = ssAuto
               HeightPercent = 100.000000000000000000
               WidthStyle = ssPercent
               WidthPercent = 100.000000000000000000
@@ -2162,8 +2822,22 @@ object Form1: TForm1
     Top = 48
   end
   object WebOpenDialog1: TWebOpenDialog
+    OnGetFileAsText = WebOpenDialog1GetFileAsText
     OnGetFileAsBase64 = WebOpenDialog1GetFileAsBase64
+    OnGetFileAsArrayBuffer = WebOpenDialog1GetFileAsArrayBuffer
+    Left = 80
+    Top = 96
+  end
+  object WebHttpRequest1: TWebHttpRequest
     Left = 88
-    Top = 88
+    Top = 48
+  end
+  object WebMediaCapture1: TWebMediaCapture
+    Capture = mctAudio
+    Camera = WebCamera1
+    SmoothingTimeConstant = 0.900000000000000000
+    OnStopCapture = WebMediaCapture1StopCapture
+    Left = 40
+    Top = 95
   end
 end

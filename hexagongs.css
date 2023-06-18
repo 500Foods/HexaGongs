@@ -2,6 +2,12 @@ html,body {
   overflow: hidden;
   background-color: black;
   font-family: Cairo;
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 
@@ -29,7 +35,7 @@ html,body {
   height: 100%;
 }
 .simplebar-track {
-  cursor:s-resize !important;
+  cursor: ns-resize !important;
   background: radial-gradient(maroon,yellow);
   opacity: 0.5;
   width: 32px !important;
@@ -43,7 +49,7 @@ html,body {
   clip-path: polygon(0px 20px, 10px 2px, calc(100% - 10px) 2px, 100% 20px, 100% calc(100% - 20px), calc(100% - 10px) calc(100% - 2px), 10px calc(100% - 2px), 0% calc(100% - 20px));
 }
 .simplebar-scrollbar {
-    min-height: 60px;
+  min-height: 60px;
 }
 
 #pageName .simplebar-track { background: radial-gradient(maroon,yellow); }
@@ -147,6 +153,7 @@ html,body {
   z-index: 5;
   color: white !important;
   visiblity: hidden;
+  font-family: Cairo;
 }
 .MainButton:hover {
   opacity: 1;
@@ -166,6 +173,19 @@ html,body {
 }
 .Button:hover {
   opacity: 1 !important;
+}
+.BtnReset {
+  position: absolute;
+  background: none;
+  color: silver !important;
+  font-weight: bold;
+  text-decoration: none;
+  border: none;
+  width: 60px !important;
+  height: 36px !important;
+  top: 1px;
+  right: 0px;
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
 }
 
 .CursorButton {
@@ -228,7 +248,7 @@ pointer-events: none;
 
 #divOptions {
   position: absolute;
-  width: 38%;
+  width: 50%;
   height: 85%;
   left: 50%;
   top: 50%;
@@ -324,6 +344,7 @@ pointer-events: none;
   bottom: 0px;
   background: transparent;
   overflow: auto !important;
+  overflow-x: hidden !important;
   opacity: 0;
   transition: opacity 200ms;
 }
@@ -356,10 +377,14 @@ pointer-events: none;
 
 .Title > span,
 .Title > label {
-  display: unset !important;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
   color: white;
   font-weight: bold;
   filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
+  display: block !important;
+  margin-top: 1px;
 }
 .EditText {
   color: white;
@@ -456,8 +481,17 @@ pointer-events: none;
 }
 .RGB::part(input) {
   cursor: pointer;
-  background-image: linear-gradient(
-      to right,
+  --track-active-offset: 0%;
+  --sl-color-primary-100: transparent;
+  --sl-color-primary-200: transparent;
+  --sl-color-primary-300: transparent;
+  --sl-color-primary-400: transparent;
+  --sl-color-primary-500: transparent;
+  --sl-color-primary-600: transparent;
+  --sl-color-primary-700: transparent;
+  --sl-color-primary-800: transparent;
+  --sl-color-primary-900: transparent;
+  background-image: linear-gradient(to right,
       var(--track-color-inactive) 0%,
       var(--track-color-inactive) min(var(--percent), var(--track-active-offset)),
       var(--track-color-inactive) min(var(--percent), var(--track-active-offset)),
@@ -539,13 +573,13 @@ pointer-events: none;
 #divImageFG {
   background: orange;
   clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%, 25% 5%,
-                      calc( 25% + 1px) calc(5% + 1px),
-                      calc(  0% + 1px) 50%,
-                      calc( 25% + 1px) calc(95% - 1px),
-                      calc( 75% - 1px) calc(95% - 1px),
-                      calc(100% - 1px) 50%,
-                      calc( 75% - 1px) calc(5% + 1px),
-                      calc( 25% + 1px) calc(5% + 1px));
+                      calc( 25% + 3px) calc(5% + 3px),
+                      calc(  0% + 4px) 50%,
+                      calc( 25% + 3px) calc(95% - 3px),
+                      calc( 75% - 3px) calc(95% - 3px),
+                      calc(100% - 4px) 50%,
+                      calc( 75% - 3px) calc(5% + 3px),
+                      calc( 25% + 3px) calc(5% + 3px));
   z-index: 1;
 }
 #divImagePreview {
@@ -556,6 +590,62 @@ pointer-events: none;
 }
 
 
+/* Audio Clip (Tabulator) Table */
+#divAudioSetsTableHolder,
+#divAudioClipTableHolder {
+  min-height: 62px;
+  overflow: hidden !important;
+  padding-bottom: 4px;
+  padding-top: 1px;
+}
+#divAudioSetsTable,
+#divAudioClipTable {
+  background-color: black !important;
+  padding-bottom: 0px;
+  padding-top: 4px;
+  min-height: 54px;
+}
+
+.PlayClip > div {
+  background: violet;
+  color: white;
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
+}
+.PlayClip > div:hover {
+  background: purple;
+  color: silver;
+}
+.PlayClip.Playing > div {
+  background: violet;
+  color: white;
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  filter: drop-shadow(0px 0px 1px black) drop-shadow(0px 0px 1px black);
+}
+.PlayClip.Playing > div:hover {
+  color: silver;
+}
+
+.tabulator-table {
+  background-color: black !important;
+  overflow: hidden !important;
+}
+.tabulator-tableholder,
+.tabulator-holder,
+.tabulator-row,
+.tabulator-row-even,
+.tabulator {
+  background-color: black !important;
+  color: silver;
+  overflow: hidden !important;
+}
+.tabulator-cell {
+  border: none !important;
+}
+.tabulator-selected {
+  background-color: deeppink !important;
+  color: white !important;
+}
 
 /* COLORS */
 
@@ -608,5 +698,8 @@ pointer-events: none;
 .OrangeW      { background: linear-gradient(60deg,#000000,orange,    #000000); }
 .GreenW       { background: linear-gradient(60deg,#000000,darkgreen, #000000); }
 .BlueW        { background: linear-gradient(60deg,#000000,blue,      #000000); }
+.RoaylBlueW   { background: linear-gradient(60deg,#000000,royalblue, #000000); }
+.IndigoW      { background: linear-gradient(60deg,#000000,indigo,    #000000); }
+.VioletW      { background: linear-gradient(60deg,#000000,violet,    #000000); }
 
 
