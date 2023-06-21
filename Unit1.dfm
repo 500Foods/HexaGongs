@@ -1,6 +1,6 @@
 object Form1: TForm1
   Width = 957
-  Height = 822
+  Height = 902
   Caption = 'web'
   Color = clBlack
   CSSLibrary = cssBootstrap
@@ -12,11 +12,12 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 957
-    Height = 822
+    Height = 902
     ElementID = 'divBackground'
     Align = alClient
     ChildOrder = 1
     Role = ''
+    ExplicitHeight = 822
   end
   object divAnimParent: TWebHTMLDiv
     Left = 0
@@ -274,7 +275,7 @@ object Form1: TForm1
     Left = 8
     Top = 175
     Width = 941
-    Height = 634
+    Height = 706
     ElementClassName = 'resize-drag'
     ElementID = 'divOptions'
     HeightStyle = ssAuto
@@ -432,7 +433,7 @@ object Form1: TForm1
       Left = 339
       Top = 0
       Width = 607
-      Height = 633
+      Height = 681
       ElementClassName = 'nointeract'
       ElementID = 'pageControl'
       HeightStyle = ssAuto
@@ -442,14 +443,14 @@ object Form1: TForm1
       ElementTabActiveClassName = 'nav-link active'
       ElementTabItemClassName = 'nav-item'
       ElementFont = efCSS
-      TabIndex = 1
+      TabIndex = 3
       ShowTabs = False
       TabOrder = 1
       object pageName: TWebTabSheet
         Left = 0
         Top = 20
         Width = 607
-        Height = 613
+        Height = 661
         ElementClassName = 'Page'
         ElementID = 'pageName'
         HeightStyle = ssAuto
@@ -688,7 +689,7 @@ object Form1: TForm1
         Left = 0
         Top = 20
         Width = 607
-        Height = 613
+        Height = 661
         ElementClassName = 'Page'
         ElementID = 'pageBackground'
         HeightStyle = ssAuto
@@ -1029,7 +1030,7 @@ object Form1: TForm1
         Left = 0
         Top = 20
         Width = 607
-        Height = 613
+        Height = 661
         ElementClassName = 'Page'
         ElementID = 'pageImage'
         HeightStyle = ssAuto
@@ -1768,7 +1769,7 @@ object Form1: TForm1
         Left = 0
         Top = 20
         Width = 607
-        Height = 613
+        Height = 661
         ElementClassName = 'Page'
         ElementID = 'pageAudio'
         HeightStyle = ssAuto
@@ -2069,7 +2070,7 @@ object Form1: TForm1
         end
         object divAudioAdjustments: TWebHTMLDiv
           Left = 19
-          Top = 458
+          Top = 492
           Width = 548
           Height = 155
           ElementClassName = 'order-5'
@@ -2396,7 +2397,7 @@ object Form1: TForm1
           Left = 19
           Top = 343
           Width = 548
-          Height = 95
+          Height = 143
           ElementClassName = 'order-3'
           ElementID = 'divAudioSets'
           HeightStyle = ssAuto
@@ -2436,7 +2437,7 @@ object Form1: TForm1
           end
           object divAudioSetsTableHolder: TWebHTMLDiv
             Left = 16
-            Top = 44
+            Top = 95
             Width = 529
             Height = 45
             ElementClassName = 'nointeract HexOuter WhiteR w-100 mb-2'
@@ -2462,13 +2463,86 @@ object Form1: TForm1
               Role = ''
             end
           end
+          object divSetStyle: TWebHTMLDiv
+            Left = 16
+            Top = 49
+            Width = 401
+            Height = 40
+            ElementClassName = 'HexHolder d-flex flex-row gap-1 flex-wrap'
+            ElementID = 'divSetStyle'
+            WidthStyle = ssPercent
+            ChildOrder = 1
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            Role = ''
+            object divSeries: TWebHTMLDiv
+              Left = 16
+              Top = 0
+              Width = 95
+              Height = 40
+              Cursor = crHandPoint
+              ElementClassName = 'HexBtnOuter WhiteR nointeract'
+              ElementID = 'divSeries'
+              ElementPosition = epRelative
+              ElementFont = efCSS
+              Role = ''
+              OnClick = divSeriesClick
+              object labelSeries: TWebLabel
+                Left = 26
+                Top = 2
+                Width = 100
+                Height = 36
+                AutoSize = False
+                Caption = 'Series'
+                ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+                ElementID = 'labelSeries'
+                ElementFont = efCSS
+                HeightPercent = 100.000000000000000000
+                HTMLType = tSPAN
+                Layout = tlCenter
+                WidthStyle = ssAuto
+                WidthPercent = 80.000000000000000000
+              end
+            end
+            object divParallel: TWebHTMLDiv
+              Left = 136
+              Top = 0
+              Width = 110
+              Height = 40
+              Cursor = crHandPoint
+              ElementClassName = 'HexBtnOuter WhiteR nointeract'
+              ElementID = 'divParallel'
+              ChildOrder = 1
+              ElementPosition = epRelative
+              ElementFont = efCSS
+              Role = ''
+              OnClick = divParallelClick
+              object labelParallel: TWebLabel
+                Left = 12
+                Top = 1
+                Width = 60
+                Height = 36
+                AutoSize = False
+                Caption = 'Parallel'
+                ChildOrder = 1
+                ElementClassName = 'Title HexInner Black ps-3 pt-1 pe-none'
+                ElementID = 'labelParallel'
+                ElementFont = efCSS
+                HeightPercent = 100.000000000000000000
+                HTMLType = tSPAN
+                Layout = tlCenter
+                WidthStyle = ssAuto
+                WidthPercent = 110.000000000000000000
+              end
+            end
+          end
         end
       end
       object pageSettings: TWebTabSheet
         Left = 0
         Top = 20
         Width = 607
-        Height = 613
+        Height = 661
         ElementClassName = 'Page'
         ElementID = 'pageSettings'
         HeightStyle = ssAuto
@@ -2505,18 +2579,19 @@ object Form1: TForm1
             WidthPercent = 80.000000000000000000
           end
         end
-        object WebHTMLDiv21: TWebHTMLDiv
+        object divCORSProxy: TWebHTMLDiv
           Left = 19
           Top = 116
           Width = 400
           Height = 40
           ElementClassName = 'HexOuter GrayR w-100 mt-2'
+          ElementID = 'divCORSProxy'
           WidthStyle = ssPercent
           ChildOrder = 2
           ElementPosition = epRelative
           ElementFont = efCSS
           Role = ''
-          object WebLabel16: TWebLabel
+          object labelCORSProxy: TWebLabel
             Left = 30
             Top = 2
             Width = 300
@@ -2524,6 +2599,7 @@ object Form1: TForm1
             AutoSize = False
             Caption = 'CORS Proxy'
             ElementClassName = 'Title HexInner GrayL ps-3 pt-1'
+            ElementID = 'labelCORSProxy'
             ElementFont = efCSS
             HeightPercent = 100.000000000000000000
             HTMLType = tSPAN
@@ -2660,12 +2736,13 @@ object Form1: TForm1
             end
           end
         end
-        object WebHTMLDiv28: TWebHTMLDiv
+        object divProxyHolder: TWebHTMLDiv
           Left = 19
           Top = 160
           Width = 569
           Height = 40
           ElementClassName = 'HexHolder d-flex flex-row gap-1 mb-3 w-100 flex-wrap'
+          ElementID = 'divProxyHolder'
           WidthStyle = ssPercent
           ChildOrder = 3
           ElementPosition = epRelative
@@ -2782,6 +2859,118 @@ object Form1: TForm1
               WidthPercent = 100.000000000000000000
               OnChange = editProxyChange
             end
+          end
+        end
+        object divAboutHexaGongs: TWebHTMLDiv
+          Left = 19
+          Top = 226
+          Width = 400
+          Height = 40
+          ElementClassName = 'HexOuter GrayR w-100 mt-2'
+          ElementID = 'divAboutHexaGongs'
+          WidthStyle = ssPercent
+          ChildOrder = 4
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object labelAboutHexaGongs: TWebLabel
+            Left = 30
+            Top = 2
+            Width = 300
+            Height = 36
+            AutoSize = False
+            Caption = 'About HexaGongs'
+            ElementClassName = 'Title HexInner GrayL ps-3 pt-1'
+            ElementID = 'labelAboutHexaGongs'
+            ElementFont = efCSS
+            HeightPercent = 100.000000000000000000
+            HTMLType = tSPAN
+            Layout = tlCenter
+            WidthStyle = ssPercent
+            WidthPercent = 80.000000000000000000
+          end
+        end
+        object divAboutHexaGongsHolder: TWebHTMLDiv
+          Left = 19
+          Top = 270
+          Width = 399
+          Height = 42
+          ElementClassName = 'nointeract HexOuter WhiteR w-100 mb-2'
+          ElementID = 'divAboutHexaGongsHolder'
+          HeightStyle = ssAuto
+          WidthStyle = ssPercent
+          ChildOrder = 5
+          ElementPosition = epRelative
+          ElementFont = efCSS
+          Role = ''
+          object divAboutHexaGongsContent: TWebHTMLDiv
+            Left = 31
+            Top = 6
+            Width = 338
+            Height = 24
+            ElementClassName = 
+              'p-3 text-white nointeract HexTallInner Black w-100 mb-1 text-wra' +
+              'p'
+            ElementID = 'divAboutHexaGongsContent'
+            HeightStyle = ssAuto
+            WidthStyle = ssPercent
+            ChildOrder = 7
+            ElementPosition = epRelative
+            ElementFont = efCSS
+            HTML.Strings = (
+              '<p>'
+              
+                '  The HexaGongs project was creaed as part of a blog series on d' +
+                'eveloping bespoke web interfaces using '
+              
+                '  <a style="text-decoration: none; color: gray;" target="_blank"' +
+                ' href="https://www.tmssoftware.com/site/tmswebcore.asp">'
+              '    TMS WEB Core</a>. '
+              '  The first post in that series can be found '
+              
+                '  <a style="text-decoration: none; color: gray;" target="_blank"' +
+                ' href="https://www.tmssoftware.com/site/blog.asp?post=1106">'
+              '    here</a>.  '
+              
+                '  The project also serves as a showcase for other TMS WEB Core c' +
+                'apabilities, '
+              
+                '  such as being able to make use of the Web Audio AP along with ' +
+                'a host of other JavaScript libraries.'
+              '</p>'
+              '<p>'
+              
+                '  More information about the project, including the full source ' +
+                'code, can also be found on '
+              
+                '  <a style="text-decoration: none; color: gray;" target="_blank"' +
+                ' href="https://github.com/500Foods/HexaGongs">'
+              '    GitHub</a>.'
+              
+                'If you find this project interesting, helpful, or useful, please' +
+                ' consider direclty supporting these efforts financially via the ' +
+                'Buy Me a Pizza link below. '
+              '</p>'
+              '<p class="text-center mt-4">'
+              
+                '  <a style="text-decoration: none; color: gray;" target="_blank"' +
+                ' href="mailto:concierge@hexagongs.com">'
+              '    <i class="fa-solid fa-envelope fa-2x pe-3"></i>'
+              '  </a>'
+              
+                '  <a style="text-decoration: none; color: gray;" target="_blank"' +
+                ' href="https://www.buymeacoffee.com/andrewsimard500">'
+              
+                '     <img style="margin-top: -15px;" src="https://www.actorious.' +
+                'com/img/pizza_promo.png" width="45">'
+              '  </a>'
+              
+                '  <a style="text-decoration: none; color: gray;" target="_blank"' +
+                ' href="https://github.com/500Foods/HexaGongs">'
+              '    <i class="fa-brands fa-github fa-2x ps-3 pe-3"></i>'
+              '  </a>'
+              '</p>')
+            Role = ''
           end
         end
       end

@@ -149,8 +149,8 @@ type
     pageSettings: TWebTabSheet;
     divSettingsBGETitle: TWebHTMLDiv;
     labelSettingsBGETitle: TWebLabel;
-    WebHTMLDiv21: TWebHTMLDiv;
-    WebLabel16: TWebLabel;
+    divCORSProxy: TWebHTMLDiv;
+    labelCORSProxy: TWebLabel;
     divSettingsBGEChoices: TWebHTMLDiv;
     divOptionsBGENone: TWebHTMLDiv;
     labelOptionsBGENone: TWebLabel;
@@ -160,7 +160,7 @@ type
     labelOptionsBGETwelve: TWebLabel;
     divOptionsBGEEighteen: TWebHTMLDiv;
     labelOptionsBGEEighteen: TWebLabel;
-    WebHTMLDiv28: TWebHTMLDiv;
+    divProxyHolder: TWebHTMLDiv;
     divProxyDefault: TWebHTMLDiv;
     labelProxyDefault: TWebLabel;
     divProxyCustom: TWebHTMLDiv;
@@ -217,6 +217,15 @@ type
     labelAudioSets: TWebLabel;
     divAudioSetsTableHolder: TWebHTMLDiv;
     divAudioSetsTable: TWebHTMLDiv;
+    divAboutHexaGongs: TWebHTMLDiv;
+    labelAboutHexaGongs: TWebLabel;
+    divAboutHexaGongsHolder: TWebHTMLDiv;
+    divAboutHexaGongsContent: TWebHTMLDiv;
+    divSetStyle: TWebHTMLDiv;
+    divSeries: TWebHTMLDiv;
+    labelSeries: TWebLabel;
+    divParallel: TWebHTMLDiv;
+    labelParallel: TWebLabel;
     procedure GeneratePositions;
     [async] procedure WebFormCreate(Sender: TObject);
     procedure WebFormResize(Sender: TObject);
@@ -297,6 +306,8 @@ type
     procedure btnDownloadClick(Sender: TObject);
     [async] procedure btnUploadClick(Sender: TObject);
     procedure WebOpenDialog1GetFileAsText(Sender: TObject; AFileIndex: Integer; AText: string);
+    procedure divSeriesClick(Sender: TObject);
+    procedure divParallelClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -473,10 +484,11 @@ begin
     this.AppRelease = new luxon.DateTime.fromISO(new Date(document.lastModified).toISOString()).toFormat('yyyy-MMM-dd');
   end;
   AppStarted := Now;
-  Caption := AppProject+' v'+AppVersion;
+  Caption := AppProject + ' v'+AppVersion + '- Welcome to HexaGongs!';
   console.log('App Version: '+AppProject+' v'+AppVersion);
-//  console.log('App Release: '+AppRelease);
-//  console.log('App Started: '+FormatDateTime('yyyy-MMM-dd hh:nn:ss',AppStarted));
+  console.log('App Release: '+AppRelease);
+  console.log('App Started: '+FormatDateTime('yyyy-MMM-dd hh:nn:ss',AppStarted));
+
 
   // Initial Button States
   MainMode := False;
@@ -484,10 +496,12 @@ begin
   ChangeMode := False;
   VolumeMode := False;
 
+
   // Odds and Ends;
   ZoomLevel := 10;
   LastClick := Now - 1;
   pageControl.TabIndex := 0;
+
 
   // CORS Proxy
   OptionsProxyStyle := 0;   // Default: Use HexaGongs proxy
@@ -501,6 +515,8 @@ begin
     this.GongData['HexaGongs Project Title'] = "New Project";
     this.GongData['HexaGongs Project Description'] = 'No Description';
     this.GongData['HexaGongs'] = [];
+    this.GongData['Proxy Type'] = this.OptionsProxyStyle;
+    this.GongData['Proxy URL'] = this.OptionsProxy;
   end;
 
 
@@ -527,10 +543,12 @@ begin
     this.MuteVolume = 0.0;
   end;
 
+
   // Audio Clips Play Array
   asm
     this.AudioClipsPlaying = [];
   end;
+
 
   // Swap DOM positions of divBackground and divOptions so our gradients always work
   asm
@@ -557,6 +575,7 @@ begin
     this.OptionsSettingsScroll   = new SimpleBar(document.getElementById('pageSettings'  ), { forceVisible: 'y', autoHide: false });
   end;
 
+
   // Figure out what our server connection might be - Server_URL is a form variable
   Server_URL := '';
   try
@@ -577,7 +596,10 @@ begin
     Server_URL := 'http://localhost:65432/tms/xdata';
   end;
 
+
+  // Load icon sets, counts
   InitializeXData;
+
 
   // Deal with button clicks that aren't on buttons directly
   asm
@@ -701,6 +723,7 @@ begin
       }
     });
   end;
+
 
   // Configure InteractJS for Drag & Swap functionality
   asm
@@ -910,7 +933,6 @@ begin
       .pointerEvents({
         ignoreFrom: '.nointeract, .simplebar-track'
       });
-
 
     function dragMoveListener (event) {
       var target = event.target
@@ -1244,7 +1266,6 @@ begin
   divImageEditor.Width := 965;
   divImageEditor.Height := 965;
 
-
   // Horizontal
   divAdjWidthHolder.Top := 0;
   divAdjWidthHOlder.Left := 5 + 40 - 4;
@@ -1359,7 +1380,8 @@ begin
     });
   end;
 
-  // Image mouse handling 'natively'
+
+// Image mouse handling 'natively'
 //  asm
 //    // Mousewheel
 //    function imagescroll(e) {
@@ -1375,7 +1397,8 @@ begin
 //    divImagePreview.addEventListener('wheel',function(e) { imagescroll(e) });
 //  end;
 
-  // This loads up our pan/zoom functionality
+
+  // This loads up pan/zoom functionality
   asm
     this.pz = Panzoom(divImage, {
       animate: true,
@@ -1404,6 +1427,7 @@ begin
     });
     divImage.addEventListener('wheel',pas.Unit1.Form1.pz.zoomWithWheel)
   end;
+
 
   // Setup Tabulator for Audio Clips table
   asm
@@ -1455,6 +1479,7 @@ begin
     });
   end;
 
+
   // Setup Tabulator for Audio Sets table
   asm
     this.tabAudioSets =  new Tabulator("#divAudioSetsTable", {
@@ -1469,8 +1494,8 @@ begin
         resizable: false
       },
       initialSort: [
-        {column:"Sort", dir:"asc"},
-        {column:"Name", dir:"asc"}
+        {column:"Name", dir:"asc"},
+        {column:"Sort", dir:"asc"}
       ],
       columns: [
         { title: "ID", field: "ID", visible: false },
@@ -1488,7 +1513,7 @@ begin
             cell.setValue(!cell.getValue());
           },
         },
-        { title: "Sort", field: "Sort", width: 30, minWidth:30, formatter: "handle" },
+        { title: "Sort", field: "Sort", width: 30, minWidth:30, formatter: "handle", sorter: "number" },
         { title: "Name", field: "Name" },
         { title: "Length", field: "Length", width: 60, hozAlign: "right", formatter:"html" },
         { title: "PlayTime", field: "PlayTime", visible: false }
@@ -1498,6 +1523,7 @@ begin
       pas.Unit1.Form1.tabAudioSets.selectRow(row);
     });
   end;
+
 
   // Audio Parameter Sliders
   asm
@@ -1515,6 +1541,8 @@ begin
       pas.Unit1.Form1.UpdateAudioParams();
     });
   end;
+
+
 end;
 
 procedure TForm1.WebFormResize(Sender: TObject);
@@ -1678,10 +1706,12 @@ var
   GongHTML: String;
   GongCount: Integer;
   GongDeleted: Boolean;
+  AppTitle: String;
 begin
   GongCount := 0;
   GongHTML := '';
-  
+  AppTitle := '';
+
   asm
     function base64ToArrayBuffer(base64) {
       var binary_string =  window.atob(base64);
@@ -1714,7 +1744,9 @@ begin
       }
 
       GongCount = This.GongData['HexaGongs'].length;
+      AppTitle = This.GongData['HexaGongs Project Title'];
     }
+
   end;
 
   setLength(Gongs, GongCount);
@@ -1788,7 +1820,7 @@ begin
       then Gongs[i].ElementHandle.style.setProperty('background',OptionsBGColor1)
       else
       begin
-        Gongs[GongID].ElementHandle.style.cssText := OptionsBGCustom;
+        Gongs[i].ElementHandle.style.cssText := OptionsBGCustom;
       end;
 
       // Update UI element - Audio
@@ -1814,7 +1846,9 @@ begin
   end;
     
   // Force a complete refresh
-  
+
+  Caption := AppProject + ' v'+AppVersion + ' - ' + Trim(AppTitle);
+
   btnMainClick(nil);
   StopAnimation;
   GeneratePositions;
@@ -2383,13 +2417,25 @@ begin
       this.OptionsAudioStart = this.GongData['HexaGongs'][this.GongID]['Audio Start'];
       this.OptionsAudioEnd = this.GongData['HexaGongs'][this.GongID]['Audio End'];
       this.OptionsAudioSets = this.GongData['HexaGongs'][this.GongID]['Audio Sets'];
+      this.OptionsAudioSetStyle = this.GongData['HexaGongs'][this.GongID]['Audio Set Style'];
       labelAudioAdjustments.firstElementChild.textContent = 'Adjustments [ '+this.OptionsAudioTime.toFixed(1)+'s ]';
     end;
+
+    // Don't show any of these until we have to
+    divAudioRecording.Visible := False;
+    divAudioClips.Visible := False;
+    divAudioSets.Visible := False;
+    divAudioAdjustments.Visible := False;
+
     if OptionsAudioStyle = 0 then divAudioClipClick(Sender);
     if OptionsAudioStyle = 1 then divAudioURLClick(Sender);
     if OptionsAudioStyle = 2 then divAudioUploadClick(Sender);
     if OptionsAudioStyle = 3 then divAudioRecordClick(Sender);
     if OptionsAudioStyle = 4 then divAudioSetClick(Sender);
+
+    if OptionsAudioSetStyle = 0 then divSeriesClick(Sender);
+    if OptionsAudioSetStyle = 1 then divParallelClick(Sender);
+
     editAudioSource.Text := OptionsAudioFile;
 
     asm
@@ -2401,7 +2447,7 @@ begin
             this.OptionsAudioSetsData.push({
               "ID": i,
               "Selected": false,
-              "Sort": -1,
+              "Sort": 999,
               "Name": this.GongData['HexaGongs'][i]['Name'],
               "Length": '<div style="padding-right: 8px;">'+this.GongData['HexaGongs'][i]['Audio Time'].toFixed(1)+'s'+'</div>',
               "PlayTime": parseFloat(this.GongData['HexaGongs'][i]['Audio Time'])
@@ -2423,7 +2469,6 @@ begin
 
       this.tabAudioSets.setData(this.OptionsAudioSetsData);
       this.tabAudioSets.setSort([
-        {column:"Name", dir:"asc"},
         {column:"Sort", dir:"asc"}
       ]);
     end;
@@ -2442,6 +2487,10 @@ begin
     then labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)')
     else labelOptionsBGEEighteen.ElementHandle.style.setProperty('background','radial-gradient(#00000000,black)');
 
+    asm
+      this.OptionsProxyStyle = this.GongData['Proxy Type'];
+      this.OptionsProxy = this.GongData['Proxy URL'];
+    end;
     editProxy.Text := OptionsProxy;
     if OptionsProxyStyle = 0 then divProxyDefaultClick(Sender)
     else if OptionsProxyStyle  = 1 then divProxyNoneClick(Sender)
@@ -2665,6 +2714,7 @@ begin
   pageControl.TabIndex := 3;
   UpdateOptionsCursor;
   UpdateAudioParams;
+
   pageAudio.ElementHandle.style.setProperty('opacity','1');
 
   // Select current audioclip
@@ -2802,6 +2852,9 @@ begin
   asm
     this.GongData['HexaGongs Project Title'] = this.editTitle.GetText();
     this.GongData['HexaGongs Project Description'] = this.memoProjDesc.GetText();
+    this.GongData['Proxy Type'] = this.OptionsProxyStyle;
+    this.GongData['Proxy URL'] = this.OptionsProxy;
+
     this.GongData['HexaGongs'][this.GongID]['Name'] = this.editHexName.GetText();
     this.GongData['HexaGongs'][this.GongID]['Description'] = this.memoHexDesc.GetText();
 
@@ -2904,6 +2957,10 @@ begin
 
   OptionsDiscardGong := False;
   btnOptionsCancelClick(Sender);
+
+  // Update page caption
+  Caption := AppProject + ' v'+AppVersion + ' - ' + Trim(editTitle.Text);
+
 end;
 
 procedure TForm1.btnOptionsSettingsClick(Sender: TObject);
@@ -3814,6 +3871,13 @@ begin
 
 end;
 
+procedure TForm1.divParallelClick(Sender: TObject);
+begin
+  labelParallel.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelSeries.ElementHandle.style.setProperty('background','black');
+  OptionsAudioSetStyle := 1;
+end;
+
 procedure TForm1.divProxyCustomClick(Sender: TObject);
 begin
   OptionsProxyStyle := 2;
@@ -3839,6 +3903,13 @@ begin
   labelProxyDefault.ElementHandle.style.setProperty('background','black');
   labelProxyNone.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
   labelProxyCustom.ElementHandle.style.setProperty('background','black');
+end;
+
+procedure TForm1.divSeriesClick(Sender: TObject);
+begin
+  labelSeries.ElementHandle.style.setProperty('background','radial-gradient(#00000000,white)');
+  labelParallel.ElementHandle.style.setProperty('background','black');
+  OptionsAudioSetStyle := 0;
 end;
 
 procedure TForm1.DrawBackground;
@@ -3949,14 +4020,17 @@ begin
   then document.getElementById('BG-'+btnCursor.ElementHandle.getAttribute('position')).appendChild(btnCursor.ElementHandle);
 
   I := 0;
-  while I < min(Length(Gongs), Length(PositionsG)) do
+  while I < min(Length(Gongs), Length(GongsP)) do
   begin
-    if Gongs[I] <> nil  then
+    if GongsP[I] <> -1 then
     begin
-      Gongs[I].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
-      Gongs[I].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
-      Gongs[I].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
-      document.GetElementById('BG-'+IntToStr(GongsP[I])).appendChild(Gongs[I].ElementHandle);
+      if Gongs[I] <> nil  then
+      begin
+        Gongs[I].ElementHandle.style.setProperty('font-size',IntToStr(Trunc(HexRadius))+'px');
+        Gongs[I].ElementHandle.style.setProperty('width',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
+        Gongs[I].ElementHandle.style.setProperty('height',FloatToStrF(HexRadius * 2,ffGeneral,10,5)+'px');
+        document.GetElementById('BG-'+IntToStr(GongsP[I])).appendChild(Gongs[I].ElementHandle);
+      end;
     end;
     I := I + 1;
   end;
