@@ -130,7 +130,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <TMSVersionAuto>2</TMSVersionAuto>
-        <TMSVersion>1.0.117</TMSVersion>
+        <TMSVersion>1.0.119</TMSVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
