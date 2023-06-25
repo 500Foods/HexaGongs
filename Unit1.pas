@@ -476,6 +476,11 @@ var
   ConfigData: TJSONObject;
   ConfigURL: String;
 begin
+  // We use FloatToStrF to generate numbers.  This is probably not a good idea.
+  // One reason is that it formats numbers using locale information, which is not
+  // really why we're doing that - so here we can set the decimal separator,
+  // which means that the locale won't work if we use it for presentation of some kind.
+  FormatSettings.DecimalSeparator := '.';
 
   // Initialization
   asm
@@ -574,6 +579,7 @@ begin
     this.OptionsAudioScroll      = new SimpleBar(document.getElementById('pageAudio'     ), { forceVisible: 'y', autoHide: false });
     this.OptionsSettingsScroll   = new SimpleBar(document.getElementById('pageSettings'  ), { forceVisible: 'y', autoHide: false });
   end;
+
 
 
   // Figure out what our server connection might be - Server_URL is a form variable
@@ -723,6 +729,7 @@ begin
       }
     });
   end;
+
 
 
   // Configure InteractJS for Drag & Swap functionality
@@ -1523,6 +1530,7 @@ begin
       pas.Unit1.Form1.tabAudioSets.selectRow(row);
     });
   end;
+
 
 
   // Audio Parameter Sliders

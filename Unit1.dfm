@@ -17,7 +17,6 @@ object Form1: TForm1
     Align = alClient
     ChildOrder = 1
     Role = ''
-    ExplicitHeight = 822
   end
   object divAnimParent: TWebHTMLDiv
     Left = 0
@@ -443,7 +442,7 @@ object Form1: TForm1
       ElementTabActiveClassName = 'nav-link active'
       ElementTabItemClassName = 'nav-item'
       ElementFont = efCSS
-      TabIndex = 3
+      TabIndex = 0
       ShowTabs = False
       TabOrder = 1
       object pageName: TWebTabSheet
@@ -3005,7 +3004,6 @@ object Form1: TForm1
     end
   end
   object tmrStartup: TWebTimer
-    Interval = 100
     OnTimer = tmrStartupTimer
     Left = 40
     Top = 48
