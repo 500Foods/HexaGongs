@@ -14,6 +14,22 @@ The result is a fun little app where you can create a custom sound board of sort
 <a href="https://www.hexagongs.com"><img src="https://github.com/500Foods/HexaGongs/blob/main/hexagongs.png" /></a>
 Website: [www.hexagongs.com](https://www.hexagongs.com)
 
+## Key Dependencies
+As with any modern web application, other JavaScript libraries/dependencies have been used in this project. Most of the time, this is handled via a CDN link (usually JSDelivr) in the Project.html file. In some cases, for performance or other reasons, they may be included directly.
+- [TMS WEB Core](https://www.tmssoftware.com/site/tmswebcore.asp) - This is a TMS WEB Core project, after all
+- [Bootstrap](https://getbootstrap.com/) - No introduction needed
+- [Tabulator](https://www.tabulator.info) - Fantastic pure JavaScript web data tables
+- [Font Awesome](https://www.fontawesome.com) - The very best icons
+- [AudioBuffer-ArrayBuffer-Serializer](https://github.com/suzuito/audiobuffer-arraybuffer-serializer) - Useful for moving audio data around
+- [Shoelace](https://shoelace.style/) - Web components, particularly the color picker for lights
+- [InteractJS](https://interactjs.io/) - Dragging and resizing UI elements of all kinds
+- [Simplebar](https://github.com/Grsmto/simplebar) - Used to create the custom hexagonal scrollbars
+- [PanZoom](https://github.com/timmywil/panzoom) - Used for resizing images
+- [D3](https://d3js.org/) - Used here to draw audio waveforms
+- [Luxon](https://moment.github.io/luxon/#/?id=luxon) - Excellent date/time-handling library
+- [FileSaver](https://moment.github.io/luxon/#/?id=luxon) - For downloading HexaGong projects
+- [HackTimer](https://github.com/turuslan/HackTimer) - Addresses timers not firing on inactive browser tabs
+
 ## Repository Information
 [![Count Lines of Code](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml/badge.svg)](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml)
 ```
