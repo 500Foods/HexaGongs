@@ -1,7 +1,7 @@
 # HexaGongs
 This started life as a TMS WEB Core project created for the TMS Software Blog, starting with [this post](https://www.tmssoftware.com/site/blog.asp?post=1106). Some of the topics covered include the following.
 
-1.Customizing UI elements so that they are *all* hexagon-based.
+1. Customizing UI elements so that they are *all* hexagon-based.
 2. Using the Web Audio API to play audio clips coming from user-supplied sources.
 3. Designing a custom color picker.
 4. Designing a custom image picker.
