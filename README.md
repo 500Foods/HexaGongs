@@ -37,15 +37,15 @@ As with any modern web application, other JavaScript libraries/dependencies have
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Delphi Form                      1             54              0           2976
-Pascal                           2            618           1181           2772
+Pascal                           2            642           1204           2886
 CSS                              1             77             27            601
 HTML                             2             17             17             58
+Markdown                         1              6              0             47
 JSON                             1              0              0             30
 JavaScript                       1              3              0             25
 YAML                             2              4              8             15
-Markdown                         1              2              0              7
 -------------------------------------------------------------------------------
-SUM:                            11            775           1233           6484
+SUM:                            11            803           1256           6638
 -------------------------------------------------------------------------------
 ```
 
