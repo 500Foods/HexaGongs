@@ -1,10 +1,18 @@
 # HexaGongs
- TMS WEB Core project demonstrating a number of features from recent TMS Software blog posts, including web audio api, icon pickers, and drag and drop interfaces
+This started life as a TMS WEB Core project created for the TMS Software Blog, starting with [this post](https://www.tmssoftware.com/site/blog.asp?post=1106). Some of the topics covered include the following.
+
+1. Using the Web Audio API in different ways.
+2. Designing a bespoke UI, where virtually everything is hexagon-based (no rounded corners!).
+3. Incorporate content from as many of the other recent blog posts as possible.
+4. Another example of using XData in a TMS WEB Core project (see related [HexaGongsX](https://github.com/500Foods/HexaGongsX) repository).
+
+The result is a fun little app where you can layout a sound board of sorts - add new "hexagong" tiles for each sound clip, and then you can just tap on them to play the sound. Useful for a variety of applications, but intended mostly as a demonstration project.
 
 <a href="https://www.hexagongs.com" target="_blank">
   <img src="https://github.com/500Foods/HexaGongs/blob/main/hexagongs.png" />
 </a>
-Website: [www.hexagongs.com](https://www.hexagongs.com){:target="_blank"}
+
+Website: [www.hexagongs.com](https://www.hexagongs.com)
 
 ## Repository Information
 [![Count Lines of Code](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml/badge.svg)](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml)
