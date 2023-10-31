@@ -12,7 +12,6 @@ This started life as a TMS WEB Core project created for the TMS Software Blog, s
 The result is a fun little app where you can create a custom sound board of sorts - add new "hexagong" tiles for each sound clip, and then you can just tap on them to play the sound. Useful for a variety of applications, but intended mostly as a demonstration project.
 
 <a href="https://www.hexagongs.com"><img src="https://github.com/500Foods/HexaGongs/blob/main/hexagongs.png" /></a>
-
 Website: [www.hexagongs.com](https://www.hexagongs.com)
 
 ## Repository Information
