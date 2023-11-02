@@ -131,8 +131,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <UWP_DelphiLogo44>HexaGongsRooster.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>HexaGongsRooster.png</UWP_DelphiLogo150>
-        <TMSVersion>1.0.143</TMSVersion>
         <Icon_MainIcon>HexaGongsRooster.ico</Icon_MainIcon>
+        <TMSVersion>1.0.144</TMSVersion>
         <TMSVersionAuto>2</TMSVersionAuto>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
@@ -209,13 +209,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="ServiceWorker.js" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="HexaGongsRooster.ico" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="HexaGongsRooster.ico" Configuration="Release" Class="ProjectFile">
+                <DeployFile LocalName="IconResHigh.png" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -245,13 +245,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="IconResLow.png" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="Manifest.json" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Manifest.json" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="IconResLow.png" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
@@ -305,7 +305,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="IconResHigh.png" Configuration="Release" Class="ProjectFile">
+                <DeployFile LocalName="ServiceWorker.js" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
