@@ -35,22 +35,22 @@ While this project is currently under active development, feel free to give it a
 
 ## Repository Information
 [![Count Lines of Code](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml/badge.svg)](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml)
+<!--CLOC-START -->
 ```
+Last Updated at 2023-11-27 01:52:22 UTC
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Delphi Form                      1             54              0           2976
-Pascal                           2            642           1204           2886
-CSS                              1             77             27            601
-HTML                             2             17             17             58
-Markdown                         1              6              0             47
-JSON                             1              0              0             30
-JavaScript                       1              3              0             25
-YAML                             2              4              8             15
+Pascal                           2             48             62            160
+Delphi Form                      1              0              0             39
+Markdown                         1              8              2             39
+YAML                             2             11             13             33
+HTML                             2              7              0             23
 -------------------------------------------------------------------------------
-SUM:                            11            803           1256           6638
+SUM:                             8             74             77            294
 -------------------------------------------------------------------------------
 ```
+<!--CLOC-END-->
 
 ## Sponsor / Donate / Support
 If you find this work interesting, helpful, or valuable, or that it has saved you time, money, or both, please consider directly supporting these efforts financially via [GitHub Sponsors](https://github.com/sponsors/500Foods) or donating via [Buy Me a Pizza](https://www.buymeacoffee.com/andrewsimard500). Also, check out these other [GitHub Repositories](https://github.com/500Foods?tab=repositories&q=&sort=stargazers) that may interest you.
