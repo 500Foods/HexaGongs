@@ -37,7 +37,7 @@ While this project is currently under active development, feel free to give it a
 [![Count Lines of Code](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml/badge.svg)](https://github.com/500Foods/HexaGongs/actions/workflows/main.yml)
 <!--CLOC-START -->
 ```
-Last Updated at 2023-11-27 02:11:54 UTC
+Last Updated at 2023-12-24 05:16:19 UTC
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
@@ -45,12 +45,12 @@ Delphi Form                      1             54              0           2976
 Pascal                           2            642           1204           2886
 CSS                              1             77             27            601
 HTML                             2             21             21             70
-Markdown                         1              7              2             47
+Markdown                         1              8              2             52
 YAML                             2              8             12             33
 JSON                             1              0              0             30
 JavaScript                       1              3              0             25
 -------------------------------------------------------------------------------
-SUM:                            11            812           1266           6668
+SUM:                            11            813           1266           6673
 -------------------------------------------------------------------------------
 ```
 <!--CLOC-END-->
